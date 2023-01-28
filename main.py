@@ -1,4 +1,4 @@
-from standardization.tokens import make_tokens
+from standardization.tokens import make_tokens, most_frequent_tokens
 from standardization.import_csv import import_csv
 
 if __name__ == '__main__':
@@ -13,5 +13,7 @@ if __name__ == '__main__':
     adresse = df.iloc[:, 0]
     
     # create tokens for the 100 first addresses
-    tokens = make_tokens(adresse[0:100])
-    print(tokens)
+    tokens = make_tokens(adresse[0:1000000])
+    # frequent = most_frequent_tokens(tokens, 300)
+    print(tokens[0:500])
+    # print(frequent)
