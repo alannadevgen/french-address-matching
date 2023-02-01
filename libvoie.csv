@@ -1,0 +1,244 @@
+type_voie,type_voie_maj
+abbaye,ABBAYE
+agglomeration,AGGLOMERATION
+aire,AIRE
+aires,AIRES
+allee,ALLEE
+allees,ALLEES
+ancien chemin,ANCIEN CHEMIN
+ancienne route,ANCIENNE ROUTE
+anciennes routes,ANCIENNES ROUTES
+anciens chemins,ANCIENS CHEMINS
+anse,ANSE
+arcade,ARCADE
+arcades,ARCADES
+autoroute,AUTOROUTE
+avenue,AVENUE
+barriere,BARRIERE
+barrieres,BARRIERES
+bas chemin,BAS CHEMIN
+bastide,BASTIDE
+bastion,BASTION
+beguinage,BEGUINAGE
+beguinages,BEGUINAGES
+berge,BERGE
+berges,BERGES
+bois,BOIS
+boucle,BOUCLE
+boulevard,BOULEVARD
+bourg,BOURG
+butte,BUTTE
+cale,CALE
+camp,CAMP
+campagne,CAMPAGNE
+camping,CAMPING
+carre,CARRE
+carreau,CARREAU
+carrefour,CARREFOUR
+carriere,CARRIERE
+carrieres,CARRIERES
+castel,CASTEL
+cavee,CAVEE
+central,CENTRAL
+centre,CENTRE
+centre commercial,CENTRE COMMERCIAL
+chalet,CHALET
+chapelle,CHAPELLE
+charmille,CHARMILLE
+chateau,CHATEAU
+chaussee,CHAUSSEE
+chaussees,CHAUSSEES
+chemin,CHEMIN
+chemin vicinal,CHEMIN VICINAL
+cheminement,CHEMINEMENT
+cheminements,CHEMINEMENTS
+chemins,CHEMINS
+chemins vicinaux,CHEMINS VICINAUX
+chez,CHEZ
+cite,CITE
+cites,CITES
+cloitre,CLOITRE
+clos,CLOS
+col,COL
+colline,COLLINE
+collines,COLLINES
+contour,CONTOUR
+corniche,CORNICHE
+corniches,CORNICHES
+cote,COTE
+coteau,COTEAU
+cottage,COTTAGE
+cottages,COTTAGES
+cour,COUR
+cours,COURS
+darse,DARSE
+degre,DEGRE
+degres,DEGRES
+descente,DESCENTE
+descentes,DESCENTES
+digue,DIGUE
+digues,DIGUES
+domaine,DOMAINE
+domaines,DOMAINES
+ecluse,ECLUSE
+ecluses,ECLUSES
+eglise,EGLISE
+enceinte,ENCEINTE
+enclave,ENCLAVE
+enclos,ENCLOS
+espace,ESPACE
+esplanade,ESPLANADE
+esplanades,ESPLANADES
+etang,ETANG
+faubourg,FAUBOURG
+ferme,FERME
+fermes,FERMES
+fontaine,FONTAINE
+fort,FORT
+forum,FORUM
+fosse,FOSSE
+fosses,FOSSES
+foyer,FOYER
+galerie,GALERIE
+galeries,GALERIES
+gare,GARE
+garenne,GARENNE
+grand boulevard,GRAND BOULEVARD
+grand ensemble,GRAND ENSEMBLE
+grand rue,GRAND RUE
+grande rue,GRANDE RUE
+grandes rues,GRANDES RUES
+grands ensembles,GRANDS ENSEMBLES
+grille,GRILLE
+grimpette,GRIMPETTE
+groupe,GROUPE
+groupement,GROUPEMENT
+groupes,GROUPES
+halle,HALLE
+halles,HALLES
+hameau,HAMEAU
+hameaux,HAMEAUX
+haut chemin,HAUT CHEMIN
+hauts chemins,HAUTS CHEMINS
+hippodrome,HIPPODROME
+ile,ILE
+impasse,IMPASSE
+impasses,IMPASSES
+jardin,JARDIN
+jardins,JARDINS
+jetee,JETEE
+jetees,JETEES
+levee,LEVEE
+lieu,LIEU
+lieu dit,LIEU DIT
+lot, LOT
+lotissement,LOTISSEMENT
+lotissements,LOTISSEMENTS
+mail,MAIL
+maison forestiere,MAISON FORESTIERE
+manoir,MANOIR
+marche,MARCHE
+marches,MARCHES
+mas,MAS
+metro,METRO
+montee,MONTEE
+montees,MONTEES
+moulin,MOULIN
+moulins,MOULINS
+musee,MUSEE
+nouvelle route,NOUVELLE ROUTE
+palais,PALAIS
+parc,PARC
+parcs,PARCS
+parking,PARKING
+parvis,PARVIS
+passage,PASSAGE
+passage a niveau,PASSAGE A NIVEAU
+passe,PASSE
+passerelle,PASSERELLE
+passerelles,PASSERELLES
+passes,PASSES
+patio,PATIO
+pavillon,PAVILLON
+pavillons,PAVILLONS
+peripherique,PERIPHERIQUE
+peristyle,PERISTYLE
+petit chemin,PETIT CHEMIN
+petite allee,PETITE ALLEE
+petite avenue,PETITE AVENUE
+petite impasse,PETITE IMPASSE
+petite route,PETITE ROUTE
+petite rue,PETITE RUE
+petites allees,PETITES ALLEES
+place,PLACE
+placis,PLACIS
+plage,PLAGE
+plages,PLAGES
+plaine,PLAINE
+plan,PLAN
+plateau,PLATEAU
+plateaux,PLATEAUX
+pointe,POINTE
+pont,PONT
+ponts,PONTS
+porche,PORCHE
+port,PORT
+porte,PORTE
+portique,PORTIQUE
+portiques,PORTIQUES
+poterne,POTERNE
+pourtour,POURTOUR
+pre,PRE
+presqu'ile,PRESQU'ILE
+promenade,PROMENADE
+quai,QUAI
+quartier,QUARTIER
+raccourci,RACCOURCI
+raidillon,RAIDILLON
+rampe,RAMPE
+rempart,REMPART
+roc,ROC
+rocade,ROCADE
+rond point,ROND POINT
+roquet,ROQUET
+rotonde,ROTONDE
+route,ROUTE
+routes,ROUTES
+rue,RUE
+ruelle,RUELLE
+ruelles,RUELLES
+rues,RUES
+sente,SENTE
+sentes,SENTES
+sentier,SENTIER
+sentiers,SENTIERS
+square,SQUARE
+stade,STADE
+station,STATION
+terrain,TERRAIN
+terre plein,TERRE PLEIN
+tertre,TERTRE
+tertres,TERTRES
+tour,TOUR
+traverse,TRAVERSE
+val,VAL
+vallee,VALLEE
+vallon,VALLON
+venelle,VENELLE
+venelles,VENELLES
+via,VIA
+vieille route,VIEILLE ROUTE
+vieux chemin,VIEUX CHEMIN
+villa,VILLA
+village,VILLAGE
+villages,VILLAGES
+villas,VILLAS
+voie,VOIE
+voies,VOIES
+zone,ZONE
+zone industrielle,ZONE INDUSTRIELLE
+zone a urbaniser en priorite,ZONE A URBANISER EN PRIORITE
+zone artisanale,ZONE ARTISANALE
+zone d'activite,ZONE D'ACTIVITE
+zone d'amenagement concerte,ZONE D'AMENAGEMENT CONCERTE
+zone d'amenagement differe,ZONE D'AMENAGEMENT DIFFERE
