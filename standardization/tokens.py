@@ -4,7 +4,69 @@ import codecs
 import string
 import re
 
-def make_tokens(adresses, remp_file):
+def cleaning_encoding(field):
+    '''
+    perform basic standardisation
+    '''
+
+    # upper case
+    field = field.upper()
+
+    # manage frequent encoding issues
+    try:
+        field_new = codecs.encode(field, encoding="iso-8859-1")
+        field_new = str(field, 'utf-8')
+    except:
+        field_new = field
+    
+    field_new = unidecode.unidecode(field_new)
+    field_new = field_new.upper()
+    
+    # try to replace other special encoding
+    field_new = re.sub("Ã|Ã¢|A£|\\?Á|C½|¶|·|À|Á|Â|Ã|Ä|Å", "A", field_new)
+    field_new = re.sub("Ã©|A©|Ã¨|A¨|Ãª|Aª|Ã«|A«|\
+    \\?¿|AC¦|Â¦|AEA©|EAª|Ó|Ì©|\\?®|[ÈÉÊË]", "E", field_new)
+    field_new = re.sub("Ã¯|A¯|A®|×|AØ|[ÌÍÎÏ]", "I", field_new)
+    field_new = re.sub("Ã´|A´|[ÒÓÔÕÖ]", "O", field_new)
+    field_new = re.sub("Ã¹|Ã¼¹|A¼|A»|[ÙÚÛÜ]", "U", field_new)
+    field_new = re.sub("Ÿ|Ý", "Y", field_new)
+    field_new = re.sub("Ã§|À§|À§|A§|§¢|Ç", "C", field_new)
+    field_new = re.sub("Ã¦|ÂC¦", "AE", field_new)
+    field_new = re.sub("Å", "OE", field_new)
+    field_new = re.sub("E½", "EME", field_new)
+    field_new = re.sub("I¿½|IE½|¡|Õ|Ø", "°", field_new)
+    field_new = re.sub("’|´", "'", field_new)
+    field_new = re.sub("–", "-", field_new)
+    field_new = re.sub("\\[", "\\(", field_new)
+    field_new = re.sub("\\]", "\\)", field_new)
+    field_new = re.sub("N\\*|N\\?|N\\?\\(|NÂ°|NA°", "N°", field_new)
+    field_new = re.sub("Æ", "AE", field_new)
+    field_new = re.sub("Œ", "OE", field_new)
+
+    # remove special characters
+    field_new = re.sub('[-\'()]"', " ", field_new)
+
+    # replace common abbreviations
+    field_new = re.sub("SAINT", "ST", field_new)
+    field_new = re.sub("S\\/", "SUR", field_new)
+
+    # replace numbers (letters) to numbers (digits)
+    # field_new = re.sub("ZERO", "0", field_new)
+    # field_new = re.sub("UN", "1", field_new)
+    field_new = re.sub("DEUX", "2", field_new)
+    field_new = re.sub("TROIS", "3", field_new)
+    field_new = re.sub("QUATRE", "4", field_new)
+    field_new = re.sub("CINQ", "5", field_new)
+    field_new = re.sub("SIX", "6", field_new)
+    field_new = re.sub("SEPT", "7", field_new)
+    field_new = re.sub("HUIT", "8", field_new)
+    field_new = re.sub("NEUF", "9", field_new)
+    field_new = re.sub("DIX", "10", field_new)
+
+    return field_new
+
+
+def make_tokens(adresses, remp_file=None):
     '''
     make_tokens: split addresses in tokens, 
     transform them in upper case,
@@ -19,43 +81,44 @@ def make_tokens(adresses, remp_file):
         if type(adresses.iloc[row]) == str:
 
             # replace special characters
-            adresses.iloc[row] = adresses.iloc[row].replace('/', ' ')
-            adresses.iloc[row] = adresses.iloc[row].replace('-', ' ')
-            adresses.iloc[row] = adresses.iloc[row].replace('(', ' ')
-            adresses.iloc[row] = adresses.iloc[row].replace(')', ' ')
+            # adresses.iloc[row] = adresses.iloc[row].replace('/', ' ')
+            # adresses.iloc[row] = adresses.iloc[row].replace('-', ' ')
+            # adresses.iloc[row] = adresses.iloc[row].replace('(', ' ')
+            # adresses.iloc[row] = adresses.iloc[row].replace(')', ' ')
 
-            adresses.iloc[row] = adresses.iloc[row].upper()
+            # adresses.iloc[row] = adresses.iloc[row].upper()
             
+            clean_adress = cleaning_encoding(adresses.iloc[row])
 
-            splited_adress = re.split(',| |;', adresses.iloc[row])
+            splited_adress = re.split(',| |;', clean_adress)
             splited_adress_new = []
             for word in splited_adress:
-                if word not in string.punctuation:
-                    try:
-                        word_new = codecs.encode(word, encoding="iso-8859-1")
-                        word_new = str(word_new, 'utf-8')
-                    except:
-                        word_new = word
+            #     if word not in string.punctuation:
+            #         try:
+            #             word_new = codecs.encode(word, encoding="iso-8859-1")
+            #             word_new = str(word_new, 'utf-8')
+            #         except:
+            #             word_new = word
                     
-                    # remove accents
-                    word_new = unidecode.unidecode(word_new)
-                    word_new = word_new.upper()
+            #         # remove accents
+            #         word_new = unidecode.unidecode(word_new)
+            #         word_new = word_new.upper()
                     
-                    # processing 'n°'
-                    word_new = word_new.replace('NDEG', '')
-                    word_new = word_new.replace('N?', '')
-                    word_new = word_new.replace('N!', '')
-                    if word_new == "N":
-                        word_new = word_new.replace('N', '')
+            #         # processing 'n°'
+            #         word_new = word_new.replace('NDEG', '')
+            #         word_new = word_new.replace('N?', '')
+            #         word_new = word_new.replace('N!', '')
+            #         if word_new == "N":
+            #             word_new = word_new.replace('N', '')
 
-                    # replace abreviation
-                    for raw in range(remp_file.shape[0]):
-                        if word_new == remp_file.iloc[raw, 0]:
-                            word_new = remp_file.iloc[raw, 1]
-                            break
+            #         # replace abreviation
+            #         for raw in range(remp_file.shape[0]):
+            #             if word_new == remp_file.iloc[raw, 0]:
+            #                 word_new = remp_file.iloc[raw, 1]
+            #                 break
                     
-                    if word_new != '':
-                        splited_adress_new.append(word_new)
+                if word not in string.punctuation:
+                    splited_adress_new.append(word)
 
             splited_adresses.append(splited_adress_new)
     return splited_adresses
@@ -95,7 +158,7 @@ def make_tags(tokens, libvoie):
         # identify numvoie before a libvoie
         for index in range(1, len(tag)):
             if tag[index] == 'LIBVOIE' or index == 1:
-                if index > 1:
+                # if index > 1:
                     # print(index, adresse[index])
                 tag = numvoie(adresse, tag, libvoie, sufixes, index=index-1)
 
