@@ -6,7 +6,7 @@ import re
 
 def cleaning_encoding(field):
     '''
-    perform basic standardisation
+    perform basic standardisation / cleaning on addresses
     '''
 
     # upper case
@@ -44,7 +44,7 @@ def cleaning_encoding(field):
     field_new = re.sub("Œ", "OE", field_new)
 
     # remove special characters
-    field_new = re.sub('[-\'()]"', " ", field_new)
+    field_new = re.sub('[-\'\\(\\)"]', " ", field_new)
 
     # replace common abbreviations
     field_new = re.sub("SAINT", "ST", field_new)
@@ -66,7 +66,7 @@ def cleaning_encoding(field):
     return field_new
 
 
-def make_tokens(adresses, remp_file=None):
+def make_tokens(adresses, remp_file):
     '''
     make_tokens: split addresses in tokens, 
     transform them in upper case,
@@ -79,21 +79,13 @@ def make_tokens(adresses, remp_file=None):
 
     for row in range(nrows):
         if type(adresses.iloc[row]) == str:
-
-            # replace special characters
-            # adresses.iloc[row] = adresses.iloc[row].replace('/', ' ')
-            # adresses.iloc[row] = adresses.iloc[row].replace('-', ' ')
-            # adresses.iloc[row] = adresses.iloc[row].replace('(', ' ')
-            # adresses.iloc[row] = adresses.iloc[row].replace(')', ' ')
-
-            # adresses.iloc[row] = adresses.iloc[row].upper()
             
             clean_adress = cleaning_encoding(adresses.iloc[row])
 
             splited_adress = re.split(',| |;', clean_adress)
             splited_adress_new = []
             for word in splited_adress:
-            #     if word not in string.punctuation:
+                if word not in string.punctuation:
             #         try:
             #             word_new = codecs.encode(word, encoding="iso-8859-1")
             #             word_new = str(word_new, 'utf-8')
@@ -111,13 +103,12 @@ def make_tokens(adresses, remp_file=None):
             #         if word_new == "N":
             #             word_new = word_new.replace('N', '')
 
-            #         # replace abreviation
-            #         for raw in range(remp_file.shape[0]):
-            #             if word_new == remp_file.iloc[raw, 0]:
-            #                 word_new = remp_file.iloc[raw, 1]
-            #                 break
-                    
-                if word not in string.punctuation:
+                    # replace abreviation
+                    for raw in range(remp_file.shape[0]):
+                        if word == remp_file.iloc[raw, 0]:
+                            word = remp_file.iloc[raw, 1]
+                            break
+                if word not in ['', '/', '-']:    
                     splited_adress_new.append(word)
 
             splited_adresses.append(splited_adress_new)

@@ -9,8 +9,8 @@ if __name__ == '__main__':
 
     # import of the data
     df_complet = import_csv(BUCKET, FILE_KEY_S3)
-    # remp_file = pd.read_csv('remplacement.csv', sep=",")
-    # lib_voie = pd.read_csv('libvoie.csv', sep=",")
+    remp_file = pd.read_csv('remplacement.csv', sep=",")
+    lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
     df = df_complet.iloc[:, :8]
 
@@ -18,10 +18,10 @@ if __name__ == '__main__':
     adresse = df.iloc[:, 0]
     
     # create tokens for the 100 first addresses
-    tokens = make_tokens(adresse.sample(1000))
+    tokens = make_tokens(adresse.sample(1000), remp_file=remp_file)
     # frequent = most_frequent_tokens(tokens, 300)
-    print(tokens[0:1000])
+    # print(tokens[0:1000])
     # print(frequent)
 
-    # tags = make_tags(tokens, lib_voie)
-    # print(tags)
+    tags = make_tags(tokens, lib_voie)
+    print(tags)
