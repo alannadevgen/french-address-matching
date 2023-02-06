@@ -43,8 +43,8 @@ def cleaning_encoding(field):
     field_new = re.sub("Æ", "AE", field_new)
     field_new = re.sub("Œ", "OE", field_new)
 
-    # remove special characters
-    field_new = re.sub('[-\'\\(\\)"]', " ", field_new)
+    # remove special characters (punctuation)
+    field_new = re.sub('[\\?!/_\\.,;:\\-\'\\(\\)"]', " ", field_new)
 
     # replace common abbreviations
     field_new = re.sub("SAINT", "ST", field_new)
@@ -62,7 +62,7 @@ def cleaning_encoding(field):
     field_new = re.sub("HUIT", "8", field_new)
     field_new = re.sub("NEUF", "9", field_new)
     field_new = re.sub("DIX", "10", field_new)
-
+    
     return field_new
 
 
@@ -97,7 +97,7 @@ def make_tokens(adresses, remp_file):
             #         word_new = word_new.upper()
                     
             #         # processing 'n°'
-            #         word_new = word_new.replace('NDEG', '')
+                    word= word.replace('NDEG', 'N°')
             #         word_new = word_new.replace('N?', '')
             #         word_new = word_new.replace('N!', '')
             #         if word_new == "N":
@@ -115,7 +115,7 @@ def make_tokens(adresses, remp_file):
     return splited_adresses
 
 def numvoie(adresse, tag, libvoie, sufixes, index):
-    if adresse[0].isdigit() and len(adresse[index]) < 5 and adresse[index] != '000':
+    if adresse[index].isdigit() and len(adresse[index]) < 5 and adresse[index] != '000':
             tag[index] = "NUMVOIE"
     else:
         last_pos = 0
@@ -137,26 +137,88 @@ def make_tags(tokens, libvoie):
     'OCTIES', 'NONIES', 'DECIES', 'B', 'T', 'Q', 'A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
     for adresse in tokens:
         tag = ["INCONNU" for _ in range(len(adresse))]
-
-        # identify numvoie at the beginning of an address
-        # tag = numvoie(adresse, tag, libvoie, sufixes, index=0)
-       
-        # identify libvoie
+        
         for token in adresse:
+            # identify libvoie
             if token in list(libvoie.type_voie_maj):
                 tag[adresse.index(token)] = "LIBVOIE"
 
+            # identify parcelle or cadastre
+            if re.match("^CADAST|^PARCEL|^0{3}$|^FEUIL", token):
+                tag[adresse.index(token)] = "PARCELLE"
+            
         # identify numvoie before a libvoie
         for index in range(1, len(tag)):
+            
             if tag[index] == 'LIBVOIE' or index == 1:
-                # if index > 1:
-                    # print(index, adresse[index])
                 tag = numvoie(adresse, tag, libvoie, sufixes, index=index-1)
+                
+        # identify others parcelles
+        for index in range(2, len(tag)):
+            if tag[index] == "INCONNU" and re.match("^[0-9]{1,4}$", adresse[index]):
+                # print('1', tag[index], adresse[index], '\n')
+                if tag[index-1] == "INCONNU" and re.match("^[0-9A-Z]{1}[0-9A-Z]{1}$", adresse[index-1]):
+                    # print('2', tag[index-1], adresse[index-1], '\n')
+                    if tag[index-2] == "INCONNU" and re.match("^[0-9]{2,3}$", adresse[index-2]):
+                        tag[index-2] = "PARCELLE"
+                    tag[index-1] = "PARCELLE"
+                    tag[index] = "PARCELLE"
+
+        for index in range(len(tag)):
+            if tag[index] == "INCONNU" and re.match(".*[A-Z]+.*", adresse[index]) and re.match("^[0-9A-Z]{1}[0-9A-Z]{1}[0-9]{1,4}$", adresse[index]):
+                tag[index] = "PARCELLE"
+                    
 
         # identify suffix
-        for index in range(1, len(adresse)-1):
-            if adresse[index] in sufixes and (tag[index-1] == 'NUMVOIE' or tag[index+1] == 'LIBVOIE'):
+        for index in range(1, len(adresse)):
+            if adresse[index] in sufixes and tag[index-1] == 'NUMVOIE':
                 tag[index] = 'SUFFIXE'
+
+        # if several LIBVOIE prefer to keep one with a NUMVOIE before or the first one in the seq
+        if tag.count("LIBVOIE") > 1:
+            cpt = 0
+            for index in range(len(tag)):
+                if tag[index] == 'LIBVOIE':
+                    cpt += 1
+                if cpt > 1 and tag[index-1] != 'NUMVOIE':
+                    # if not the first and not preceded by NUMVOIE
+                    tag[index] = 'INCONNU'
+                elif cpt > 1 and tag[index-1] == 'NUMVOIE':
+                    # if preceded by NUMVOIE but not the first then remove the others
+                    for index2 in range(0, index):
+                        if tag[index2] == 'LIBVOIE':
+                            tag[index2] = 'INCONNU'
+
+        # if several tags NUMVOIE check if NUMVOIE in the middle
+        list_index = []
+        if tag.count("NUMVOIE") > 1:
+            for index in range(len(tag)):
+                if tag[index] == 'NUMVOIE':
+                    list_index.append(index)
+            for i in range(len(list_index)-1):
+                first = True
+                for index in range(list_index[i], list_index[i+1]):
+                    if first and tag[index].isdigit():
+                        first = tag[index].isdigit()
+                        tag[index] = 'NUMVOIE'
+                    else:
+                        break
+        
+        # idem for PARCELLE
+        list_index = []
+        if tag.count("PARCELLE") > 1:
+            for index in range(len(tag)):
+                if tag[index] == 'PARCELLE':
+                    list_index.append(index)
+            if not (sum(list_index) == (len(list_index) * (len(list_index)-1))/2):
+                for i in range(len(list_index)-1):
+                    for index in range(list_index[i], list_index[i+1]):
+                        tag[index] = 'PARCELLE'
+
+            
+
+
+
         
         tags.append(tag)
     return list(zip(tokens, tags))
