@@ -1,7 +1,8 @@
 # Matching French addresses
 
 ## Description
-To do
+
+This project, in partnership with the Ministry of Ecological Transition and Territorial Cohesion, aims to standardise French addresses thanks to Machine Learning modelling.
 
 ## Requirements
 
