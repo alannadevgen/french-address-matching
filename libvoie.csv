@@ -86,6 +86,7 @@ eglise,EGLISE
 enceinte,ENCEINTE
 enclave,ENCLAVE
 enclos,ENCLOS
+ensemble,ENSEMBLE
 espace,ESPACE
 esplanade,ESPLANADE
 esplanades,ESPLANADES
@@ -131,7 +132,7 @@ jetees,JETEES
 levee,LEVEE
 lieu,LIEU
 lieu dit,LIEU DIT
-lieudit, LIEUDIT
+lieudit,LIEUDIT
 lot,LOT
 lotissement,LOTISSEMENT
 lotissements,LOTISSEMENTS
@@ -162,6 +163,7 @@ passes,PASSES
 patio,PATIO
 pavillon,PAVILLON
 pavillons,PAVILLONS
+pente,PENTE
 peripherique,PERIPHERIQUE
 peristyle,PERISTYLE
 petit chemin,PETIT CHEMIN
@@ -189,6 +191,7 @@ portiques,PORTIQUES
 poterne,POTERNE
 pourtour,POURTOUR
 pre,PRE
+presqu',PRESQU
 presqu'ile,PRESQU'ILE
 promenade,PROMENADE
 quai,QUAI
@@ -201,6 +204,7 @@ residence,RESIDENCE
 residences,RESIDENCES
 roc,ROC
 rocade,ROCADE
+rond,ROND
 rond point,ROND POINT
 roquet,ROQUET
 rotonde,ROTONDE
@@ -218,6 +222,7 @@ square,SQUARE
 stade,STADE
 station,STATION
 terrain,TERRAIN
+terre, TERRE
 terre plein,TERRE PLEIN
 tertre,TERTRE
 tertres,TERTRES
