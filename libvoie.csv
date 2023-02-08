@@ -131,7 +131,8 @@ jetees,JETEES
 levee,LEVEE
 lieu,LIEU
 lieu dit,LIEU DIT
-lot, LOT
+lieudit, LIEUDIT
+lot,LOT
 lotissement,LOTISSEMENT
 lotissements,LOTISSEMENTS
 mail,MAIL
@@ -183,7 +184,6 @@ pont,PONT
 ponts,PONTS
 porche,PORCHE
 port,PORT
-porte,PORTE
 portique,PORTIQUE
 portiques,PORTIQUES
 poterne,POTERNE
@@ -197,6 +197,8 @@ raccourci,RACCOURCI
 raidillon,RAIDILLON
 rampe,RAMPE
 rempart,REMPART
+residence,RESIDENCE
+residences,RESIDENCES
 roc,ROC
 rocade,ROCADE
 rond point,ROND POINT
