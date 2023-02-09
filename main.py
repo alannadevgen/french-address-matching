@@ -1,7 +1,6 @@
 from standardization.tokenization import *
 from standardization.tagging import *
-from standardization.import_csv import import_csv
-from standardization.export_csv import export_csv
+from utils.csv_io import *
 import pandas as pd
 from random import sample
 
