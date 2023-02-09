@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 
-def import_csv(bucket, file_key_s3, encoding='utf8'):
+def import_csv(bucket, file_key_s3, encoding='utf8', sep=';'):
     '''
     import_csv allows to import csv file containing the addresses
     with any vscode service on the datalab thanks to management of
@@ -27,7 +27,7 @@ def import_csv(bucket, file_key_s3, encoding='utf8'):
     file_path_s3 = bucket + "/" + file_key_s3
 
     with fs.open(file_path_s3, mode="rb") as file_in:
-        df = pd.read_csv(file_in, sep=";", encoding=encoding)
+        df = pd.read_csv(file_in, sep=sep, encoding=encoding)
     return df
 
 
