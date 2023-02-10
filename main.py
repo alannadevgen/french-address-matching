@@ -29,9 +29,12 @@ if __name__ == '__main__':
 
     tags = tag(tokens, libvoie_file=lib_voie)
 
+    # tags2 = remove_perso_info(tags)
+
     df = df_tags(tags)
-    # df.to_csv('train.csv', index=False)
-    # test
+    # df2 = df_tags(tags2)
+    df.to_csv('train.csv', index=False)
+
     FILE_KEY_S3_TRAIN = "train.csv"
     export_csv(df, BUCKET, FILE_KEY_S3_TRAIN)
 

@@ -84,8 +84,8 @@ def tag(tokenized_field, libvoie_file):
             # identify complement COMP
             elif re.match("^CAVE|^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|^SAN?IT?AIR|^PARK|^LOCAUX?$|\
                 ^DIVERS?$|^SORTIE?S?|^SOLS?$|^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|\
-                    ^IM?MEUB|^BATIM|^ENTRE{0,2}S?|^PORTE?S$|MA?I?S{1,2}ONS?$|^PAVIL|^ETA?GE?S?|RDC|\
-                        REZ|CHAUS?SE?ES?|DAL?LE{0,2}S?|^CHAMBR|SDB|^CUISI|GA[GR]A[GR]E|GRENIER\
+                    ^IM?MEUB|^BATIM|^ENTRE{0,2}S?|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|\
+                        ^REZ$|^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI|GA[GR]A[GR]E|GRENIER\
                             CHAUFERIES?|CHAUDIERES?|^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
                 row_tags[index] = "COMP"
 
@@ -227,6 +227,20 @@ def tag(tokenized_field, libvoie_file):
         list_tags.append(row_tags)
     return list(zip(tokenized_field, list_tags))
 
+def remove_perso_info(tags):
+    '''
+    remove_perso_info remove personnal information from the final result
+    '''
+    # iterate over all addresses
+    for index in range(len(tags)):
+        # iterate over all tags of one address
+        for index2 in range(len(tags[index][1])):
+            print(index, index2)
+            if tags[index][1][index2] == 'PERSO':
+                del tags[index]
+    return tags
+
+
 def df_tags(tags):
     '''
     df_tags: create a clean dataframe composed of elements return by tag function
@@ -237,7 +251,7 @@ def df_tags(tags):
         res[elem] = []
         for index in range(len(tags)):
             tags_adresse = []
-            for index2 in range(len(tags[index][0])):
+            for index2 in range(len(tags[index][1])):
                 if elem == tags[index][1][index2]:
                     tags_adresse.append(tags[index][0][index2])
 
