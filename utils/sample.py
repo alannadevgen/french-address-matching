@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     # import of the data
     full_df = import_csv(BUCKET, FILE_KEY_S3)
-    sample = Sample(dataset=full_df, size=10000)
+    sample = Sample(dataset=full_df, size=50000)
     sample_df = sample.create_sample()
     # put the sample in the BUCKET (avoid to push it by mistake)
     sample.save_sample_file(BUCKET, 'sample.csv')

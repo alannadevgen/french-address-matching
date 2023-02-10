@@ -2,7 +2,7 @@ from standardization.tokenization import *
 from standardization.tagging import *
 from utils.csv_io import *
 import pandas as pd
-from random.sample import *
+# from random.sample import *
 
 if __name__ == '__main__':
     BUCKET = 'projet-pfe-adress-matching'

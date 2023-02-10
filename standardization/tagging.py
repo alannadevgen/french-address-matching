@@ -107,6 +107,10 @@ def tag(tokenized_field, libvoie_file):
             elif re.match("^COMMUNES?$", row_tokens[index]):
                 row_tags[index] = 'COMMUNE'
 
+            # identify PERSO at the beginning
+            elif index == 0 and re.match("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M$|^M\\.$|^MME$|^ME?L?LE$|MONSIEUR|MADAME|MADEMOISELLE", row_tokens[index]):
+                row_tags[index] = 'PERSO'
+
         for index in range(0, len(row_tags)-1):
             # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE
             if row_tags[index+1] == 'LIBVOIE':
@@ -121,6 +125,7 @@ def tag(tokenized_field, libvoie_file):
             # identify suffix after NUMVOIE
             if row_tokens[index] in sufixes and row_tags[index-1] == 'NUMVOIE':
                 row_tags[index] = 'SUFFIXE'
+
                 
         # identify PARCELLE with specific rules 
         # when elements of the parcelle are separated with blankspace
@@ -132,6 +137,11 @@ def tag(tokenized_field, libvoie_file):
                     elif row_tags[index-2] in ["INCONNU", "PARCELLE"]:
                         row_tags[index-1] = "PARCELLE"
                         row_tags[index] = "PARCELLE"
+            
+            # identify PERSO after a LIBVOIE
+            elif re.match("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M\\.$|^M$|^MME$|^ME?L?LE$|MONSIEUR|MADAME|MADEMOISELLE", row_tokens[index]):
+                if (row_tags[index - 1] != 'LIBVOIE' and row_tokens[index - 1] not in ['DE'] and row_tags[index - 2] != 'LIBVOIE') or row_tokens[index - 1] == 'CHEZ':
+                    row_tags[index] = 'PERSO'
 
         # if several LIBVOIE prefer to keep one with a NUMVOIE before or the first one in the sequence
         if row_tags.count("LIBVOIE") > 1:
@@ -221,7 +231,7 @@ def df_tags(tags):
     '''
     df_tags: create a clean dataframe composed of elements return by tag function
     '''
-    list_tags = ['LIEU', 'NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'PARCELLE', 'COMP', 'CP', 'COMMUNE', 'INCONNU']
+    list_tags = ['LIEU', 'NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'PARCELLE', 'COMP', 'CP', 'COMMUNE', 'INCONNU', 'PERSO']
     res = {}
     for elem in list_tags:
         res[elem] = []
