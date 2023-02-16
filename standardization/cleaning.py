@@ -44,9 +44,9 @@ def clean(field):
     field_new = re.sub("QUATRE", "4", field_new)
     field_new = re.sub("CINQ", "5", field_new)
     field_new = re.sub("SIX", "6", field_new)
-    field_new = re.sub("SEPT", "7", field_new)
+    # field_new = re.sub("SEPT", "7", field_new)
     field_new = re.sub("HUIT", "8", field_new)
-    field_new = re.sub("NEUF", "9", field_new)
+    # field_new = re.sub("NEUF", "9", field_new)
     field_new = re.sub("DIX", "10", field_new)
 
     # remove N°

@@ -313,13 +313,23 @@ def remove_perso_info(tags):
     remove_perso_info remove personnal information from the final result
     '''
     # iterate over all addresses
+    clean_tokens = []
+    clean_tags = []
     for index in range(len(tags)):
+        clean_tokens_address = []
+        clean_tags_address = []
+
         # iterate over all tags of one address
         for index2 in range(len(tags[index][1])):
-            print(index, index2)
-            if tags[index][1][index2] == 'PERSO':
-                del tags[index]
-    return tags
+
+            if tags[index][1][index2] != 'PERSO':
+                clean_tokens_address.append(tags[index][0][index2])
+                clean_tags_address.append(tags[index][1][index2])
+
+        clean_tokens.append(clean_tokens_address)
+        clean_tags.append(clean_tags_address)
+
+    return list(zip(clean_tokens, clean_tags))
 
 
 def df_tags(tags):
@@ -345,5 +355,13 @@ def df_tags(tags):
     df = pd.DataFrame()
     for tag in list_tags:
         df[tag] = res[tag]
+
+    # remove personnal information
+    # nrows = df.shape[0]
+    # for row in range(nrows):
+    #     if df.loc[row, 'PERSO'] != '':
+    #         df = df.drop(row, axis=0)
+
+    # df = df.drop('PERSO', axis=1)
 
     return df
