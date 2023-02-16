@@ -1,6 +1,5 @@
-import unidecode
-import codecs
 import re
+
 
 def clean(field):
     '''
@@ -10,8 +9,8 @@ def clean(field):
 
     # upper case
     field_new = field.upper()
-    
-    # try to replace other special encoding
+
+    # try to replace other special encoding
     field_new = re.sub("Ã|Ã¢|A£|\\?Á|C½|¶|·|À|Á|Â|Ã|Ä|Å", "A", field_new)
     field_new = re.sub("Ã©|A©|Ã¨|A¨|Ãª|Aª|Ã«|A«|\
     \\?¿|AC¦|Â¦|AEA©|EAª|Ó|Ì©|\\?®|[ÈÉÊË]", "E", field_new)
@@ -50,10 +49,10 @@ def clean(field):
     field_new = re.sub("NEUF", "9", field_new)
     field_new = re.sub("DIX", "10", field_new)
 
-    # remove N°
+    # remove N°
     field_new = re.sub("N°|NADEG|NDEG|", "", field_new)
 
     # remove any non alpha-numeric character
     field_new = re.sub(r'[^A-Za-z0-9 ]+', '', field_new)
-    
+
     return field_new
