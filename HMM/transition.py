@@ -34,12 +34,15 @@ def t2_given_t1(t1, t2, tags):
     count_t1 = 0
     count_t1_t2 = 0
     for address in tags:
-        for tag in address[1]:
-            if tag == t1:
-                count_t1 += 1
+        # for tag in address[1]:
+        #     if tag == t1:
+        #         count_t1 += 1
         for index_tag in range(1, len(address[1])):
             if address[1][index_tag] == t2 and address[1][index_tag-1] == t1:
                 count_t1_t2 += 1
+            if address[1][index_tag-1] == t1:
+                count_t1 += 1
+
     return (count_t1_t2, count_t1)
 
 
