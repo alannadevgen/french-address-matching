@@ -18,13 +18,13 @@ def tag_numvoie(row_tokens, row_tags, index, libvoie_file):
     libvoie_file: file containing all tokens that must be tagged as LIBVOIE
     '''
     if re.match("^ETG|ETAGE$", row_tokens[index]):
-        row_tags[index] = "NUMVOIE"
+        row_tags[index] = "C"
 
     # identify common format for NUMVOIE like 42
     elif row_tokens[index].isdigit() and\
         len(row_tokens[index]) < 5 and not\
             re.match("^0[0-9]{2,3}$", row_tokens[index]):
-        row_tags[index] = "NUMVOIE"
+        row_tags[index] = "COMPADR"
 
     # very rare to have 0B or 0C for a NUMVOIE
     elif row_tokens[index][0] != '0':
@@ -107,7 +107,7 @@ def tag(tokenized_field, libvoie_file):
             GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?|\
             ^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
 
-                row_tags[index] = "COMP"
+                row_tags[index] = "COMPADR"
 
             # identify postal code CP
             elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]|\
@@ -262,8 +262,8 @@ def tag(tokenized_field, libvoie_file):
             if row_tags[index] == 'LIBVOIE':
                 row_tags = complete_tags(row_tags, 'LIBVOIE', index)
 
-            elif row_tags[index] == 'COMP':
-                row_tags = complete_tags(row_tags, 'COMP', index)
+            elif row_tags[index] == 'COMPADR':
+                row_tags = complete_tags(row_tags, 'COMPADR', index)
 
             elif row_tags[index] == 'PARCELLE':
                 row_tags = complete_tags(row_tags, 'PARCELLE', index)
@@ -341,7 +341,7 @@ def df_tags(tags):
     by tag function
     '''
     list_tags = [
-        'LIEU', 'NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'PARCELLE', 'COMP',
+        'LIEU', 'NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'PARCELLE', 'COMPADR',
         'CP', 'COMMUNE', 'INCONNU', 'PERSO'
         ]
     res = {}
