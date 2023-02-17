@@ -17,11 +17,8 @@ def tag_numvoie(row_tokens, row_tags, index, libvoie_file):
     index: index of the token to tag
     libvoie_file: file containing all tokens that must be tagged as LIBVOIE
     '''
-    if re.match("^ETG|ETAGE$", row_tokens[index]):
-        row_tags[index] = "COMPADR"
-
     # identify common format for NUMVOIE like 42
-    elif row_tokens[index].isdigit() and\
+    if row_tokens[index].isdigit() and\
         len(row_tokens[index]) < 5 and not\
             re.match("^0[0-9]{2,3}$", row_tokens[index]):
         row_tags[index] = "NUMVOIE"
@@ -140,8 +137,13 @@ def tag(tokenized_field, libvoie_file):
 
         for index in range(0, len(row_tags)-1):
 
+            if re.match("^ETG|ETAGE$", row_tokens[index]):
+                row_tags[index] = "COMPADR"
+                if row_tags[index + 1].isdigit():
+                    row_tags[index + 1] = "COMPADR"
+
             # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE
-            if row_tags[index+1] == 'LIBVOIE':
+            elif row_tags[index+1] == 'LIBVOIE':
 
                 if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?|\
                 LE|LA|LES|AUX?", row_tokens[index]):
