@@ -51,6 +51,9 @@ def clean(field):
 
     # remove N°
     field_new = re.sub("N°|NADEG|NDEG|", "", field_new)
+    
+    # remove email adresses
+    field_new = re.sub("^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$", "", field_new)
 
     # remove any non alpha-numeric character
     field_new = re.sub(r'[^A-Za-z0-9 ]+', '', field_new)
