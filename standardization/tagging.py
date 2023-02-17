@@ -17,8 +17,11 @@ def tag_numvoie(row_tokens, row_tags, index, libvoie_file):
     index: index of the token to tag
     libvoie_file: file containing all tokens that must be tagged as LIBVOIE
     '''
+    if re.match("^ETG|ETAGE$", row_tokens[index]):
+        row_tags[index] = "NUMVOIE"
+
     # identify common format for NUMVOIE like 42
-    if row_tokens[index].isdigit() and\
+    elif row_tokens[index].isdigit() and\
         len(row_tokens[index]) < 5 and not\
             re.match("^0[0-9]{2,3}$", row_tokens[index]):
         row_tags[index] = "NUMVOIE"
