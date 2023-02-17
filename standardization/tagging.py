@@ -24,7 +24,7 @@ def tag_numvoie(row_tokens, row_tags, index, libvoie_file):
     elif row_tokens[index].isdigit() and\
         len(row_tokens[index]) < 5 and not\
             re.match("^0[0-9]{2,3}$", row_tokens[index]):
-        row_tags[index] = "COMPADR"
+        row_tags[index] = "NUMVOIE"
 
     # very rare to have 0B or 0C for a NUMVOIE
     elif row_tokens[index][0] != '0':
