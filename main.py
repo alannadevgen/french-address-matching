@@ -4,24 +4,36 @@ from utils.csv_io import import_csv, export_csv
 from utils.sample import Sample
 from HMM.transition import create_train_test_sample, compute_transition_matrix
 import pandas as pd
+import click
 
 
-if __name__ == '__main__':
+@click.command()
+@click.option(
+    '--create-sample',
+    default=False,
+    help='Create a new sample of the dataset.',
+    type=bool
+)
+def main(create_sample):
     BUCKET = 'projet-pfe-adress-matching'
     FILE_KEY_S3 = 'DonneesCompletes.csv'
 
-    # import of the data
-    full_df = import_csv(BUCKET, FILE_KEY_S3)
+    if create_sample:
+        print("Creating new sample")
+        # import of the data
+        full_df = import_csv(BUCKET, FILE_KEY_S3)
 
-    # sample
-    sample = Sample(dataset=full_df, size=10000)
-    sample_df = sample.create_sample()
+        # sample
+        sample = Sample(dataset=full_df, size=10000)
+        sample.create_sample()
 
-    #  put the sample in the BUCKET (avoid to push it by mistake)
-    sample.save_sample_file(BUCKET, 'sample.csv')
+        #  put the sample in the BUCKET (avoid to push it by mistake)
+        sample.save_sample_file(BUCKET, 'sample.csv')
+    else:
+        print("Importing previously created sample.")
+        df_sample = import_csv(BUCKET, 'sample.csv', sep=',')
 
     # import others datasets
-    df_sample = import_csv(BUCKET, 'sample.csv', sep=',')
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
@@ -53,3 +65,7 @@ if __name__ == '__main__':
 
     FILE_KEY_S3_TRAIN = "train.csv"
     export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+
+
+if __name__ == '__main__':
+    main()
