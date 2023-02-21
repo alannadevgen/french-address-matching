@@ -1,10 +1,11 @@
 from standardization.tokenization import tokenize
-from standardization.tagging import tag, df_tags, remove_perso_info
+from standardization.tagging import tag_tokens, df_tags, remove_perso_info
 from utils.csv_io import import_csv, export_csv
 from utils.sample import Sample
 from HMM.transition import create_train_test_sample, compute_transition_matrix
-import pandas as pd
 import click
+import pandas as pd
+from time import time
 
 
 @click.command()
@@ -15,22 +16,23 @@ import click
     type=bool
 )
 def main(create_sample):
+    start_time = time()
     BUCKET = 'projet-pfe-adress-matching'
     FILE_KEY_S3 = 'DonneesCompletes.csv'
 
     if create_sample:
-        print("Creating new sample")
+        print("Creating new sample.\n")
         # import of the data
         full_df = import_csv(BUCKET, FILE_KEY_S3)
-
-        # sample
+        # initialisate a sample
         sample = Sample(dataset=full_df, size=10000)
+        # create the sample
         sample.create_sample()
-
         #  put the sample in the BUCKET (avoid to push it by mistake)
         sample.save_sample_file(BUCKET, 'sample.csv')
     else:
-        print("Importing previously created sample.")
+        print("Importing previously created sample.\n")
+        # import the previous sample
         df_sample = import_csv(BUCKET, 'sample.csv', sep=',')
 
     # import others datasets
@@ -40,16 +42,18 @@ def main(create_sample):
     df = df_sample.iloc[:, :8]
 
     # extract addresses column
-    adresse = df.iloc[:, 0]
+    addresses = df.iloc[:, 0]
 
     # create tokens for the 100 first addresses
-    tokens = tokenize(adresse, replacement_file=replacement)
+    tokens = tokenize(addresses, replacement_file=replacement)
 
+    # print frequent tokens
     # frequent = most_frequent_tokens(tokens, 100)
     # print(frequent)
 
-    tags = tag(tokens, libvoie_file=lib_voie)
-
+    # tag the tokens with their label
+    tags = tag_tokens(tokens, libvoie_file=lib_voie)
+    # remove personal information
     tags_without_perso = remove_perso_info(tags)
     print(tags_without_perso[0:100])
 
@@ -65,6 +69,9 @@ def main(create_sample):
 
     FILE_KEY_S3_TRAIN = "train.csv"
     export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+
+    execution_time = time() - start_time
+    print(f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")
 
 
 if __name__ == '__main__':
