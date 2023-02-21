@@ -71,7 +71,7 @@ def complete_tags(row_tags, tag_to_complete, index_first_tag):
     return row_tags
 
 
-def tag(tokenized_field, libvoie_file):
+def tag_tokens(tokenized_field, libvoie_file):
     '''
     tag: asociate a tag for each row and for each token
     tokenized_field: list of tokens for each row (tokens is a list of token)
@@ -139,7 +139,7 @@ def tag(tokenized_field, libvoie_file):
 
             if re.match("^ETG|ETAGE$", row_tokens[index]):
                 row_tags[index] = "COMPADR"
-                if row_tags[index + 1].isdigit():
+                if row_tokens[index + 1].isdigit():
                     row_tags[index + 1] = "COMPADR"
 
             # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE
