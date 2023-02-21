@@ -136,10 +136,23 @@ def tag_tokens(tokenized_field, libvoie_file):
                 row_tags[index] = 'PERSO'
 
         for index in range(0, len(row_tags)-1):
+            # identify suffix before LIBVOIE
+            if row_tokens[index] in sufixes and\
+                    row_tags[index + 1] == 'LIBVOIE':
+                row_tags[index] = 'SUFFIXE'
+                # identify NUMVOIE before LIBVOIE
+                index_possible_numvoie = max(0, index-1)
+                tag_numvoie(
+                    row_tokens,
+                    row_tags,
+                    index_possible_numvoie,
+                    libvoie_file
+                    )
 
-            if re.match("^ETG|ETAGE$", row_tokens[index]):
+            elif re.match("^ETG|ETAGE$", row_tokens[index]):
                 row_tags[index] = "COMPADR"
-                if row_tokens[index + 1].isdigit():
+                if row_tokens[index + 1].isdigit() and\
+                        row_tags[index + 1] == 'INCONNU':
                     row_tags[index + 1] = "COMPADR"
 
             # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE

@@ -36,6 +36,7 @@ def main(create_sample):
         df_sample = import_csv(BUCKET, 'sample.csv', sep=',')
 
     # import others datasets
+    df_sample = import_csv(BUCKET, 'sample.csv', sep=',')
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
@@ -57,18 +58,22 @@ def main(create_sample):
     tags_without_perso = remove_perso_info(tags)
     print(tags_without_perso[0:100])
 
-    train_sample = create_train_test_sample(tags_without_perso)[0]
+
+    # train_sample = create_train_test_sample(tags_without_perso)[0]
 
     # display_statistics(train_sample)
-    transition_matrix = compute_transition_matrix(tags_without_perso)
-    print(transition_matrix)
+    # transition_matrix = compute_transition_matrix(tags_without_perso)
+    # print(transition_matrix)
 
-    df_train = df_tags(tags_without_perso)
+    # df_train = df_tags(tags_without_perso)
 
-    df_train.to_csv('train.csv', index=False)
+    # df_train.to_csv('train.csv', index=False)
 
-    FILE_KEY_S3_TRAIN = "train.csv"
-    export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+    # FILE_KEY_S3_TRAIN = "train.csv"
+    # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+
+    adresse = [['ETAGE', '2', '1', 'A', 'RUE', 'DES', 'LILAS']]
+    print(tag_tokens(adresse, lib_voie))
 
     execution_time = time() - start_time
     print(f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")
@@ -76,3 +81,5 @@ def main(create_sample):
 
 if __name__ == '__main__':
     main()
+adresse = [['ETAGE', '2', '43', 'A', 'RUE', 'DES', 'LILAS']]
+print(tag_tokens(adresse, lib_voie))
