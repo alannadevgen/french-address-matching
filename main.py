@@ -2,7 +2,7 @@ from standardization.tokenization import tokenize
 from standardization.tagging import tag_tokens, df_tags, remove_perso_info
 from utils.csv_io import import_csv, export_csv
 from utils.sample import Sample
-from HMM.transition import create_train_test_sample, compute_transition_matrix
+# from HMM.transition import create_train_test_sample, compute_transition_matrix
 import click
 import pandas as pd
 from time import time
@@ -25,7 +25,7 @@ def main(create_sample):
         # import of the data
         full_df = import_csv(BUCKET, FILE_KEY_S3)
         # initialisate a sample
-        sample = Sample(dataset=full_df, size=10000)
+        sample = Sample(dataset=full_df, size=500)
         # create the sample
         sample.create_sample()
         #  put the sample in the BUCKET (avoid to push it by mistake)
@@ -44,19 +44,31 @@ def main(create_sample):
 
     # extract addresses column
     addresses = df.iloc[:, 0]
+    cp = df.iloc[:, 1]
+    communes = df.iloc[:, 2]
+
 
     # create tokens for the 100 first addresses
-    tokens = tokenize(addresses, replacement_file=replacement)
+    tokens_addresses = tokenize(addresses, replacement_file=replacement)
+    tokens_communes = tokenize(communes, replacement_file=replacement)
+    # print(tokens_communes[0:10])
+    print(len(tokens_communes),len(tokens_addresses))
 
     # print frequent tokens
     # frequent = most_frequent_tokens(tokens, 100)
     # print(frequent)
 
     # tag the tokens with their label
-    tags = tag_tokens(tokens, libvoie_file=lib_voie)
+    tags = tag_tokens(
+        tokens_addresses,
+        cp,
+        tokens_communes,
+        libvoie_file=lib_voie
+        )
+
     # remove personal information
     tags_without_perso = remove_perso_info(tags)
-    print(tags_without_perso[0:100])
+    print(tags_without_perso[0:200])
 
 
     # train_sample = create_train_test_sample(tags_without_perso)[0]
@@ -72,8 +84,15 @@ def main(create_sample):
     # FILE_KEY_S3_TRAIN = "train.csv"
     # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
 
-    adresse = [['ETAGE', '2', '1', 'A', 'RUE', 'DES', 'LILAS']]
-    print(tag_tokens(adresse, lib_voie))
+    # adresse = [['ETAGE', '2', '1', 'A', 'RUE', 'DES', 'LILAS']]
+    # print(tag_tokens(adresse, lib_voie))
+
+    # adresse2 = [['LOTISSEMENT', 'KERLANN', '2', 'RUE', 'DU', 'MOULIN']]
+    # print(tag_tokens(adresse2, lib_voie))
+
+    adresse3 = [['ETAGE', '1',  'SAINT', 'BRIEUC', '10', 'RUE', 'DU', 'MOULIN', 'RESIDENCE', 'LES', 'FLEURS']]
+    commune3 = [['SAINT', 'BRIEUC']]
+    print(tag_tokens(adresse3, None, commune3, lib_voie))
 
     execution_time = time() - start_time
     print(f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")
@@ -81,5 +100,3 @@ def main(create_sample):
 
 if __name__ == '__main__':
     main()
-adresse = [['ETAGE', '2', '43', 'A', 'RUE', 'DES', 'LILAS']]
-print(tag_tokens(adresse, lib_voie))

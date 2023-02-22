@@ -71,14 +71,21 @@ def complete_tags(row_tags, tag_to_complete, index_first_tag):
     return row_tags
 
 
-def tag_tokens(tokenized_field, libvoie_file):
+def tag_tokens(
+    tokenized_addresses,
+    tokenized_cp,
+    tokenized_communes,
+    libvoie_file
+        ):
     '''
     tag: asociate a tag for each row and for each token
     tokenized_field: list of tokens for each row (tokens is a list of token)
     libvoie_file: file containing all tokens that must be tagged as LIBVOIE
     '''
     list_tags = []
-    for row_tokens in tokenized_field:
+    for index_row in range(len(tokenized_addresses)):
+
+        row_tokens = tokenized_addresses[index_row]
 
         # initialize all tokens to INCONNU
         row_tags = ["INCONNU" for _ in range(len(row_tokens))]
@@ -134,6 +141,31 @@ def tag_tokens(tokenized_field, libvoie_file):
             ^ME?L?LE$|MONSIEUR|MADAME|MADEMOISELLE", row_tokens[index]):
 
                 row_tags[index] = 'PERSO'
+
+        # identify COMMUNE with commune field
+        commune = tokenized_communes[index_row]
+
+        for index_start in range(len(row_tags)-len(commune)+1):
+            # detect the first token in commune
+            if row_tokens[index_start] == commune[0]:
+                print(row_tokens)
+                detected = True
+
+                # detect the following ones if needed
+                for index_com in range(1, len(commune)):
+                    if row_tokens[index_start+index_com] == commune[index_com]:
+                        detected *= True
+                    else:
+                        detected *= False
+
+                if detected:
+                    print(commune[0])
+                    index_end = index_start + len(commune)
+
+                    for position in range(index_start, index_end):
+                        row_tags[position] = 'COMMUNE'
+
+                break
 
         for index in range(0, len(row_tags)-1):
             # identify suffix before LIBVOIE
@@ -206,13 +238,17 @@ def tag_tokens(tokenized_field, libvoie_file):
 
         # if several LIBVOIE prefer to keep one with a NUMVOIE before or the
         # first one in the sequence
+        # if token RESIDENCE / LOTISSEMENT and another token tagged as LIBVOIE
+        # tag RESIDENCE or LOTISSEMENT as LIEU
         if row_tags.count("LIBVOIE") > 1:
-
             cpt = 0
 
             for index in range(len(row_tags)):
                 if row_tags[index] == 'LIBVOIE':
-                    cpt += 1
+                    if re.match("RESIDENCE|LOTIS?SEMENT", row_tokens[index]):
+                        row_tags[index] = 'LIEU'
+                    else:
+                        cpt += 1
 
                 if row_tags[index] == 'LIBVOIE' and cpt > 1 and\
                         row_tags[index-1] != 'NUMVOIE':
@@ -323,7 +359,7 @@ def tag_tokens(tokenized_field, libvoie_file):
 
         list_tags.append(row_tags)
 
-    return list(zip(tokenized_field, list_tags))
+    return list(zip(tokenized_addresses, list_tags))
 
 
 def remove_perso_info(tags):
