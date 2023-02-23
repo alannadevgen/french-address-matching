@@ -2,7 +2,7 @@ from standardization.tokenization import tokenize
 from standardization.tagging import tag_tokens, df_tags, remove_perso_info
 from utils.csv_io import import_csv, export_csv
 from utils.sample import Sample
-# from HMM.transition import create_train_test_sample, compute_transition_matrix
+# from HMM.transition import creckages : on télécharge les données, on installe les librairies qui ne sont pas presentes par défaut et on récupère les fichiers nécessairesate_train_test_sample, compute_transition_matrix
 import click
 import pandas as pd
 from time import time

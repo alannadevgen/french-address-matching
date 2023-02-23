@@ -116,7 +116,7 @@ def tag_tokens(
             # identify postal code CP
             elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]|\
             [1-8]\\d|9[0-8])\\d{3}$", row_tokens[index]):
-
+                print('CP')
                 row_tags[index] = "CP"
 
             # identify PARCELLE (when elements are not splited by blankspace)
@@ -147,8 +147,7 @@ def tag_tokens(
 
         for index_start in range(len(row_tags)-len(commune)+1):
             # detect the first token in commune
-            if row_tokens[index_start] == commune[0]:
-                print(row_tokens)
+            if (row_tokens[index_start] == commune[0] and index_start == 0) or (row_tokens[index_start] == commune[0] and row_tokens[index_start-1] != 'DE'):
                 detected = True
 
                 # detect the following ones if needed
@@ -159,7 +158,6 @@ def tag_tokens(
                         detected *= False
 
                 if detected:
-                    print(commune[0])
                     index_end = index_start + len(commune)
 
                     for position in range(index_start, index_end):
