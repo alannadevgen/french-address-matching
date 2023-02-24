@@ -77,22 +77,10 @@ def main(create_sample):
     # transition_matrix = compute_transition_matrix(tags_without_perso)
     # print(transition_matrix)
 
-    # df_train = df_tags(tags_without_perso)
+    df_train = df_tags(tags_without_perso)
 
-    # df_train.to_csv('train.csv', index=False)
-
-    # FILE_KEY_S3_TRAIN = "train.csv"
-    # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
-
-    # adresse = [['ETAGE', '2', '1', 'A', 'RUE', 'DES', 'LILAS']]
-    # print(tag_tokens(adresse, lib_voie))
-
-    # adresse2 = [['LOTISSEMENT', 'KERLANN', '2', 'RUE', 'DU', 'MOULIN']]
-    # print(tag_tokens(adresse2, lib_voie))
-
-    adresse3 = [['ETAGE', '1',  'SAINT', 'BRIEUC', '10', 'RUE', 'DU', 'MOULIN', 'RESIDENCE', 'LES', 'FLEURS']]
-    commune3 = [['SAINT', 'BRIEUC']]
-    print(tag_tokens(adresse3, None, commune3, lib_voie))
+    FILE_KEY_S3_TRAIN = "train.csv"
+    export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
 
     execution_time = time() - start_time
     print(f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")

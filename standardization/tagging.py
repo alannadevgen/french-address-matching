@@ -192,7 +192,7 @@ def tag_tokens(
             elif row_tags[index+1] == 'LIBVOIE':
 
                 if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?\
-                |LE|LA|LES|AUX?", row_tokens[index]):
+                |L|LE|LA|LES|AUX?", row_tokens[index]):
 
                     row_tags[index] = 'LIBVOIE'
 
