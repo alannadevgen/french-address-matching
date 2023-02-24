@@ -103,19 +103,19 @@ def tag_tokens(
                 row_tags[index] = "PARCELLE"
 
             # identify complement COMP
-            elif re.match("^CAVE|^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|\
-            ^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$|\
-            ^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|^IM?MEUB|^BATIM|\
-            ^ENTRE{0,2}S?|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|^REZ$|\
-            ^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI|\
-            GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?|\
-            ^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
+            elif re.match("^CAVE|^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE\
+            |^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$\
+            |^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|^IM?MEUB|^BATIM\
+            |^ENTRE{0,2}S?|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|^REZ$\
+            |^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI\
+            |GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?\
+            |^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
 
                 row_tags[index] = "COMPADR"
 
             # identify postal code CP
-            elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]|\
-            [1-8]\\d|9[0-8])\\d{3}$", row_tokens[index]):
+            elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]\
+            |[1-8]\\d|9[0-8])\\d{3}$", row_tokens[index]):
                 print('CP')
                 row_tags[index] = "CP"
 
@@ -137,8 +137,8 @@ def tag_tokens(
 
             # identify PERSO at the beginning
             elif index == 0 and re.match("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@\
-            [a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M$|^M\\.$|^MME$|\
-            ^ME?L?LE$|MONSIEUR|MADAME|MADEMOISELLE", row_tokens[index]):
+            [a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M$|^M\\.$|^MME$\
+            |^ME?L?LE$|MONSIEUR|MADAME|MADEMOISELLE", row_tokens[index]):
 
                 row_tags[index] = 'PERSO'
 
@@ -147,7 +147,10 @@ def tag_tokens(
 
         for index_start in range(len(row_tags)-len(commune)+1):
             # detect the first token in commune
-            if (row_tokens[index_start] == commune[0] and index_start == 0) or (row_tokens[index_start] == commune[0] and row_tokens[index_start-1] != 'DE'):
+            if (row_tokens[index_start] == commune[0] and
+                index_start == 0) or\
+                    (row_tokens[index_start] == commune[0]
+                        and row_tokens[index_start-1] != 'DE'):
                 detected = True
 
                 # detect the following ones if needed
@@ -188,8 +191,8 @@ def tag_tokens(
             # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE
             elif row_tags[index+1] == 'LIBVOIE':
 
-                if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?|\
-                LE|LA|LES|AUX?", row_tokens[index]):
+                if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?\
+                |LE|LA|LES|AUX?", row_tokens[index]):
 
                     row_tags[index] = 'LIBVOIE'
 
@@ -225,8 +228,8 @@ def tag_tokens(
 
             # identify PERSO after a LIBVOIE
             elif re.match("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+\
-            (?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M\\.$|^M$|^MME$|^ME?L?LE$|MONSIEUR|\
-            MADAME|MADEMOISELLE", row_tokens[index]):
+            (?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M\\.$|^M$|^MME$|^ME?L?LE$|MONSIEUR\
+            |MADAME|MADEMOISELLE", row_tokens[index]):
 
                 if (row_tags[index - 1] != 'LIBVOIE' and row_tokens[index-1]
                         not in ['DE'] and row_tags[index - 2] != 'LIBVOIE')\
