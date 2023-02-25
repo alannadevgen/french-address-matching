@@ -3,6 +3,25 @@ import string
 import re
 
 
+def split_digit_letter(word):
+    '''
+    split a word composed of letters and digits
+    into several tokens
+    '''
+    first = 0
+    splited_word = []
+    for index in range(1, len(word)):
+        prec_digit = word[index-1].isdigit()
+        current_digit = word[index].isdigit()
+        if prec_digit != current_digit:
+            last = index
+            splited_word.append(word[first:last])
+            first = index
+    last = len(word)
+    splited_word.append(word[first:last])
+    return splited_word
+
+
 def tokenize(field, replacement_file):
     '''
     tokenize: split field in tokens,
@@ -39,11 +58,28 @@ def tokenize(field, replacement_file):
                             word = replacement_file.iloc[raw, 1]
                             break
 
+                    # separate letters and digits
+                    # only when there is more than one letter and one digit
+                    words = None
+                    if re.match('^[0-9]+[A-Z]+|[A-Z]+[0-9]+$', word) \
+                            and len(word) > 2:
+                        words = split_digit_letter(word)
+
                 # remove punctation and N° in one token (useless)
                 # if word not in ['', '/', '-']:
+                if words:
+                    tokenized_field_new += words
+                elif word != '':
                     tokenized_field_new.append(word)
+            
+            if not tokenized_field_new:
+                tokenized_field_new = ['VIDE']
 
             tokenized_fields.append(tokenized_field_new)
+
+        else:
+            tokenized_fields.append(str(field.iloc[row]))
+
     return tokenized_fields
 
 

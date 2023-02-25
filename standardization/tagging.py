@@ -5,7 +5,7 @@ import pandas as pd
 sufixes = [
     'BIS', 'TER', 'QUATER', 'QUINQUIES', 'SEXIES', 'SEPTIES', 'OCTIES',
     'NONIES', 'DECIES', 'B', 'T', 'Q', 'A', 'C', 'D', 'E', 'F', 'G', 'H',
-    'I', 'J'
+    'I', 'J', 'K', 'S'
     ]
 
 
@@ -20,7 +20,7 @@ def tag_numvoie(row_tokens, row_tags, index, libvoie_file):
     # identify common format for NUMVOIE like 42
     if row_tokens[index].isdigit() and\
         len(row_tokens[index]) < 5 and not\
-            re.match("^0[0-9]{2,3}$", row_tokens[index]):
+            re.match("^0{3}[0-9]*$", row_tokens[index]):
         row_tags[index] = "NUMVOIE"
 
     # very rare to have 0B or 0C for a NUMVOIE
@@ -40,7 +40,7 @@ def tag_numvoie(row_tokens, row_tags, index, libvoie_file):
             letter_after_digit =\
                 row_tokens[index][last_pos:len(row_tokens[index])]
             if letter_after_digit in sufixes:
-                row_tags[index] = "NUMVOIE"
+                row_tags[index] = "SUFFIXE"
 
     return row_tags
 
@@ -97,32 +97,33 @@ def tag_tokens(
                 row_tags[index] = "LIBVOIE"
 
             # identify PARCELLE
-            elif re.match("^PC$|^CADAST|^PARCC?EL|^0{3}$|^FEUIL|\
-            ^SEC?T?ION|^REF\\.?|REFERENCE?S?$", row_tokens[index]):
+            elif re.match("^PC$|^CADAST|^PARCC?EL|^0{3}$|^FEUIL"
+                          "|^SEC?T?ION|^REF\\.?|REFERENCE?S?$",
+                          row_tokens[index]):
 
                 row_tags[index] = "PARCELLE"
 
             # identify complement COMP
-            elif re.match("^CAVE|^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE\
-            |^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$\
-            |^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|^IM?MEUB|^BATIM\
-            |^ENTRE{0,2}S?|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|^REZ$\
-            |^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI\
-            |GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?\
-            |^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
-
+            elif re.match(
+                "^CAVE|^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|"
+                "^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$|"
+                "^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|^IM?MEUB|^BATIM|"
+                "^ENTRE{0,2}S?|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|^REZ$|"
+                "^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI|"
+                "GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?"
+                    "|^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
                 row_tags[index] = "COMPADR"
 
             # identify postal code CP
-            elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]\
+            elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]|\
             |[1-8]\\d|9[0-8])\\d{3}$", row_tokens[index]):
-                print('CP')
                 row_tags[index] = "CP"
 
             # identify PARCELLE (when elements are not splited by blankspace)
             elif row_tags[index] == "INCONNU" and row_tags[index-1] in\
-                ["INCONNU", "PARCELLE"] and re.match("^[0-9]{0,3}[0-9A-Z]{1}\
-            [0-9A-Z]{1}[0-9]{1,4}$", row_tokens[index]):
+                ["INCONNU", "PARCELLE"] and re.match("^[0-9]{0,3}[0-9A-Z]{1}"
+                                                     "[0-9A-Z]{1}[0-9]{1,4}$",
+                                                     row_tokens[index]):
 
                 row_tags[index] = "PARCELLE"
 
@@ -136,9 +137,11 @@ def tag_tokens(
                 row_tags[index] = 'COMMUNE'
 
             # identify PERSO at the beginning
-            elif index == 0 and re.match("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@\
-            [a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M$|^M\\.$|^MME$\
-            |^ME?L?LE$|MONSIEUR|MADAME|MADEMOISELLE", row_tokens[index]):
+            elif index in [0, 1] and re.match(
+                "^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@"
+                "[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M$|^M\\.$|^MME$"
+                    "|^ME?L?LE$|MONSIEUR|MADAME|MADEMOISELLE|CHEZ|EMAIL",
+                    row_tokens[index]):
 
                 row_tags[index] = 'PERSO'
 
@@ -191,7 +194,7 @@ def tag_tokens(
             # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE
             elif row_tags[index+1] == 'LIBVOIE':
 
-                if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?\
+                if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?|\
                 |L|LE|LA|LES|AUX?", row_tokens[index]):
 
                     row_tags[index] = 'LIBVOIE'
@@ -216,8 +219,8 @@ def tag_tokens(
                 if row_tags[index-1] == "INCONNU" and re.match("^[0-9A-Z]{1}\
                 [0-9A-Z]{1}$", row_tokens[index-1]):
 
-                    if row_tags[index-2] == "INCONNU" and re.match("^[0-9]\
-                    {2,3}$", row_tokens[index-2]):
+                    if row_tags[index-2] == "INCONNU"\
+                            and re.match("^[0-9]{2,3}$", row_tokens[index-2]):
 
                         row_tags[index-2] = "PARCELLE"
 
@@ -227,9 +230,10 @@ def tag_tokens(
                         row_tags[index] = "PARCELLE"
 
             # identify PERSO after a LIBVOIE
-            elif re.match("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+\
-            (?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M\\.$|^M$|^MME$|^ME?L?LE$|MONSIEUR\
-            |MADAME|MADEMOISELLE", row_tokens[index]):
+            elif re.match(
+                "^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+"
+                "(?:\\.[a-zA-Z0-9]+)*$|^MR\\.?$|^M\\.$|^M$|^MME$|^ME?L?LE$|"
+                    "MONSIEUR|MADAME|MADEMOISELLE", row_tokens[index]):
 
                 if (row_tags[index - 1] != 'LIBVOIE' and row_tokens[index-1]
                         not in ['DE'] and row_tags[index - 2] != 'LIBVOIE')\
@@ -251,11 +255,11 @@ def tag_tokens(
                     else:
                         cpt += 1
 
-                if row_tags[index] == 'LIBVOIE' and cpt > 1 and\
-                        row_tags[index-1] != 'NUMVOIE':
+                # if row_tags[index] == 'LIBVOIE' and cpt > 1 and\
+                #         row_tags[index-1] != 'NUMVOIE':
 
                     # if not the first and not preceded by NUMVOIE
-                    row_tags[index] = 'INCONNU'
+                    # row_tags[index] = 'INCONNU'
 
         # identify NUMVOIE after LIEU or LIBVOIE
         for index in range(0, len(row_tags)-1):
@@ -271,7 +275,7 @@ def tag_tokens(
         list_index = []
         if row_tags.count("NUMVOIE") > 1:
             for index in range(len(row_tags)):
-                if row_tags[index] == 'NUMVOIE':
+                if row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
                     list_index.append(index)
 
             for i in range(len(list_index)-1):
@@ -279,9 +283,11 @@ def tag_tokens(
                     row_tags = tag_numvoie(
                         row_tokens,
                         row_tags,
-                        index-1,
+                        index,
                         libvoie_file
                     )
+                    if row_tokens[index] in sufixes:
+                        row_tags[index] = "SUFFIXE"
 
         # idem for PARCELLE
         list_index = []
@@ -300,10 +306,10 @@ def tag_tokens(
 
                         row_tags[index] = 'PARCELLE'
 
-        # identify LIEU after NUMVOIE
+        # identify LIEU after NUMVOIE or SUFFIX
         if 'LIBVOIE' not in row_tags:
             for index in range(0, len(row_tags)-1):
-                if row_tags[index] == 'NUMVOIE' and\
+                if row_tags[index] in ['NUMVOIE', 'SUFFIXE'] and\
                     row_tags[index+1] == 'INCONNU' and not\
                         re.match(".*[0-9]+.*", row_tokens[index+1]):
                     row_tags[index+1] = 'LIEU'
@@ -374,15 +380,19 @@ def remove_perso_info(tags):
         clean_tokens_address = []
         clean_tags_address = []
 
+        remove = False
         # iterate over all tags of one address
         for index2 in range(len(tags[index][1])):
 
             if tags[index][1][index2] != 'PERSO':
                 clean_tokens_address.append(tags[index][0][index2])
                 clean_tags_address.append(tags[index][1][index2])
+            else:
+                remove = True
 
-        clean_tokens.append(clean_tokens_address)
-        clean_tags.append(clean_tags_address)
+        if not remove:
+            clean_tokens.append(clean_tokens_address)
+            clean_tags.append(clean_tags_address)
 
     return list(zip(clean_tokens, clean_tags))
 

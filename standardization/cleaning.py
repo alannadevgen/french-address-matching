@@ -39,21 +39,22 @@ def clean(field):
     field_new = re.sub("S\\/", "SUR", field_new)
 
     # convert numbers (written with letters) to numbers (digits)
-    field_new = re.sub("DEUX", "2", field_new)
-    field_new = re.sub("TROIS", "3", field_new)
-    field_new = re.sub("QUATRE", "4", field_new)
-    field_new = re.sub("CINQ", "5", field_new)
-    field_new = re.sub("SIX", "6", field_new)
+    # field_new = re.sub("DEUX", "2", field_new)
+    # field_new = re.sub("TROIS", "3", field_new)
+    # field_new = re.sub("QUATRE", "4", field_new)
+    # field_new = re.sub("CINQ", "5", field_new)
+    # field_new = re.sub("SIX", "6", field_new)
     # field_new = re.sub("SEPT", "7", field_new)
-    field_new = re.sub("HUIT", "8", field_new)
+    # field_new = re.sub("HUIT", "8", field_new)
     # field_new = re.sub("NEUF", "9", field_new)
-    field_new = re.sub("DIX", "10", field_new)
+    # field_new = re.sub("DIX", "10", field_new)
 
     # remove N°
     field_new = re.sub("N°|NADEG|NDEG|", "", field_new)
 
-    # remove email adresses
-    field_new = re.sub("^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$", "", field_new)
+    # replace email adresses by email to identify them
+    field_new = re.sub("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+"
+                       "(?:\\.[a-zA-Z0-9]+)*$", "EMAIL", field_new)
 
     # remove any non alpha-numeric character
     field_new = re.sub(r'[^A-Za-z0-9 ]+', '', field_new)

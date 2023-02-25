@@ -25,7 +25,7 @@ def main(create_sample):
         # import of the data
         full_df = import_csv(BUCKET, FILE_KEY_S3)
         # initialisate a sample
-        sample = Sample(dataset=full_df, size=500)
+        sample = Sample(dataset=full_df, size=10000)
         # create the sample
         sample.create_sample()
         #  put the sample in the BUCKET (avoid to push it by mistake)
@@ -67,8 +67,8 @@ def main(create_sample):
         )
 
     # remove personal information
-    tags_without_perso = remove_perso_info(tags)
-    print(tags_without_perso[0:200])
+    # tags_without_perso = remove_perso_info(tags)
+    # print(tags_without_perso[0:200])
 
 
     # train_sample = create_train_test_sample(tags_without_perso)[0]
@@ -77,7 +77,7 @@ def main(create_sample):
     # transition_matrix = compute_transition_matrix(tags_without_perso)
     # print(transition_matrix)
 
-    df_train = df_tags(tags_without_perso)
+    df_train = df_tags(tags)
 
     FILE_KEY_S3_TRAIN = "train.csv"
     export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
