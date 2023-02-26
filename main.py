@@ -33,10 +33,10 @@ def main(create_sample):
     else:
         print("Importing previously created sample.\n")
         # import the previous sample
-        df_sample = import_csv(BUCKET, 'sample.csv', sep=',')
+        df_sample = import_csv(BUCKET, 'sample.csv', sep=';')
 
     # import others datasets
-    df_sample = import_csv(BUCKET, 'sample.csv', sep=',')
+    df_sample = import_csv(BUCKET, 'sample.csv', sep=';')
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 

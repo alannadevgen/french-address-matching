@@ -55,4 +55,4 @@ def export_csv(df, bucket, file_key_s3):
     file_path_s3 = bucket + "/" + file_key_s3
 
     with fs.open(file_path_s3, 'w') as file_out:
-        df.to_csv(file_out, index=False)
+        df.to_csv(file_out, index=False, sep=';')

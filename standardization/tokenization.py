@@ -60,18 +60,26 @@ def tokenize(field, replacement_file):
 
                     # separate letters and digits
                     # only when there is more than one letter and one digit
-                    words = None
+                    words_new = []
                     if re.match('^[0-9]+[A-Z]+|[A-Z]+[0-9]+$', word) \
                             and len(word) > 2:
                         words = split_digit_letter(word)
 
+                        for word in words:
+                            # replace common abreviation
+                            for raw in range(replacement_file.shape[0]):
+                                if word == replacement_file.iloc[raw, 0]:
+                                    word = replacement_file.iloc[raw, 1]
+                                    break
+                            words_new.append(word)
+
                 # remove punctation and N° in one token (useless)
                 # if word not in ['', '/', '-']:
-                if words:
-                    tokenized_field_new += words
+                if words_new:
+                    tokenized_field_new += words_new
                 elif word != '':
                     tokenized_field_new.append(word)
-            
+
             if not tokenized_field_new:
                 tokenized_field_new = ['VIDE']
 
