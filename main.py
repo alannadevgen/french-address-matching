@@ -15,7 +15,13 @@ from time import time
     help='Create a new sample of the dataset.',
     type=bool
 )
-def main(create_sample):
+@click.option(
+    '--size',
+    default=10000,
+    help='Sample size.',
+    type=int
+)
+def main(create_sample, size):
     start_time = time()
     BUCKET = 'projet-pfe-adress-matching'
     FILE_KEY_S3 = 'DonneesCompletes.csv'
@@ -25,7 +31,7 @@ def main(create_sample):
         # import of the data
         full_df = import_csv(BUCKET, FILE_KEY_S3)
         # initialisate a sample
-        sample = Sample(dataset=full_df, size=10000)
+        sample = Sample(dataset=full_df, size=size)
         # create the sample
         sample.create_sample()
         #  put the sample in the BUCKET (avoid to push it by mistake)
