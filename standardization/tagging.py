@@ -5,7 +5,7 @@ import pandas as pd
 sufixes = [
     'BIS', 'TER', 'QUATER', 'QUINQUIES', 'SEXIES', 'SEPTIES', 'OCTIES',
     'NONIES', 'DECIES', 'B', 'T', 'Q', 'A', 'C', 'D', 'E', 'F', 'G', 'H',
-    'I', 'J', 'K', 'S'
+    'I', 'J', 'K', 'S', 'BI'
     ]
 
 
@@ -98,7 +98,7 @@ def tag_tokens(
 
             # identify PARCELLE
             elif re.match("^PC$|^CADAST|^PARCC?EL|^0{3}$|^FEUIL"
-                          "|^SEC?T?ION|^REF\\.?|REFERENCE?S?$",
+                          "|^SEC?T?ION|^REF\\.?$|REFERENCE?S?$",
                           row_tokens[index]):
 
                 row_tags[index] = "PARCELLE"
@@ -120,10 +120,13 @@ def tag_tokens(
                 row_tags[index] = "CP"
 
             # identify PARCELLE (when elements are not splited by blankspace)
-            elif row_tags[index] == "INCONNU" and row_tags[index-1] in\
-                ["INCONNU", "PARCELLE"] and re.match("^[0-9]{0,3}[0-9A-Z]{1}"
-                                                     "[0-9A-Z]{1}[0-9]{1,4}$",
-                                                     row_tokens[index]):
+
+            # and row_tags[index] == "000"
+            elif row_tags[index] == "INCONNU" and\
+                row_tags[index-1] == 'INCONNU' and\
+                    re.match("^[0-9]{0,3}[0-9A-Z]{1}"
+                             "[0-9A-Z]{1}[0-9]{1,4}$", row_tokens[index]) and\
+                    not row_tokens[index].isdigit():
 
                 row_tags[index] = "PARCELLE"
 
@@ -201,7 +204,8 @@ def tag_tokens(
 
         for index in range(1, len(row_tags)):
             # identify NUMVOIE before a LIBVOIE or at the first position
-            if row_tags[index] == 'LIBVOIE' or index == 1:
+            if row_tags[index] == 'LIBVOIE' or index == 1 and\
+                    row_tags[index-1] == 'INCONNU':
                 row_tags =\
                     tag_numvoie(row_tokens, row_tags, index-1, libvoie_file)
 
@@ -212,22 +216,39 @@ def tag_tokens(
         # identify PARCELLE with specific rules
         # when elements of the parcelle are separated with blankspace
         for index in range(2, len(row_tags)):
+            all_digits = True
 
             if row_tags[index] == "INCONNU" and\
                     re.match("^[0-9]{1,4}$", row_tokens[index]):
 
-                if row_tags[index-1] == "INCONNU" and re.match("^[0-9A-Z]{1}\
-                [0-9A-Z]{1}$", row_tokens[index-1]):
+                if not row_tokens[index].isdigit():
+                    all_digits *= False
+
+                if row_tags[index-1] == "INCONNU" and\
+                    re.match("^[0-9A-Z]{1}[0-9A-Z]{1}$",
+                             row_tokens[index-1]):
+
+                    if not row_tokens[index-1].isdigit():
+                        all_digits *= False
 
                     if row_tags[index-2] == "INCONNU"\
-                            and re.match("^[0-9]{2,3}$", row_tokens[index-2]):
+                            and re.match("^[0-9]{2,3}$",
+                                            row_tokens[index-2]):
+                        if not row_tokens[index-2].isdigit():
+                            all_digits *= False
 
-                        row_tags[index-2] = "PARCELLE"
+                        if not all_digits:
+                            row_tags[index-2] = "PARCELLE"
+                            row_tags[index-1] = "PARCELLE"
+                            row_tags[index] = "PARCELLE"
 
                     elif row_tags[index-2] in ["INCONNU", "PARCELLE"]:
+                        if not row_tokens[index-2].isdigit():
+                            all_digits *= False
 
-                        row_tags[index-1] = "PARCELLE"
-                        row_tags[index] = "PARCELLE"
+                        if not all_digits:
+                            row_tags[index-1] = "PARCELLE"
+                            row_tags[index] = "PARCELLE"
 
             # identify PERSO after a LIBVOIE
             elif re.match(
@@ -274,10 +295,22 @@ def tag_tokens(
         # objective: detect sequence of NUMVOIE like 1,2,3 RUE JOLIE
         list_index = []
         if row_tags.count("NUMVOIE") > 1:
+            middle_tags_unk = True
             for index in range(len(row_tags)):
-                if row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
+                if not index and row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
                     list_index.append(index)
 
+                elif middle_tags_unk and row_tags[index] in [
+                    'NUMVOIE',
+                    'SUFFIXE'
+                        ]:
+                    list_index.append(index)
+                    middle_tags_unk = True
+
+                if row_tags[index] not in ['INCONNU', 'NUMVOIE']:
+                    middle_tags_unk *= False
+
+        if len(list_index) > 1:
             for i in range(len(list_index)-1):
                 for index in range(list_index[i], list_index[i+1]):
                     row_tags = tag_numvoie(
