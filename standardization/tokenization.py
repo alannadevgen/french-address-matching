@@ -59,6 +59,10 @@ def tokenize(field, replacement_file):
                             word = replacement_file.iloc[raw, 1]
                             break
 
+                    # replace N10 by 10
+                    if re.match('^N[0-9A-Z]{1,4}$', word):
+                        word = word[1:len(word)]
+
                     # separate letters and digits
                     # only when there is more than one letter and one digit
                     words_new = []
