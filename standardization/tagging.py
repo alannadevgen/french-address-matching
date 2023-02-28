@@ -253,6 +253,7 @@ def tag_tokens(
                     re.match("^[0-9]{1,4}$", row_tokens[index]):
 
                 if row_tags[index-1] == "INCONNU" and\
+                    row_tokens[index-1] != 'ET' and\
                     re.match("^[0-9A-Z]{1}[0-9A-Z]{1}$",
                              row_tokens[index-1]) and\
                         not row_tokens[index-1].isdigit():
