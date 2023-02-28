@@ -10,9 +10,10 @@ def clean(field):
     # upper case
     field_new = field.upper()
 
-    # if 2 À 10 RUE ... replaced À by AU
+    # if 2 À 10 RUE ... replace À by COMPRIS JUSQUE
+    # 2 COMPRIS JUSQUE 10 RUE
     detect = re.findall(
-        ' [0-9]+[ -]*[Ã|Ã¢|\\?Á|À|Á|Â|Ã|Ä|Å][ -]*[0-9]+ ',
+        ' ?[0-9]+[ -]*[Ã|Ã¢|\\?Á|À|Á|Â|Ã|Ä|Å][ -]*[0-9]+ ?',
         field_new)
     if detect:
         for elem in detect:
@@ -21,7 +22,7 @@ def clean(field):
             end = first_pos + len(elem)
             matched = field_new[start:end]
             index = matched.find('À') + start
-            field_new = field_new[0:index] + 'AU' +\
+            field_new = field_new[0:index] + ' COMPRIS JUSQUE ' +\
                 field_new[index+1:len(field_new)]
 
     # try to replace other special encoding

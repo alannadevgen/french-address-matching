@@ -58,7 +58,6 @@ def main(create_sample, size):
     tokens_addresses = tokenize(addresses, replacement_file=replacement)
     tokens_communes = tokenize(communes, replacement_file=replacement)
     # print(tokens_communes[0:10])
-    print(len(tokens_communes),len(tokens_addresses))
 
     # print frequent tokens
     # frequent = most_frequent_tokens(tokens, 100)
@@ -73,8 +72,8 @@ def main(create_sample, size):
         )
 
     # remove personal information
-    # tags_without_perso = remove_perso_info(tags)
-    # print(tags_without_perso[0:200])
+    tags_without_perso = remove_perso_info(tags)
+    print(tags_without_perso[0:10])
 
 
     # train_sample = create_train_test_sample(tags_without_perso)[0]
@@ -83,7 +82,7 @@ def main(create_sample, size):
     # transition_matrix = compute_transition_matrix(tags_without_perso)
     # print(transition_matrix)
 
-    df_train = df_tags(tags)
+    df_train = df_tags(tags_without_perso)
 
     FILE_KEY_S3_TRAIN = "train.csv"
     export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)

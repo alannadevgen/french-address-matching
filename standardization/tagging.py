@@ -216,39 +216,27 @@ def tag_tokens(
         # identify PARCELLE with specific rules
         # when elements of the parcelle are separated with blankspace
         for index in range(2, len(row_tags)):
-            all_digits = True
 
             if row_tags[index] == "INCONNU" and\
                     re.match("^[0-9]{1,4}$", row_tokens[index]):
 
-                if not row_tokens[index].isdigit():
-                    all_digits *= False
-
                 if row_tags[index-1] == "INCONNU" and\
                     re.match("^[0-9A-Z]{1}[0-9A-Z]{1}$",
-                             row_tokens[index-1]):
-
-                    if not row_tokens[index-1].isdigit():
-                        all_digits *= False
+                             row_tokens[index-1]) and\
+                        not row_tokens[index-1].isdigit():
 
                     if row_tags[index-2] == "INCONNU"\
                             and re.match("^[0-9]{2,3}$",
                                             row_tokens[index-2]):
-                        if not row_tokens[index-2].isdigit():
-                            all_digits *= False
 
-                        if not all_digits:
-                            row_tags[index-2] = "PARCELLE"
-                            row_tags[index-1] = "PARCELLE"
-                            row_tags[index] = "PARCELLE"
+                        row_tags[index-2] = "PARCELLE"
+                        row_tags[index-1] = "PARCELLE"
+                        row_tags[index] = "PARCELLE"
 
                     elif row_tags[index-2] in ["INCONNU", "PARCELLE"]:
-                        if not row_tokens[index-2].isdigit():
-                            all_digits *= False
 
-                        if not all_digits:
-                            row_tags[index-1] = "PARCELLE"
-                            row_tags[index] = "PARCELLE"
+                        row_tags[index-1] = "PARCELLE"
+                        row_tags[index] = "PARCELLE"
 
             # identify PERSO after a LIBVOIE
             elif re.match(
