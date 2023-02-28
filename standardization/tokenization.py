@@ -13,6 +13,7 @@ def split_digit_letter(word):
     for index in range(1, len(word)):
         prec_digit = word[index-1].isdigit()
         current_digit = word[index].isdigit()
+        # detect change letter then digit or vice versa
         if prec_digit != current_digit:
             last = index
             splited_word.append(word[first:last])
