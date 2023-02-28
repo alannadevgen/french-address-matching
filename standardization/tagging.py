@@ -130,10 +130,6 @@ def tag_tokens(
 
                 row_tags[index] = "PARCELLE"
 
-            # identify LIEU
-            elif not index and not re.match(".*[0-9]+.*", row_tokens[index]):
-                row_tags[index] = 'LIEU'
-
             # identify COMMUNE
             elif re.match("^COMMUNES?$", row_tokens[index]):
 
@@ -147,6 +143,10 @@ def tag_tokens(
                     row_tokens[index]):
 
                 row_tags[index] = 'PERSO'
+
+            # identify LIEU
+            elif not index and not re.match(".*[0-9]+.*", row_tokens[index]):
+                row_tags[index] = 'LIEU'
 
         # identify COMMUNE with commune field
         commune = tokenized_communes[index_row]
