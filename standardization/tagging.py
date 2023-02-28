@@ -278,6 +278,34 @@ def tag_tokens(
                 row_tags =\
                     tag_numvoie(row_tokens, row_tags, index+1, libvoie_file)
 
+        # tag INCONNU tags as LIBVOIE if between NUMVOIE and LIBVOIE
+        # allow to identify 1 PETITE RUE DE (PETITE as LIBVOIE)
+        # empty list used in the for (below)
+        index_numvoie = []
+        index_libvoie = []
+        for index in range(len(row_tags)):
+
+            if row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
+                index_numvoie.append(index)
+            if row_tags[index] == 'LIBVOIE':
+                index_libvoie.append(index)
+
+            for libvoie in index_libvoie:
+                before_lib = list(filter(lambda index: index < libvoie,
+                                         index_numvoie))
+
+                if before_lib:
+                    max_num = max(before_lib)
+                    all_unk = True
+                    for index_tag in range(max_num+1, libvoie):
+                        if row_tags[index_tag] != 'INCONNU':
+                            all_unk = False
+                            break
+
+                    if all_unk:
+                        for index_tag in range(max_num+1, libvoie):
+                            row_tags[index_tag] = 'LIBVOIE'
+
         # if several tags NUMVOIE check if the middle tags between them could
         # be NUMVOIE too
         # objective: detect sequence of NUMVOIE like 1,2,3 RUE JOLIE

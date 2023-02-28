@@ -73,7 +73,7 @@ def main(create_sample, size):
 
     # remove personal information
     tags_without_perso = remove_perso_info(tags)
-    print(tags_without_perso[0:10])
+    # print(tags_without_perso[0:10])
 
 
     # train_sample = create_train_test_sample(tags_without_perso)[0]
