@@ -233,8 +233,8 @@ def tag_tokens(
                         row_tags[index-1] = "PARCELLE"
                         row_tags[index] = "PARCELLE"
 
-                    elif row_tags[index-2] in ["INCONNU", "PARCELLE"]:
-
+                    # elif row_tags[index-2] in ["INCONNU", "PARCELLE"]:
+                    else:
                         row_tags[index-1] = "PARCELLE"
                         row_tags[index] = "PARCELLE"
 
@@ -310,7 +310,7 @@ def tag_tokens(
         # be NUMVOIE too
         # objective: detect sequence of NUMVOIE like 1,2,3 RUE JOLIE
         list_index = []
-        if row_tags.count("NUMVOIE") > 1:
+        if (row_tags.count("NUMVOIE") + row_tags.count("SUFFIXE")) > 1:
             middle_tags_unk = True
             for index in range(len(row_tags)):
                 if not index and row_tags[index] in ['NUMVOIE', 'SUFFIXE']:

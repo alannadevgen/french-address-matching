@@ -13,7 +13,7 @@ def clean(field):
     # if 2 À 10 RUE ... replace À by COMPRIS JUSQUE
     # 2 COMPRIS JUSQUE 10 RUE
     detect = re.findall(
-        ' ?[0-9]+[ -]*[Ã|Ã¢|\\?Á|À|Á|Â|Ã|Ä|Å][ -]*[0-9]+ ?',
+        ' ?[0-9]+[ -]*[Ã|Ã¢|\\?Á|À|Á|Â|Ã|Ä|Å|AU][ -]*[0-9]+ ?',
         field_new)
     if detect:
         for elem in detect:
