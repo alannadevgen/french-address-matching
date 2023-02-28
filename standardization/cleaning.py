@@ -10,6 +10,25 @@ def clean(field):
     # upper case
     field_new = field.upper()
 
+    if 'PEGNA' in field_new:
+        print(field_new)
+    # if 2 À 10 RUE ... replaced À by AU
+    detect = re.findall(
+        ' [0-9]+[ -]*[Ã|Ã¢|\\?Á|À|Á|Â|Ã|Ä|Å][ -]*[0-9]+ ',
+        field_new)
+    if detect:
+        for elem in detect:
+            first_pos = field_new.find(elem)
+            start = first_pos
+            end = first_pos + len(elem)
+            matched = field_new[start:end]
+            index = matched.find('À') + start
+            field_new = field_new[0:index] + 'AU' +\
+                field_new[index+1:len(field_new)]
+
+    if 'PEGNA' in field_new:
+        print(field_new)
+
     # try to replace other special encoding
     field_new = re.sub("Ã|Ã¢|A£|\\?Á|C½|¶|·|À|Á|Â|Ã|Ä|Å", "A", field_new)
     field_new = re.sub("Ã©|A©|Ã¨|A¨|Ãª|Aª|Ã«|A«|\
@@ -37,6 +56,7 @@ def clean(field):
     # replace common abbreviations
     field_new = re.sub("SAINT", "ST", field_new)
     field_new = re.sub("S\\/", "SUR", field_new)
+    field_new = re.sub("L-D", "LIEUDIT", field_new)
 
     # convert numbers (written with letters) to numbers (digits)
     # field_new = re.sub("DEUX", "2", field_new)
@@ -50,7 +70,7 @@ def clean(field):
     # field_new = re.sub("DIX", "10", field_new)
 
     # remove N°
-    field_new = re.sub("N°|NADEG|NDEG|", "", field_new)
+    # field_new = re.sub("N°|NADEG|NDEG|", "", field_new)
 
     # replace email adresses by email to identify them
     field_new = re.sub("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+"
