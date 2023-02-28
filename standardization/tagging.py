@@ -72,6 +72,8 @@ def complete_tags(row_tags, tag_to_complete, index_first_tag):
 
 
 def tag_before(row_tags, tag):
+    '''
+    '''
     index_numvoie = []
     index_tag = []
     for index in range(len(row_tags)):
@@ -81,7 +83,6 @@ def tag_before(row_tags, tag):
         if row_tags[index] == tag:
             index_tag.append(index)
 
-    print(index_tag)
     for libvoie in index_tag:
         before_lib = list(filter(lambda index: index < libvoie,
                                  index_numvoie))
@@ -233,14 +234,6 @@ def tag_tokens(
                         row_tags[index + 1] == 'INCONNU':
                     row_tags[index + 1] = "COMPADR"
 
-            # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE
-            # elif row_tags[index+1] == 'LIBVOIE':
-
-            #     if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?|\
-            #     |L|LE|LA|LES|AUX?", row_tokens[index]):
-
-            #         row_tags[index] = 'LIBVOIE'
-
         for index in range(1, len(row_tags)):
             # identify NUMVOIE before a LIBVOIE or at the first position
             if row_tags[index] == 'LIBVOIE' or index == 1 and\
@@ -289,8 +282,6 @@ def tag_tokens(
 
                     row_tags[index] = 'PERSO'
 
-        # if several LIBVOIE prefer to keep one with a NUMVOIE before or the
-        # first one in the sequence
         # if token RESIDENCE / LOTISSEMENT and another token tagged as LIBVOIE
         # tag RESIDENCE or LOTISSEMENT as LIEU
         if row_tags.count("LIBVOIE") > 1:
@@ -302,12 +293,6 @@ def tag_tokens(
                         row_tags[index] = 'LIEU'
                     else:
                         cpt += 1
-
-                # if row_tags[index] == 'LIBVOIE' and cpt > 1 and\
-                #         row_tags[index-1] != 'NUMVOIE':
-
-                    # if not the first and not preceded by NUMVOIE
-                    # row_tags[index] = 'INCONNU'
 
         # identify NUMVOIE after LIEU or LIBVOIE
         for index in range(0, len(row_tags)-1):
@@ -322,42 +307,6 @@ def tag_tokens(
         # empty list used in the for (below)
         tag_before(row_tags, tag='LIBVOIE')
         tag_before(row_tags, tag='LIEU')
-
-        # index_numvoie = []
-        # index_libvoie = []
-        # for index in range(len(row_tags)):
-
-        #     if row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
-        #         index_numvoie.append(index)
-        #     if row_tags[index] == 'LIBVOIE':
-        #         index_libvoie.append(index)
-
-        #     for libvoie in index_libvoie:
-        #         before_lib = list(filter(lambda index: index < libvoie,
-        #                                  index_numvoie))
-
-        #         if before_lib:
-        #             max_num = max(before_lib)
-        #             all_unk = True
-        #             for index_tag in range(max_num+1, libvoie):
-        #                 if row_tags[index_tag] != 'INCONNU':
-        #                     all_unk = False
-        #                     break
-
-        #             if all_unk:
-        #                 for index_tag in range(max_num+1, libvoie):
-        #                     row_tags[index_tag] = 'LIBVOIE'
-
-        #         else:
-        #             all_unk = True
-        #             for index_tag in range(0, libvoie):
-        #                 if row_tags[index_tag] != 'INCONNU':
-        #                     all_unk = False
-        #                     break
-
-        #             if all_unk:
-        #                 for index_tag in range(0, libvoie):
-        #                     row_tags[index_tag] = 'LIBVOIE'
 
         # if several tags NUMVOIE check if the middle tags between them could
         # be NUMVOIE too
@@ -445,17 +394,6 @@ def tag_tokens(
                         ):
                 row_tags[index] = 'INCONNU'
 
-            # elif row_tags[index] == 'LIBVOIE'\
-            #     and row_tags.count("LIBVOIE") == 1\
-            #         and len(row_tokens[row_tags.index('LIBVOIE')]) < 3:
-
-            #     row_tags[index] = 'INCONNU'
-
-            # elif row_tags[index] == 'LIEU' and row_tags.count("LIEU") == 1\
-            #         and len(row_tokens[row_tags.index('LIEU')]) < 3:
-
-            #     row_tags[index] = 'INCONNU'
-
             # if nothing after COMMUNE (probably end of LIBVOIE or LIEU)
             if row_tokens[index] in ['COMMUNE', 'COMMUNES']\
                     and index == len(row_tags) - 1:
@@ -470,16 +408,11 @@ def tag_tokens(
         if row_tags.count("LIBVOIE") == 1 and row_tags.count("LIEU") > 1:
             index_to_replace = row_tags.index('LIBVOIE')
             row_tags[index_to_replace] = 'LIEU'
-        if 'AFRICAIN' in row_tokens:
-            print(row_tags, row_tokens)
+
         # if only one LIEU and several LIBVOIE tag LIEU as LIBVOIE
         if row_tags.count("LIEU") == 1 and row_tags.count("LIBVOIE") > 1:
-            if 'AFRICAIN' in row_tokens:
-                print(row_tags, row_tokens)
             index_to_replace = row_tags.index('LIEU')
             row_tags[index_to_replace] = 'LIBVOIE'
-            if 'AFRICAIN' in row_tokens:
-                print(row_tags, row_tokens)
 
         list_tags.append(row_tags)
 
@@ -537,13 +470,5 @@ def df_tags(tags):
     df = pd.DataFrame()
     for tag in list_tags:
         df[tag] = res[tag]
-
-    # remove personnal information
-    # nrows = df.shape[0]
-    # for row in range(nrows):
-    #     if df.loc[row, 'PERSO'] != '':
-    #         df = df.drop(row, axis=0)
-
-    # df = df.drop('PERSO', axis=1)
 
     return df
