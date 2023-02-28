@@ -10,8 +10,6 @@ def clean(field):
     # upper case
     field_new = field.upper()
 
-    if 'PEGNA' in field_new:
-        print(field_new)
     # if 2 À 10 RUE ... replaced À by AU
     detect = re.findall(
         ' [0-9]+[ -]*[Ã|Ã¢|\\?Á|À|Á|Â|Ã|Ä|Å][ -]*[0-9]+ ',
@@ -25,9 +23,6 @@ def clean(field):
             index = matched.find('À') + start
             field_new = field_new[0:index] + 'AU' +\
                 field_new[index+1:len(field_new)]
-
-    if 'PEGNA' in field_new:
-        print(field_new)
 
     # try to replace other special encoding
     field_new = re.sub("Ã|Ã¢|A£|\\?Á|C½|¶|·|À|Á|Â|Ã|Ä|Å", "A", field_new)
