@@ -71,6 +71,45 @@ def complete_tags(row_tags, tag_to_complete, index_first_tag):
     return row_tags
 
 
+def tag_before(row_tags, tag):
+    index_numvoie = []
+    index_tag = []
+    for index in range(len(row_tags)):
+
+        if row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
+            index_numvoie.append(index)
+        if row_tags[index] == tag:
+            index_tag.append(index)
+
+    print(index_tag)
+    for libvoie in index_tag:
+        before_lib = list(filter(lambda index: index < libvoie,
+                                 index_numvoie))
+
+        if before_lib:
+            max_num = max(before_lib)
+            all_unk = True
+            for index_tag in range(max_num+1, libvoie):
+                if row_tags[index_tag] != 'INCONNU':
+                    all_unk = False
+                    break
+
+            if all_unk:
+                for index_tag in range(max_num+1, libvoie):
+                    row_tags[index_tag] = tag
+
+        else:
+            all_unk = True
+            for index_tag in range(0, libvoie):
+                if row_tags[index_tag] != 'INCONNU':
+                    all_unk = False
+                    break
+
+            if all_unk:
+                for index_tag in range(0, libvoie):
+                    row_tags[index_tag] = tag
+
+
 def tag_tokens(
     tokenized_addresses,
     tokenized_cp,
@@ -195,12 +234,12 @@ def tag_tokens(
                     row_tags[index + 1] = "COMPADR"
 
             # identify complement before LIBVOIE like "GRAND RUE" as LIBVOIE
-            elif row_tags[index+1] == 'LIBVOIE':
+            # elif row_tags[index+1] == 'LIBVOIE':
 
-                if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?|\
-                |L|LE|LA|LES|AUX?", row_tokens[index]):
+            #     if re.match("^GRAND|^PETIT|^ANCIEN|^HAUT|^NOUVE|^VIEL|^VIEUX?|\
+            #     |L|LE|LA|LES|AUX?", row_tokens[index]):
 
-                    row_tags[index] = 'LIBVOIE'
+            #         row_tags[index] = 'LIBVOIE'
 
         for index in range(1, len(row_tags)):
             # identify NUMVOIE before a LIBVOIE or at the first position
@@ -281,30 +320,44 @@ def tag_tokens(
         # tag INCONNU tags as LIBVOIE if between NUMVOIE and LIBVOIE
         # allow to identify 1 PETITE RUE DE (PETITE as LIBVOIE)
         # empty list used in the for (below)
-        index_numvoie = []
-        index_libvoie = []
-        for index in range(len(row_tags)):
+        tag_before(row_tags, tag='LIBVOIE')
+        tag_before(row_tags, tag='LIEU')
 
-            if row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
-                index_numvoie.append(index)
-            if row_tags[index] == 'LIBVOIE':
-                index_libvoie.append(index)
+        # index_numvoie = []
+        # index_libvoie = []
+        # for index in range(len(row_tags)):
 
-            for libvoie in index_libvoie:
-                before_lib = list(filter(lambda index: index < libvoie,
-                                         index_numvoie))
+        #     if row_tags[index] in ['NUMVOIE', 'SUFFIXE']:
+        #         index_numvoie.append(index)
+        #     if row_tags[index] == 'LIBVOIE':
+        #         index_libvoie.append(index)
 
-                if before_lib:
-                    max_num = max(before_lib)
-                    all_unk = True
-                    for index_tag in range(max_num+1, libvoie):
-                        if row_tags[index_tag] != 'INCONNU':
-                            all_unk = False
-                            break
+        #     for libvoie in index_libvoie:
+        #         before_lib = list(filter(lambda index: index < libvoie,
+        #                                  index_numvoie))
 
-                    if all_unk:
-                        for index_tag in range(max_num+1, libvoie):
-                            row_tags[index_tag] = 'LIBVOIE'
+        #         if before_lib:
+        #             max_num = max(before_lib)
+        #             all_unk = True
+        #             for index_tag in range(max_num+1, libvoie):
+        #                 if row_tags[index_tag] != 'INCONNU':
+        #                     all_unk = False
+        #                     break
+
+        #             if all_unk:
+        #                 for index_tag in range(max_num+1, libvoie):
+        #                     row_tags[index_tag] = 'LIBVOIE'
+
+        #         else:
+        #             all_unk = True
+        #             for index_tag in range(0, libvoie):
+        #                 if row_tags[index_tag] != 'INCONNU':
+        #                     all_unk = False
+        #                     break
+
+        #             if all_unk:
+        #                 for index_tag in range(0, libvoie):
+        #                     row_tags[index_tag] = 'LIBVOIE'
 
         # if several tags NUMVOIE check if the middle tags between them could
         # be NUMVOIE too
@@ -392,16 +445,16 @@ def tag_tokens(
                         ):
                 row_tags[index] = 'INCONNU'
 
-            elif row_tags[index] == 'LIBVOIE'\
-                and row_tags.count("LIBVOIE") == 1\
-                    and len(row_tokens[row_tags.index('LIBVOIE')]) < 3:
+            # elif row_tags[index] == 'LIBVOIE'\
+            #     and row_tags.count("LIBVOIE") == 1\
+            #         and len(row_tokens[row_tags.index('LIBVOIE')]) < 3:
 
-                row_tags[index] = 'INCONNU'
+            #     row_tags[index] = 'INCONNU'
 
-            elif row_tags[index] == 'LIEU' and row_tags.count("LIEU") == 1\
-                    and len(row_tokens[row_tags.index('LIEU')]) < 3:
+            # elif row_tags[index] == 'LIEU' and row_tags.count("LIEU") == 1\
+            #         and len(row_tokens[row_tags.index('LIEU')]) < 3:
 
-                row_tags[index] = 'INCONNU'
+            #     row_tags[index] = 'INCONNU'
 
             # if nothing after COMMUNE (probably end of LIBVOIE or LIEU)
             if row_tokens[index] in ['COMMUNE', 'COMMUNES']\
@@ -412,6 +465,21 @@ def tag_tokens(
 
                 elif 'LIEU' in row_tags:
                     row_tags[index] = 'LIEU'
+
+        # if only one LIBVOIE and several LIEU tag LIBVOIE as LIEU
+        if row_tags.count("LIBVOIE") == 1 and row_tags.count("LIEU") > 1:
+            index_to_replace = row_tags.index('LIBVOIE')
+            row_tags[index_to_replace] = 'LIEU'
+        if 'AFRICAIN' in row_tokens:
+            print(row_tags, row_tokens)
+        # if only one LIEU and several LIBVOIE tag LIEU as LIBVOIE
+        if row_tags.count("LIEU") == 1 and row_tags.count("LIBVOIE") > 1:
+            if 'AFRICAIN' in row_tokens:
+                print(row_tags, row_tokens)
+            index_to_replace = row_tags.index('LIEU')
+            row_tags[index_to_replace] = 'LIBVOIE'
+            if 'AFRICAIN' in row_tokens:
+                print(row_tags, row_tokens)
 
         list_tags.append(row_tags)
 
