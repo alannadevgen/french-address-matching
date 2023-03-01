@@ -341,23 +341,6 @@ def tag_tokens(
                     if row_tokens[index] in sufixes:
                         row_tags[index] = "SUFFIXE"
 
-        # idem for PARCELLE
-        list_index = []
-
-        if row_tags.count("PARCELLE") > 1:
-            for index in range(len(row_tags)):
-                if row_tags[index] == 'PARCELLE':
-
-                    list_index.append(index)
-
-            if not (sum(list_index) == (len(list_index) *
-                    (len(list_index)-1))/2):
-
-                for i in range(len(list_index)-1):
-                    for index in range(list_index[i], list_index[i+1]):
-
-                        row_tags[index] = 'PARCELLE'
-
         # identify LIEU after NUMVOIE or SUFFIX
         if 'LIBVOIE' not in row_tags:
             for index in range(0, len(row_tags)-1):
