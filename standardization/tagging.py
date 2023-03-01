@@ -253,7 +253,7 @@ def tag_tokens(
                     re.match("^[0-9]{1,4}$", row_tokens[index]):
 
                 if row_tags[index-1] == "INCONNU" and\
-                    row_tokens[index-1] != 'ET' and\
+                    row_tokens[index-1] not in ['DU', 'DE', 'DES', 'ET'] and\
                     re.match("^[0-9A-Z]{1}[0-9A-Z]{1}$",
                              row_tokens[index-1]) and\
                         not row_tokens[index-1].isdigit():
@@ -369,6 +369,9 @@ def tag_tokens(
         # tags INCONNU token after a LIBVOIE, a COMP or a PARCELLE tag after
         # a first one and before the next tag (or the end)
         for index in range(len(row_tags)):
+            if 'LAC' in row_tokens:
+                print(row_tokens, row_tags)
+
             if row_tags[index] == 'LIBVOIE':
                 row_tags = complete_tags(row_tags, 'LIBVOIE', index)
 
