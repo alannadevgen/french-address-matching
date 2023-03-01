@@ -352,9 +352,6 @@ def tag_tokens(
         # tags INCONNU token after a LIBVOIE, a COMP or a PARCELLE tag after
         # a first one and before the next tag (or the end)
         for index in range(len(row_tags)):
-            if 'LAC' in row_tokens:
-                print(row_tokens, row_tags)
-
             if row_tags[index] == 'LIBVOIE':
                 row_tags = complete_tags(row_tags, 'LIBVOIE', index)
 
