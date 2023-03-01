@@ -326,7 +326,7 @@ def tag_tokens(
                     list_index.append(index)
                     middle_tags_unk = True
 
-                if row_tags[index] not in ['INCONNU', 'NUMVOIE']:
+                if row_tags[index] not in ['INCONNU', 'NUMVOIE', 'SUFFIXE']:
                     middle_tags_unk *= False
 
         if len(list_index) > 1:
