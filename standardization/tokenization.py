@@ -53,11 +53,23 @@ def tokenize(field, replacement_file):
                     for _ in range(10):
                         word = word.strip()
 
+                    # if 'FOUTEAU' in tokenized_field:
+                    #     print(tokenized_field, word)
+
                     # replace common abreviation
+                    # if it does not match a PARCELLE
                     for raw in range(replacement_file.shape[0]):
-                        if word == replacement_file.iloc[raw, 0]:
+                        to_replace = replacement_file.iloc[raw, 0]
+                        if word == to_replace and not (len(to_replace) == 2 and
+                                                       re.match(
+                                f'^.*[0-9]{{0,3}}\\s*{to_replace}'
+                                f'\\s*[0-9]{{1,4}}.*$',
+                                ' '.join(tokenized_field))):
                             word = replacement_file.iloc[raw, 1]
                             break
+
+                    # if 'FOUTEAU' in tokenized_field:
+                    #     print(tokenized_field, word)
 
                     # replace N10 by 10
                     if re.match('^N[0-9A-Z]{1,4}$', word):
