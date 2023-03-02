@@ -184,7 +184,11 @@ def tag_tokens(
 
                 row_tags[index] = 'PERSO'
 
-            # identify LIEU
+            # identify LIEUDIT as LIEU
+            elif row_tokens[index] in ['LIEU', 'LIEUDIT']:
+                row_tags[index] = 'LIEU'
+
+            # identify others LIEU
             elif not index and not re.match(".*[0-9]+.*", row_tokens[index]):
                 row_tags[index] = 'LIEU'
 
