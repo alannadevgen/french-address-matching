@@ -465,7 +465,7 @@ def df_tags(tags):
     by tag function
     '''
     list_tags = [
-        'LIEU', 'NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'PARCELLE', 'COMPADR',
+        'LIEU', 'NUMVOIE', 'LIBVOIE', 'PARCELLE', 'COMPADR',
         'CP', 'COMMUNE', 'INCONNU', 'PERSO'
         ]
     res = {}
@@ -484,3 +484,66 @@ def df_tags(tags):
         df[tag] = res[tag]
 
     return df
+
+
+def df_tags2(tags, indexes):
+    '''
+    df_tags2: create a clean dataframe composed of elements return
+    by tag function
+    '''
+    list_tags = [
+        'NUMVOIE', 'SUFFIXE', 'LIEU', 'LIBVOIE', 'PARCELLE', 'COMPADR',
+        'CP', 'COMMUNE', 'INCONNU'
+        ]
+
+    res = []
+    for index in range(len(tags)):
+        row_tokens = tags[index][0]
+        row_tags = tags[index][1]
+
+        if row_tags.count("NUMVOIE") > 1 or row_tags.count("SUFFIXE") > 1:
+            indexes_numvoie = []
+            for index_tag in range(len(row_tags)):
+                if row_tags[index_tag] in ['NUMVOIE', 'SUFFIXE']:
+                    indexes_numvoie.append(index_tag)
+
+            # sequence of several NUMVOIE for a same LIBVOIE or LIEU
+            sequence = True
+            for index2 in range(min(indexes_numvoie), max(indexes_numvoie)):
+                if row_tags[index2] not in ['INCONNU', 'NUMVOIE', 'LIBVOIE']:
+                    sequence = False
+                    break
+
+            if sequence:
+                other_tags = {}
+                for index_tag2 in range(2, len(list_tags)):
+                    other_tags[list_tags[index_tag2]] = []
+                    for index_tag in range(len(row_tags)):
+                        if row_tags[index_tag] == list_tags[index_tag2]:
+                            other_tags[list_tags[index_tag2]].append(
+                                row_tokens[index_tag]
+                                )
+
+                for index_numvoie in indexes_numvoie:
+                    numvoie_tag = {}
+                    numvoie_tag['NUMVOIE'] = row_tokens[index_numvoie]
+                    final = numvoie_tag | other_tags
+                    final['INDEX'] = indexes[index]
+                    res.append(final)
+
+            ###############################################
+            # case with several NUMVOIE and several LIBVOIE
+            # to DO
+            ###############################################
+
+        else:
+            other_tags = {}
+            for index_tag2 in range(len(list_tags)):
+                other_tags[list_tags[index_tag2]] = []
+                for index_tag in range(len(row_tags)):
+                    if row_tags[index_tag] == list_tags[index_tag2]:
+                        other_tags[list_tags[index_tag2]].append(
+                            row_tokens[index_tag])
+            res.append(other_tags)
+
+    return res
