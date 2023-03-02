@@ -393,7 +393,7 @@ def tag_tokens(
                     row_tags[index] = 'LIEU'
 
         # if only one LIBVOIE and several LIEU tag LIBVOIE as LIEU
-        if row_tags.count("LIBVOIE") == 1 and row_tags.count("LIEU") > 1:
+        if row_tags.count("LIBVOIE") == 1 and row_tags.count("LIEU") >= 1:
             index_to_replace = row_tags.index('LIBVOIE')
             row_tags[index_to_replace] = 'LIEU'
 
@@ -401,6 +401,21 @@ def tag_tokens(
         if row_tags.count("LIEU") == 1 and row_tags.count("LIBVOIE") > 1:
             index_to_replace = row_tags.index('LIEU')
             row_tags[index_to_replace] = 'LIBVOIE'
+
+        # if RESIDENCE DU CLOS (CLOS = LIBVOIE) or LOTISSEMENT DU CLOS
+        # and LIBVOIE non empty then gather the two ones
+        if row_tags.count("LIEU") == 2:
+            tokens_lieu = [
+                i for i, tag in enumerate(row_tags) if tag == 'LIEU'
+                ]
+            for index_token in range(min(tokens_lieu), max(tokens_lieu)):
+                if row_tokens[index_token] in ['RESIDENCE', 'LOTISSEMENT']:
+                    if row_tokens[index_token + 1] in\
+                        ['DU', 'DE', 'DES', 'LE', 'LA', 'LES'] and\
+                            (index_token+1) == len(tokens_lieu):
+                        for index2 in range(len(row_tags)):
+                            if row_tags[index2] == 'LIBVOIE':
+                                row_tags[index2] = 'LIEU'
 
         list_tags.append(row_tags)
 
@@ -414,6 +429,8 @@ def remove_perso_info(tags):
     # iterate over all addresses
     clean_tokens = []
     clean_tags = []
+    index_removed_addresses = []
+    index_kept_addresses = []
     for index in range(len(tags)):
         clean_tokens_address = []
         clean_tags_address = []
@@ -425,14 +442,21 @@ def remove_perso_info(tags):
             if tags[index][1][index2] != 'PERSO':
                 clean_tokens_address.append(tags[index][0][index2])
                 clean_tags_address.append(tags[index][1][index2])
+                index_kept_addresses.append(index)
             else:
                 remove = True
+                index_removed_addresses.append(index)
 
         if not remove:
             clean_tokens.append(clean_tokens_address)
             clean_tags.append(clean_tags_address)
 
-    return list(zip(clean_tokens, clean_tags))
+        result = {}
+        result['tagged_tokens'] = list(zip(clean_tokens, clean_tags))
+        result['removed_addresses'] = index_removed_addresses
+        result['kept_addresses'] = index_kept_addresses
+
+    return result
 
 
 def df_tags(tags):
