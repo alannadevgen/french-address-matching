@@ -1,6 +1,8 @@
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def create_train_test_sample(tags):
@@ -66,3 +68,10 @@ def compute_transition_matrix(tags):
         columns=list(set_tags), index=list(set_tags)
         )
     return tags_df
+
+
+def plot_transition_matrix(transition_matrix, file="transition_matrix.png"):
+    heatmap = sns.heatmap(transition_matrix, cmap="Blues")
+    plt.title('Matrice de transition')
+    fig = heatmap.get_figure()
+    fig.savefig(file)

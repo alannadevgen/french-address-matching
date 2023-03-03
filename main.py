@@ -2,6 +2,7 @@ from standardization.tokenization import tokenize
 from standardization.tagging import tag_tokens, df_tags, remove_perso_info, df_tags2
 from utils.csv_io import import_csv, export_csv
 from utils.sample import Sample
+from HMM.transition import compute_transition_matrix, plot_transition_matrix
 # from HMM.transition import creckages : on télécharge les données, on installe les librairies qui ne sont pas presentes par défaut et on récupère les fichiers nécessairesate_train_test_sample, compute_transition_matrix
 import click
 import pandas as pd
@@ -53,7 +54,6 @@ def main(create_sample, size):
     cp = df.iloc[:, 1]
     communes = df.iloc[:, 2]
 
-
     # create tokens for the 100 first addresses
     tokens_addresses = tokenize(addresses, replacement_file=replacement)
     tokens_communes = tokenize(communes, replacement_file=replacement)
@@ -76,16 +76,16 @@ def main(create_sample, size):
     clean_tags = tags_without_perso['tagged_tokens']
     # print(tags_without_perso[0:10])
 
-
     # train_sample = create_train_test_sample(tags_without_perso)[0]
 
     # display_statistics(train_sample)
     # transition_matrix = compute_transition_matrix(tags_without_perso)
     # print(transition_matrix)
+    # plot_transition_matrix(transition_matrix)
 
     # df_train = df_tags(clean_tags)
     res = df_tags2(clean_tags, tags_without_perso['kept_addresses'])
-    print(res[0:100],len(res))
+    print(res[0:100], len(res))
 
     # FILE_KEY_S3_TRAIN = "train.csv"
     # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
