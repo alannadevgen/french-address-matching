@@ -18,7 +18,7 @@ from time import time
 )
 @click.option(
     '--size',
-    default=100,
+    default=1000,
     help='Sample size.',
     type=int
 )
@@ -85,7 +85,7 @@ def main(create_sample, size):
 
     # df_train = df_tags(clean_tags)
     res = df_tags2(clean_tags, tags_without_perso['kept_addresses'])
-    print(res[0:100], len(res))
+    print(res[0:10], len(res))
 
     # FILE_KEY_S3_TRAIN = "train.csv"
     # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)

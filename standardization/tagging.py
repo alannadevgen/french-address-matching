@@ -442,14 +442,15 @@ def remove_perso_info(tags):
             if tags[index][1][index2] != 'PERSO':
                 clean_tokens_address.append(tags[index][0][index2])
                 clean_tags_address.append(tags[index][1][index2])
-                index_kept_addresses.append(index)
             else:
                 remove = True
-                index_removed_addresses.append(index)
 
         if not remove:
             clean_tokens.append(clean_tokens_address)
             clean_tags.append(clean_tags_address)
+            index_kept_addresses.append(index)
+        else:
+            index_removed_addresses.append(index)
 
         result = {}
         result['tagged_tokens'] = list(zip(clean_tokens, clean_tags))
@@ -496,54 +497,78 @@ def df_tags2(tags, indexes):
         'CP', 'COMMUNE', 'INCONNU'
         ]
 
-    res = []
-    for index in range(len(tags)):
-        row_tokens = tags[index][0]
-        row_tags = tags[index][1]
+    new_addresses = []
+    for index_address in range(len(tags)):
+        # list of tokens
+        tokens_address = tags[index_address][0]
 
-        if row_tags.count("NUMVOIE") > 1 or row_tags.count("SUFFIXE") > 1:
+        # list of tags
+        tags_address = tags[index_address][1]
+
+        # test if the address must be splited in sub-adresses
+        if tags_address.count("NUMVOIE") > 1 or\
+                tags_address.count("SUFFIXE") > 1:
             indexes_numvoie = []
-            for index_tag in range(len(row_tags)):
-                if row_tags[index_tag] in ['NUMVOIE', 'SUFFIXE']:
+            for index_tag in range(len(tags_address)):
+                if tags_address[index_tag] in ['NUMVOIE', 'SUFFIXE']:
                     indexes_numvoie.append(index_tag)
 
-            # sequence of several NUMVOIE for a same LIBVOIE or LIEU
-            sequence = True
-            for index2 in range(min(indexes_numvoie), max(indexes_numvoie)):
-                if row_tags[index2] not in ['INCONNU', 'NUMVOIE', 'LIBVOIE']:
-                    sequence = False
+            # detect sequence of several NUMVOIE for a same LIBVOIE or LIEU
+            sequence_numvoie = True
+            for index_token in range(min(indexes_numvoie),
+                                     max(indexes_numvoie)):
+                if tags_address[index_token] not in ['INCONNU',
+                                                     'NUMVOIE',
+                                                     'SUFFIXE']:
+                    sequence_numvoie = False
                     break
 
-            if sequence:
+            if sequence_numvoie:
+                # other_tags = all tags except NUMVOIE and SUFFIXE
                 other_tags = {}
-                for index_tag2 in range(2, len(list_tags)):
-                    other_tags[list_tags[index_tag2]] = []
-                    for index_tag in range(len(row_tags)):
-                        if row_tags[index_tag] == list_tags[index_tag2]:
-                            other_tags[list_tags[index_tag2]].append(
-                                row_tokens[index_tag]
+
+                # range begin at 2 because does not take NUMVOIE and SUFFIXE
+                for index_tag in range(2, len(list_tags)):
+
+                    other_tags[list_tags[index_tag]] = []
+
+                    # gather tokens together if same tag
+                    for index_tag2 in range(len(tags_address)):
+                        if tags_address[index_tag2] == list_tags[index_tag]:
+                            other_tags[list_tags[index_tag]].append(
+                                tokens_address[index_tag2]
                                 )
 
+                # create several sub-addresses for the address
+                # using NUMVOIE and LIBVOIE
+                # and other_tags
                 for index_numvoie in indexes_numvoie:
                     numvoie_tag = {}
-                    numvoie_tag['NUMVOIE'] = row_tokens[index_numvoie]
-                    final = numvoie_tag | other_tags
-                    final['INDEX'] = indexes[index]
-                    res.append(final)
+                    numvoie_tag['NUMVOIE'] = tokens_address[index_numvoie]
+                    new_address = numvoie_tag | other_tags
+                    new_address['INDEX'] = indexes[index_address]
+                    new_addresses.append(new_address)
 
             ###############################################
             # case with several NUMVOIE and several LIBVOIE
             # to DO
             ###############################################
 
+        # classic addresses
         else:
-            other_tags = {}
-            for index_tag2 in range(len(list_tags)):
-                other_tags[list_tags[index_tag2]] = []
-                for index_tag in range(len(row_tags)):
-                    if row_tags[index_tag] == list_tags[index_tag2]:
-                        other_tags[list_tags[index_tag2]].append(
-                            row_tokens[index_tag])
-            res.append(other_tags)
+            new_address = {}
 
-    return res
+            for index_tag in range(len(list_tags)):
+
+                new_address[list_tags[index_tag]] = []
+
+                # gather tokens together if same tag
+                for index_tag2 in range(len(tags_address)):
+                    if tags_address[index_tag2] == list_tags[index_tag]:
+                        new_address[list_tags[index_tag]].append(
+                            tokens_address[index_tag2])
+
+            new_address['INDEX'] = indexes[index_address]
+            new_addresses.append(new_address)
+
+    return new_addresses
