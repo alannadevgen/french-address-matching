@@ -460,37 +460,39 @@ def remove_perso_info(tags):
     return result
 
 
-def df_tags(tags):
+# def df_tags(tags):
+#     '''
+#     df_tags: create a clean dataframe composed of elements return
+#     by tag function
+#     '''
+#     list_tags = [
+#         'LIEU', 'NUMVOIE', 'LIBVOIE', 'PARCELLE', 'COMPADR',
+#         'CP', 'COMMUNE', 'INCONNU', 'PERSO'
+#         ]
+#     res = {}
+#     for elem in list_tags:
+#         res[elem] = []
+#         for index in range(len(tags)):
+#             tags_adresse = []
+#             for index2 in range(len(tags[index][1])):
+#                 if elem == tags[index][1][index2]:
+#                     tags_adresse.append(tags[index][0][index2])
+
+#             res[elem].append(" ".join(tags_adresse))
+
+#     df = pd.DataFrame()
+#     for tag in list_tags:
+#         df[tag] = res[tag]
+
+#     return df
+
+
+def reattach_tokens(tags, indexes):
     '''
-    df_tags: create a clean dataframe composed of elements return
-    by tag function
-    '''
-    list_tags = [
-        'LIEU', 'NUMVOIE', 'LIBVOIE', 'PARCELLE', 'COMPADR',
-        'CP', 'COMMUNE', 'INCONNU', 'PERSO'
-        ]
-    res = {}
-    for elem in list_tags:
-        res[elem] = []
-        for index in range(len(tags)):
-            tags_adresse = []
-            for index2 in range(len(tags[index][1])):
-                if elem == tags[index][1][index2]:
-                    tags_adresse.append(tags[index][0][index2])
-
-            res[elem].append(" ".join(tags_adresse))
-
-    df = pd.DataFrame()
-    for tag in list_tags:
-        df[tag] = res[tag]
-
-    return df
-
-
-def df_tags2(tags, indexes):
-    '''
-    df_tags2: create a clean dataframe composed of elements return
-    by tag function
+    reattach_tokens: reattach tokens according to their types
+    detect if several addresses are present in one row and split
+    them if needed
+    indexes = list of indexes (in the original dataset) of addresses
     '''
     list_tags = [
         'NUMVOIE', 'SUFFIXE', 'LIEU', 'LIBVOIE', 'PARCELLE', 'COMPADR',
@@ -532,7 +534,7 @@ def df_tags2(tags, indexes):
 
                     other_tags[list_tags[index_tag]] = []
 
-                    # gather tokens together if same tag
+                    # gather tokens together if they have a same tag
                     for index_tag2 in range(len(tags_address)):
                         if tags_address[index_tag2] == list_tags[index_tag]:
                             other_tags[list_tags[index_tag]].append(
@@ -549,12 +551,66 @@ def df_tags2(tags, indexes):
                     new_address['INDEX'] = indexes[index_address]
                     new_addresses.append(new_address)
 
-            ###############################################
-            # case with several NUMVOIE and several LIBVOIE
-            # to DO
-            ###############################################
+            else:
+                # break original address in sub-addresses
+                sub_addresses_tokens = []
+                sub_addresses_tags = []
 
-        # classic addresses
+                prec_index_num = indexes_numvoie[0]
+                breakpoints = [prec_index_num]
+                for index_num in range(1, len(indexes_numvoie)):
+                    if indexes_numvoie[index_num] != prec_index_num + 1:
+                        breakpoints.append(indexes_numvoie[index_num])
+                        prec_index_num = indexes_numvoie[index_num]
+
+                clean_breakpoints = []
+                clean_breakpoints.append(breakpoints[0])
+                for index_point in range(0, len(breakpoints)-1):
+                    correct_breakpoint = True
+                    for ind_tag in range(breakpoints[index_point]+1,
+                                         breakpoints[index_point+1]):
+
+                        if tags_address[ind_tag] in ['NUMVOIE',
+                                                     'SUFFIXE',
+                                                     'INCONNU']:
+                            correct_breakpoint = False
+                            break
+
+                    if correct_breakpoint:
+                        clean_breakpoints.append(breakpoints[index_point+1])
+
+                clean_breakpoints.append(len(tokens_address))
+
+                for index_point in range(0, len(clean_breakpoints)-1):
+                    sub_address_tokens = []
+                    sub_address_tags = []
+                    for ind_tag in range(clean_breakpoints[index_point],
+                                         clean_breakpoints[index_point+1]):
+                        sub_address_tokens.append(tokens_address[ind_tag])
+                        sub_address_tags.append(tags_address[ind_tag])
+
+                    sub_addresses_tokens.append(sub_address_tokens)
+                    sub_addresses_tags.append(sub_address_tags)
+
+                # list of tokens and tags of the new addresses
+                clean_addresses = list(zip(sub_addresses_tokens,
+                                           sub_addresses_tags))
+                # indexes of the new addresses
+                new_indexes = [
+                    indexes[index_address]
+                    for _ in range(len(sub_addresses_tokens))
+                    ]
+
+                # reattach tokens of a same tag
+                # if sequences of NUMVOIE are present in the new addresses
+                # they will be splited with the following function
+                broken_addresses = reattach_tokens(clean_addresses,
+                                                   new_indexes)
+
+                for addresse in broken_addresses:
+                    new_addresses.append(addresse)
+
+        # manage classic addresses
         else:
             new_address = {}
 

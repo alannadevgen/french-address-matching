@@ -1,5 +1,5 @@
 from standardization.tokenization import tokenize
-from standardization.tagging import tag_tokens, df_tags, remove_perso_info, df_tags2
+from standardization.tagging import tag_tokens, remove_perso_info, reattach_tokens
 from utils.csv_io import import_csv, export_csv
 from utils.sample import Sample
 from HMM.transition import compute_transition_matrix, plot_transition_matrix
@@ -84,8 +84,8 @@ def main(create_sample, size):
     # plot_transition_matrix(transition_matrix)
 
     # df_train = df_tags(clean_tags)
-    res = df_tags2(clean_tags, tags_without_perso['kept_addresses'])
-    print(res[0:10], len(res))
+    res = reattach_tokens(clean_tags, tags_without_perso['kept_addresses'])
+    print(res[0:100], len(res))
 
     # FILE_KEY_S3_TRAIN = "train.csv"
     # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
