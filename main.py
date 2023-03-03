@@ -1,5 +1,5 @@
 from standardization.tokenization import tokenize
-from standardization.tagging import tag_tokens, remove_perso_info, reattach_tokens
+from standardization.tagging import *
 from utils.csv_io import import_csv, export_csv
 from utils.sample import Sample
 from HMM.transition import compute_transition_matrix, plot_transition_matrix
@@ -18,7 +18,7 @@ from time import time
 )
 @click.option(
     '--size',
-    default=1000,
+    default=10000,
     help='Sample size.',
     type=int
 )
@@ -84,11 +84,14 @@ def main(create_sample, size):
     # plot_transition_matrix(transition_matrix)
 
     # df_train = df_tags(clean_tags)
-    res = reattach_tokens(clean_tags, tags_without_perso['kept_addresses'])
-    print(res[0:100], len(res))
+    reattached_tokens = reattach_tokens(clean_tags, tags_without_perso['kept_addresses'])
+    # print(reattached_tokens[0:100], len(reattached_tokens))
 
-    # FILE_KEY_S3_TRAIN = "train.csv"
-    # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+    df_train = tags_to_df(reattached_tokens)
+    print(df_train.head(30))
+
+    FILE_KEY_S3_TRAIN = "train.csv"
+    export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
 
     execution_time = time() - start_time
     print(f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")

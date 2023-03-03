@@ -417,6 +417,10 @@ def tag_tokens(
                             if row_tags[index2] == 'LIBVOIE':
                                 row_tags[index2] = 'LIEU'
 
+        # if NUMVOIE at the end of an address tags it as INCONNU
+        if row_tags[len(row_tags)-1] == 'NUMVOIE':
+            row_tags[len(row_tags)-1] = 'INCONNU'
+
         list_tags.append(row_tags)
 
     return list(zip(tokenized_addresses, list_tags))
@@ -489,7 +493,7 @@ def remove_perso_info(tags):
 
 def reattach_tokens(tags, indexes):
     '''
-    reattach_tokens: reattach tokens according to their types
+    reattach_tokens: reattach tokens according to their tags
     detect if several addresses are present in one row and split
     them if needed
     indexes = list of indexes (in the original dataset) of addresses
@@ -548,7 +552,7 @@ def reattach_tokens(tags, indexes):
                     numvoie_tag = {}
                     numvoie_tag['NUMVOIE'] = tokens_address[index_numvoie]
                     new_address = numvoie_tag | other_tags
-                    new_address['INDEX'] = indexes[index_address]
+                    new_address['INDEX'] = [str(indexes[index_address])]
                     new_addresses.append(new_address)
 
             else:
@@ -556,36 +560,19 @@ def reattach_tokens(tags, indexes):
                 sub_addresses_tokens = []
                 sub_addresses_tags = []
 
-                prec_index_num = indexes_numvoie[0]
-                breakpoints = [prec_index_num]
+                prec = indexes_numvoie[0]
+                breakpoints = [prec]
                 for index_num in range(1, len(indexes_numvoie)):
-                    if indexes_numvoie[index_num] != prec_index_num + 1:
+                    if indexes_numvoie[index_num] != prec + 1:
+                        prec = indexes_numvoie[index_num]
                         breakpoints.append(indexes_numvoie[index_num])
-                        prec_index_num = indexes_numvoie[index_num]
+                breakpoints.append(len(tokens_address))
 
-                clean_breakpoints = []
-                clean_breakpoints.append(breakpoints[0])
                 for index_point in range(0, len(breakpoints)-1):
-                    correct_breakpoint = True
-                    for ind_tag in range(breakpoints[index_point]+1,
-                                         breakpoints[index_point+1]):
-
-                        if tags_address[ind_tag] in ['NUMVOIE',
-                                                     'SUFFIXE',
-                                                     'INCONNU']:
-                            correct_breakpoint = False
-                            break
-
-                    if correct_breakpoint:
-                        clean_breakpoints.append(breakpoints[index_point+1])
-
-                clean_breakpoints.append(len(tokens_address))
-
-                for index_point in range(0, len(clean_breakpoints)-1):
                     sub_address_tokens = []
                     sub_address_tags = []
-                    for ind_tag in range(clean_breakpoints[index_point],
-                                         clean_breakpoints[index_point+1]):
+                    for ind_tag in range(breakpoints[index_point],
+                                         breakpoints[index_point+1]):
                         sub_address_tokens.append(tokens_address[ind_tag])
                         sub_address_tags.append(tags_address[ind_tag])
 
@@ -624,7 +611,28 @@ def reattach_tokens(tags, indexes):
                         new_address[list_tags[index_tag]].append(
                             tokens_address[index_tag2])
 
-            new_address['INDEX'] = indexes[index_address]
+            new_address['INDEX'] = [str(indexes[index_address])]
             new_addresses.append(new_address)
 
     return new_addresses
+
+
+def tags_to_df(reattach_tokens):
+    '''
+    '''
+    list_tags = [
+        'INDEX', 'NUMVOIE', 'LIEU', 'LIBVOIE', 'PARCELLE', 'COMPADR',
+        'CP', 'COMMUNE', 'INCONNU'
+        ]
+    res = {}
+    for elem in list_tags:
+        res[elem] = []
+        for index in range(len(reattach_tokens)):
+            tokens_tag = reattach_tokens[index][elem]
+            res[elem].append(" ".join(tokens_tag))
+
+    df = pd.DataFrame()
+    for tag in list_tags:
+        df[tag] = res[tag]
+
+    return df
