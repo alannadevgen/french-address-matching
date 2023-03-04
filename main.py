@@ -105,7 +105,7 @@ def main(create_sample, size):
     '''
 
     # retrieve tagged addresses
-    tagged_addresses = import_csv(BUCKET, 'train.csv', sep=';')
+    tagged_addresses = file_io.import_csv(bucket=BUCKET, file_key_s3='train.csv', sep=';')
     print(tagged_addresses.head())
 
     complete_df = tagged_addresses.set_index('INDEX').join(df)
