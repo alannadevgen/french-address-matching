@@ -88,7 +88,7 @@ def main(create_sample, size):
     # print(reattached_tokens[0:100], len(reattached_tokens))
 
     df_train = tags_to_df(reattached_tokens)
-    print(df_train.head(30))
+    print(df_train.head(50))
 
     FILE_KEY_S3_TRAIN = "train.csv"
     export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)

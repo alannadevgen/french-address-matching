@@ -499,7 +499,7 @@ def reattach_tokens(tags, indexes):
     indexes = list of indexes (in the original dataset) of addresses
     '''
     list_tags = [
-        'NUMVOIE', 'SUFFIXE', 'LIEU', 'LIBVOIE', 'PARCELLE', 'COMPADR',
+        'NUMVOIE', 'LIEU', 'LIBVOIE', 'PARCELLE', 'COMPADR',
         'CP', 'COMMUNE', 'INCONNU'
         ]
 
@@ -530,11 +530,11 @@ def reattach_tokens(tags, indexes):
                     break
 
             if sequence_numvoie:
-                # other_tags = all tags except NUMVOIE and SUFFIXE
+                # other_tags = all tags except NUMVOIE
                 other_tags = {}
 
-                # range begin at 2 because does not take NUMVOIE and SUFFIXE
-                for index_tag in range(2, len(list_tags)):
+                # range begin at 1 because does not take NUMVOIE
+                for index_tag in range(1, len(list_tags)):
 
                     other_tags[list_tags[index_tag]] = []
 
@@ -550,10 +550,22 @@ def reattach_tokens(tags, indexes):
                 # and other_tags
                 for index_numvoie in indexes_numvoie:
                     numvoie_tag = {}
-                    numvoie_tag['NUMVOIE'] = tokens_address[index_numvoie]
-                    new_address = numvoie_tag | other_tags
-                    new_address['INDEX'] = [str(indexes[index_address])]
-                    new_addresses.append(new_address)
+                    if tokens_address[index_numvoie] not in sufixes:
+                        numvoie_tag['NUMVOIE'] = [
+                            tokens_address[index_numvoie]
+                            ]
+
+                        if index_numvoie + 1 < len(tokens_address) and\
+                            tokens_address[index_numvoie] not\
+                                in sufixes and\
+                                tokens_address[index_numvoie + 1] in sufixes:
+                            numvoie_tag['NUMVOIE'].append(
+                                tokens_address[index_numvoie + 1]
+                                )
+                    if numvoie_tag:
+                        new_address = numvoie_tag | other_tags
+                        new_address['INDEX'] = [str(indexes[index_address])]
+                        new_addresses.append(new_address)
 
             else:
                 # break original address in sub-addresses
@@ -610,6 +622,10 @@ def reattach_tokens(tags, indexes):
                     if tags_address[index_tag2] == list_tags[index_tag]:
                         new_address[list_tags[index_tag]].append(
                             tokens_address[index_tag2])
+                    elif list_tags[index_tag] == 'NUMVOIE' and\
+                            tags_address[index_tag2] == 'SUFFIXE':
+                        new_address['NUMVOIE'].append(
+                            tokens_address[index_tag2])
 
             new_address['INDEX'] = [str(indexes[index_address])]
             new_addresses.append(new_address)
@@ -621,13 +637,14 @@ def tags_to_df(reattach_tokens):
     '''
     '''
     list_tags = [
-        'INDEX', 'NUMVOIE', 'LIEU', 'LIBVOIE', 'PARCELLE', 'COMPADR',
-        'CP', 'COMMUNE', 'INCONNU'
+        'INDEX', 'NUMVOIE', 'LIEU', 'LIBVOIE', 'PARCELLE',
+        'COMPADR', 'CP', 'COMMUNE', 'INCONNU'
         ]
     res = {}
     for elem in list_tags:
         res[elem] = []
         for index in range(len(reattach_tokens)):
+            # print(reattach_tokens[index])
             tokens_tag = reattach_tokens[index][elem]
             res[elem].append(" ".join(tokens_tag))
 
