@@ -8,6 +8,7 @@ import click
 import pandas as pd
 import numpy as np
 from time import time
+from matching.matching import *
 
 
 @click.command()
@@ -54,7 +55,6 @@ def main(create_sample, size):
     df = df_sample.iloc[:, :5]
 
     # extract addresses column
-    print(df.head(20))
 
     '''
     addresses = df.iloc[:, 0]
@@ -106,7 +106,6 @@ def main(create_sample, size):
 
     # retrieve tagged addresses
     tagged_addresses = file_io.import_csv(bucket=BUCKET, file_key_s3='train.csv', sep=';')
-    print(tagged_addresses.head())
 
     complete_df = tagged_addresses.set_index('INDEX').join(df)
 
@@ -119,7 +118,6 @@ def main(create_sample, size):
     cols = list(complete_df.columns)
 
     for index, row in complete_df.iterrows():
-        print(index, complete_df.iloc[index, cols.index('LIBVOIE')])
 
         if len(complete_df.iloc[index, cols.index('cp')]) == 4:
             complete_df.iloc[index, cols.index('cp')] = '0' +\
@@ -132,10 +130,20 @@ def main(create_sample, size):
 
     print(complete_df.head(30))
 
+
+    
+    # matched = match_addresses(complete_df.iloc[0:1000,:])
+    # print(matched.head())
+
+    # FILE_KEY_S3_TRAIN = "matching.csv"
+    # file_io.export_csv(matched, BUCKET, FILE_KEY_S3_TRAIN)
+    # export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+
     execution_time = time() - start_time
     print(
         f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)"
     )
+
 
 
 if __name__ == '__main__':

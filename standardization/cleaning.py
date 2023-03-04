@@ -56,8 +56,8 @@ def clean(field):
     field_new = re.sub('[\\?!/_\\.,;:&\\-\'\\(\\)"]', " ", field_new)
 
     # replace common abbreviations
-    field_new = re.sub("SAINT", "ST", field_new)
-    field_new = re.sub("S\\/", "SUR", field_new)
+    # field_new = re.sub("SAINT", "ST", field_new)
+    # field_new = re.sub("S\\/", "SUR", field_new)
     field_new = re.sub("L-D", "LIEUDIT", field_new)
 
     # convert numbers (written with letters) to numbers (digits)
