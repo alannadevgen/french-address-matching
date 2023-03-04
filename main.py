@@ -1,6 +1,6 @@
 from standardization.tokenization import tokenize
 from standardization.tagging import *
-from utils.csv_io import import_csv, export_csv
+from utils.csv_io import IO
 from utils.sample import Sample
 from HMM.transition import compute_transition_matrix, plot_transition_matrix
 # from HMM.transition import creckages : on télécharge les données, on installe les librairies qui ne sont pas presentes par défaut et on récupère les fichiers nécessairesate_train_test_sample, compute_transition_matrix
@@ -26,11 +26,12 @@ def main(create_sample, size):
     start_time = time()
     BUCKET = 'projet-pfe-adress-matching'
     FILE_KEY_S3 = 'DonneesCompletes.csv'
+    file_io = IO()
 
     if create_sample:
         print("Creating new sample.\n")
         # import of the data
-        full_df = import_csv(BUCKET, FILE_KEY_S3)
+        full_df = file_io.import_csv(BUCKET, FILE_KEY_S3)
         # initialisate a sample
         sample = Sample(dataset=full_df, size=size)
         # create the sample
@@ -40,10 +41,12 @@ def main(create_sample, size):
     else:
         print("Importing previously created sample.\n")
         # import the previous sample
-        df_sample = import_csv(BUCKET, 'sample.csv', sep=';')
+        df_sample = file_io.import_csv(
+            bucket=BUCKET, file_key_s3='sample.csv', sep=';'
+        )
 
     # import others datasets
-    df_sample = import_csv(BUCKET, 'sample.csv', sep=';')
+    df_sample = file_io.import_csv(BUCKET, 'sample.csv', sep=';')
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
@@ -69,7 +72,7 @@ def main(create_sample, size):
         cp,
         tokens_communes,
         libvoie_file=lib_voie
-        )
+    )
 
     # remove personal information
     tags_without_perso = remove_perso_info(tags)
@@ -84,17 +87,19 @@ def main(create_sample, size):
     # plot_transition_matrix(transition_matrix)
 
     # df_train = df_tags(clean_tags)
-    reattached_tokens = reattach_tokens(clean_tags, tags_without_perso['kept_addresses'])
+    reattached_tokens = reattach_tokens(
+        clean_tags, tags_without_perso['kept_addresses'])
     # print(reattached_tokens[0:100], len(reattached_tokens))
 
     df_train = tags_to_df(reattached_tokens)
     print(df_train.head(50))
 
     FILE_KEY_S3_TRAIN = "train.csv"
-    export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+    file_io.export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
 
     execution_time = time() - start_time
-    print(f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")
+    print(
+        f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")
 
 
 if __name__ == '__main__':
