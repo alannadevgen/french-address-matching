@@ -6,6 +6,7 @@ from HMM.transition import compute_transition_matrix, plot_transition_matrix
 # from HMM.transition import creckages : on télécharge les données, on installe les librairies qui ne sont pas presentes par défaut et on récupère les fichiers nécessairesate_train_test_sample, compute_transition_matrix
 import click
 import pandas as pd
+import numpy as np
 from time import time
 
 
@@ -47,12 +48,16 @@ def main(create_sample, size):
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
-    df = df_sample.iloc[:, :8]
+    df = df_sample.iloc[:, :5]
 
     # extract addresses column
+    print(df.head(20))
+
+    '''
     addresses = df.iloc[:, 0]
     cp = df.iloc[:, 1]
     communes = df.iloc[:, 2]
+
 
     # create tokens for the 100 first addresses
     tokens_addresses = tokenize(addresses, replacement_file=replacement)
@@ -92,6 +97,30 @@ def main(create_sample, size):
 
     FILE_KEY_S3_TRAIN = "train.csv"
     export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+    '''
+
+    # retrieve tagged addresses
+    tagged_addresses = import_csv(BUCKET, 'train.csv', sep=';')
+    print(tagged_addresses.head())
+
+    complete_df = tagged_addresses.set_index('INDEX').join(df)
+
+    complete_df['cp'] = complete_df['cp'].replace(np.nan, 0)
+    complete_df['cp'] = complete_df['cp'].astype(int)
+    complete_df['cp'] = complete_df['cp'].astype(str)
+
+    # for index, row in complete_df.iterrows():
+    #     print(row)
+
+    #     if len(complete_df.loc[index, 'cp']) == 4:
+    #         complete_df.loc[index, 'cp'] = '0' + complete_df.loc[row, 'cp']
+
+    #     if len(complete_df.loc[index, 'CODGEO_2021']) == 4:
+    #         complete_df.loc[index, 'CODGEO_2021'] = '0' +\
+    #             complete_df.loc[index, 'CODGEO_2021']
+
+
+    print(complete_df.head(30))
 
     execution_time = time() - start_time
     print(f"Took {round(execution_time, 2)} seconds (approx. {round(execution_time/60)} minutes)")
