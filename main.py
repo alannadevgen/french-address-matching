@@ -109,15 +109,20 @@ def main(create_sample, size):
     complete_df['cp'] = complete_df['cp'].astype(int)
     complete_df['cp'] = complete_df['cp'].astype(str)
 
-    # for index, row in complete_df.iterrows():
-    #     print(row)
+    complete_df['index'] = list(complete_df.index)
 
-    #     if len(complete_df.loc[index, 'cp']) == 4:
-    #         complete_df.loc[index, 'cp'] = '0' + complete_df.loc[row, 'cp']
+    cols = list(complete_df.columns)
 
-    #     if len(complete_df.loc[index, 'CODGEO_2021']) == 4:
-    #         complete_df.loc[index, 'CODGEO_2021'] = '0' +\
-    #             complete_df.loc[index, 'CODGEO_2021']
+    for index, row in complete_df.iterrows():
+        print(index, complete_df.iloc[index, cols.index('LIBVOIE')])
+
+        if len(complete_df.iloc[index, cols.index('cp')]) == 4:
+            complete_df.iloc[index, cols.index('cp')] = '0' +\
+                complete_df.iloc[index, cols.index('cp')]
+
+        if len(complete_df.iloc[index, cols.index('CODGEO_2021')]) == 4:
+            complete_df.iloc[index, cols.index('CODGEO_2021')] = '0' +\
+                complete_df.iloc[index, cols.index('CODGEO_2021')]
 
 
     print(complete_df.head(30))
