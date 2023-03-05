@@ -102,7 +102,7 @@ def tokenize(field, replacement_file):
                             break
 
                     # replace N10 by 10
-                    if re.match('^N[0-9A-Z]{1,4}$', word):
+                    if re.match('^N[0-9]{1,4}$', word):
                         word = word[1:len(word)]
 
                     # separate letters and digits

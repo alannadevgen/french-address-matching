@@ -48,7 +48,7 @@ def clean(field):
     field_new = re.sub("–", "-", field_new)
     field_new = re.sub("\\[", "\\(", field_new)
     field_new = re.sub("\\]", "\\)", field_new)
-    field_new = re.sub("N\\*|N\\?|N\\?\\(|NÂ°|NA°", "N°", field_new)
+    field_new = re.sub("N\\*|N\\?|N\\?\\(|NÂ°|NA°", "NUMERO", field_new)
     field_new = re.sub("Æ", "AE", field_new)
     field_new = re.sub("Œ", "OE", field_new)
 
