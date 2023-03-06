@@ -148,7 +148,7 @@ def tag_tokens(
                 "^CAVE|^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|"
                 "^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$|"
                 "^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|^IM?MEUB|^BATIM|"
-                "^ENTRE{0,2}S?|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|^REZ$|"
+                "^ENTRE{0,2}S?$|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|^REZ$|"
                 "^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI|"
                 "GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?"
                     "|^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
@@ -171,7 +171,9 @@ def tag_tokens(
                 row_tags[index] = "PARCELLE"
 
             # identify COMMUNE
-            elif re.match("^COMMUNES?$", row_tokens[index]):
+            elif re.match("^COMMUNES?$", row_tokens[index]) and not\
+                index_row and\
+                    row_tokens[index-1] not in ['LA', 'DES']:
 
                 row_tags[index] = 'COMMUNE'
 

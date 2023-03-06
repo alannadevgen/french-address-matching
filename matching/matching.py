@@ -51,6 +51,9 @@ def match_address(numvoie=None, libvoie=None, lieudit=None, citycode=None,
                 query_result = features[0]['properties']
             else:
                 query_result = {'error': 'not found'}
+        else:
+            print(f'Status code {req.status_code}')
+            print(def_query)
 
     if not query_result and not correct_query:
         query_result = {'error': 'incorrect'}
@@ -154,12 +157,14 @@ def match_addresses_cor(df, addresses_corr_col, citycode_col, postalcode_col):
 def incorrect_addresses(df):
     '''
     '''
+    cols = list(df.columns)
     count_indexes = df['index'].value_counts()
     addresses_to_correct = []
     for index, row in df.iterrows():
-        if df.loc[index, 'label_corr'] not in\
+        if df.iloc[index, cols.index('label_corr')] not in\
             ['not found', 'no results', 'incorrect'] and\
-            df.loc[index, 'label'] != df.loc[index, 'label_corr'] and\
-                count_indexes[df.loc[index, 'index']] == 1:
-            addresses_to_correct.append(df.loc[index, 'index'])
-    return count_indexes
+            df.iloc[index, cols.index('label')] !=\
+                df.iloc[index, cols.index('label_corr')] and\
+                count_indexes.loc[df.iloc[index, cols.index('index')]] == 1:
+            addresses_to_correct.append(df.iloc[index, cols.index('index')])
+    return addresses_to_correct

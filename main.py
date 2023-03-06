@@ -181,11 +181,26 @@ def main(create_sample, size):
     #################
     # tags to correct
     incorrect_indexes = incorrect_addresses(matched_corr_addresses)
-    print(len(incorrect_indexes))
-    print(incorrect_indexes)
+    print(f'NUMBER OF ADDRESSES WITH POSSIBLE '
+          f'INCORRECT TAGS: {len(incorrect_indexes)}\n')
+    print('INDEXES OF THESE ADDRESSES:')
+    print(incorrect_indexes, '\n')
 
-    # for index_address in incorrect_indexes:
-    #     print(clean_tags[index_address])
+    cols = list(matched_corr_addresses.columns)
+    for index_address in incorrect_indexes:
+        print(f'INDEX {index_address}\n')
+        print('TAGGING\n', tags[index_address])
+        print('ADDRESS RETURNED BY THE API (with our tags)\n',
+              matched_corr_addresses[
+                matched_corr_addresses['index'] ==
+                index_address].iloc[0, cols.index('label')
+                                    ])
+        print('ADDRESS RETURNED BY THE API (with previous corrections)\n',
+              matched_corr_addresses[
+                matched_corr_addresses['index'] ==
+                index_address].iloc[0, cols.index('label_corr')
+                                    ])
+        print('\n')
     #################
 
     execution_time = time() - start_time

@@ -109,7 +109,8 @@ def tokenize(field, replacement_file):
                     # only when there is more than one letter and one digit
                     words_new = []
                     if re.match('^[0-9]+[A-Z]+|[A-Z]+[0-9]+$', word) \
-                            and len(word) > 2:
+                            and len(word) > 2 and not\
+                            re.match('^[0-9]{1,3}(ER|EME)$', word):
                         words = split_digit_letter(word)
 
                         for word in words:
