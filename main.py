@@ -2,13 +2,15 @@ from standardization.tokenization import tokenize
 from standardization.tagging import tag_tokens, tags_to_df, reattach_tokens,\
     remove_perso_info
 from matching.matching import match_addresses, match_addresses_cor,\
-    incorrect_addresses
-from utils.csv_io import IO
+    incorrect_addresses, create_training_dataset
+from utils.csv_io import IOcsv
+from utils.json_io import IOjson
 from utils.sample import Sample
 import click
 import pandas as pd
 import numpy as np
 from time import time
+import json
 # from HMM.transition import compute_transition_matrix, plot_transition_matrix
 # from HMM.transition import creckages :
 # on télécharge les données, on installe les librairies qui ne sont pas
@@ -25,7 +27,7 @@ from time import time
 )
 @click.option(
     '--size',
-    default=1000,
+    default=10000,
     help='Sample size.',
     type=int
 )
@@ -33,12 +35,13 @@ def main(create_sample, size):
     start_time = time()
     BUCKET = 'projet-pfe-adress-matching'
     FILE_KEY_S3 = 'DonneesCompletes.csv'
-    file_io = IO()
+    file_io_csv = IOcsv()
+    file_io_json = IOjson()
 
     if create_sample:
         print("Creating new sample.\n")
         # import of the data
-        full_df = file_io.import_csv(BUCKET, FILE_KEY_S3)
+        full_df = file_io_csv.import_csv(BUCKET, FILE_KEY_S3)
         # initialisate a sample
         sample = Sample(dataset=full_df, size=size)
         # create the sample
@@ -48,12 +51,12 @@ def main(create_sample, size):
     else:
         print("Importing previously created sample.\n")
         # import the previous sample
-        df_sample = file_io.import_csv(
+        df_sample = file_io_csv.import_csv(
             bucket=BUCKET, file_key_s3='sample.csv', sep=';'
         )
-
+    '''
     # import others datasets
-    df_sample = file_io.import_csv(BUCKET, 'sample.csv', sep=';')
+    df_sample = file_io_csv.import_csv(BUCKET, 'sample.csv', sep=';')
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
@@ -104,7 +107,7 @@ def main(create_sample, size):
     df_train = tags_to_df(reattached_tokens)
 
     FILE_KEY_S3_TRAIN = "train.csv"
-    file_io.export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
+    file_io_csv.export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
     ########################################################
 
     # import train.csv
@@ -175,7 +178,7 @@ def main(create_sample, size):
                                                  'cp_corr')
 
     FILE_KEY_S3_MATCH = "matching.csv"
-    file_io.export_csv(matched_corr_addresses, BUCKET, FILE_KEY_S3_MATCH)
+    file_io_csv.export_csv(matched_corr_addresses, BUCKET, FILE_KEY_S3_MATCH)
     ##########################################
 
     #################
@@ -202,6 +205,23 @@ def main(create_sample, size):
                                     ])
         print('\n')
     #################
+
+    final_train = create_training_dataset(tags, incorrect_indexes)
+    '''
+
+    FILE_KEY_S3_FINAL_TRAIN = "final_train.json"
+    # file_io_json.export_json(final_train, BUCKET, FILE_KEY_S3_FINAL_TRAIN)
+
+    # list of possible incorrect addresses
+    addresses_to_check = []
+    list_addresses = file_io_json.import_json(BUCKET, FILE_KEY_S3_FINAL_TRAIN)
+    for adress in list(list_addresses.keys()):
+        complete_adress = list_addresses[adress]
+        if not complete_adress['valid']:
+            addresses_to_check.append(complete_adress)
+    # 181 addresses to check among 10 000 (most of them are correct)
+    print(len(addresses_to_check))
+    print(addresses_to_check)
 
     execution_time = time() - start_time
     seconds = round(execution_time, 2)

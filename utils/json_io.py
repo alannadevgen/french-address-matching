@@ -1,9 +1,9 @@
 import s3fs
-import pandas as pd
+import json
 import os
 
 
-class IOcsv:
+class IOjson:
     def get_credentials(self):
         '''
         Get the credentials to connect to the S3 Datalab file system
@@ -23,26 +23,25 @@ class IOcsv:
         )
         return file_system
 
-    def import_csv(
+    def import_json(
         self, bucket: str, file_key_s3: str,
-        encoding='utf8', sep=';'
     ):
         '''
-        import_csv allows to import csv file containing the addresses
+        import_json allows to import json file containing the addresses
         with any vscode service on the datalab thanks to management of
         environment variables
-        returns a pandas dataframe
+        returns a json
         '''
         file_system = self.get_credentials()
         file_path_s3 = bucket + "/" + file_key_s3
 
-        with file_system.open(file_path_s3, mode="rb") as file_input:
-            df = pd.read_csv(file_input, sep=sep, encoding=encoding)
-        return df
+        with file_system.open(file_path_s3, mode="r") as file_input:
+            dict_file = json.load(file_input)
+        return dict_file
 
-    def export_csv(self, df, bucket: str, file_key_s3: str):
+    def export_json(self, dict_file, bucket: str, file_key_s3: str):
         '''
-        export_csv allow to transform a pandas dataframe into a csv file
+        export_json allow to transform a dictionnary into a csv file
         and to export it with any vscode service on the datalab using
         management of env variables
         '''
@@ -50,4 +49,4 @@ class IOcsv:
         file_path_s3 = bucket + "/" + file_key_s3
 
         with file_system.open(file_path_s3, 'w') as file_output:
-            df.to_csv(file_output, index=False, sep=';')
+            json.dump(dict_file, file_output)

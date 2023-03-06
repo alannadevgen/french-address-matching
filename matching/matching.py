@@ -168,3 +168,20 @@ def incorrect_addresses(df):
                 count_indexes.loc[df.iloc[index, cols.index('index')]] == 1:
             addresses_to_correct.append(df.iloc[index, cols.index('index')])
     return addresses_to_correct
+
+
+def create_training_dataset(list_tags, index_incorrect_addresses):
+    '''
+    '''
+    training_dataset = {}
+    for index_tag in range(len(list_tags)):
+        training_dataset[index_tag] = {}
+        tokens = list_tags[index_tag][0]
+        tags = list_tags[index_tag][1]
+        valid = True
+        if index_tag in index_incorrect_addresses:
+            valid = False
+        training_dataset[index_tag]['tokens'] = tokens
+        training_dataset[index_tag]['tags'] = tags
+        training_dataset[index_tag]['valid'] = valid
+    return training_dataset
