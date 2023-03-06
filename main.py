@@ -10,8 +10,7 @@ import click
 import pandas as pd
 import numpy as np
 from time import time
-
-# from HMM.transition import compute_transition_matrix, plot_transition_matrix
+from HMM.transition import compute_transition_matrix, plot_transition_matrix
 # from HMM.transition import creckages :
 # on télécharge les données, on installe les librairies qui ne sont pas
 # presentes par défaut et on récupère les fichiers nécessairesate_train
@@ -37,7 +36,7 @@ def main(create_sample, size):
     FILE_KEY_S3 = 'DonneesCompletes.csv'
     file_io_csv = IOcsv()
     file_io_json = IOjson()
-    '''
+
     if create_sample:
         print("Creating new sample.\n")
         # import of the data
@@ -54,14 +53,14 @@ def main(create_sample, size):
         df_sample = file_io_csv.import_csv(
             bucket=BUCKET, file_key_s3='sample.csv', sep=';'
         )
-
+    '''
     # import others datasets
     df_sample = file_io_csv.import_csv(BUCKET, 'final_sample.csv', sep=';')
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
-    df = df_sample[['adresse', 'cp_corr', 'CODGEO_2021', 'adresse_corr',
-                    'result_label']]
+    df = df_sample[['adresse', 'cp_corr', 'commune', 'CODGEO_2021',
+                    'adresse_corr', 'result_label']]
 
     # extract addresses column
     addresses = df.iloc[:, 0]
@@ -205,23 +204,35 @@ def main(create_sample, size):
                                     ])
         print('\n')
     #################
-
-    final_train = create_training_dataset(tags, incorrect_indexes)
-
     '''
+    # final_train = create_training_dataset(tags, incorrect_indexes)
+
     FILE_KEY_S3_FINAL_TRAIN = "final_train.json"
     # file_io_json.export_json(final_train, BUCKET, FILE_KEY_S3_FINAL_TRAIN)
 
     # list of possible incorrect addresses
     addresses_to_check = []
     list_addresses = file_io_json.import_json(BUCKET, FILE_KEY_S3_FINAL_TRAIN)
+    all_tokens = []
+    all_tags = []
     for adress in list(list_addresses.keys()):
         complete_adress = list_addresses[adress]
         if not complete_adress['valid']:
             addresses_to_check.append(complete_adress)
+        all_tokens.append(complete_adress['tokens'])
+        all_tags.append(complete_adress['tags'])
+    list_all_tags = list(zip(
+           all_tokens, all_tags
+            ))
     # 194 addresses to check among 10 000 (most of them are correct)
     print(len(addresses_to_check))
-    print(addresses_to_check)
+    # print(addresses_to_check)
+
+    # tags of the final (sample)
+    # display_statistics(train_sample)
+    transition_matrix = compute_transition_matrix(list_all_tags)
+    print(transition_matrix)
+    plot_transition_matrix(transition_matrix)
 
     execution_time = time() - start_time
     seconds = round(execution_time, 2)

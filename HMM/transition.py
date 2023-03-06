@@ -15,8 +15,9 @@ def display_statistics(tags):
     vocabulary = set(tokens)
     nb_distinct_vocab = len(vocabulary)
     tags = [tag for address in tags for tag in address[1]]
-    print(tags[0:10])
-    set_tags = set(tags)
+    # set_tags = set(tags)
+    set_tags = ['NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'LIEU', 'CP', 'COMMUNE',
+                'COMPADR', 'PARCELLE', 'PERSO', 'INCONNU']
     nb_distinct_tags = len(set_tags)
     print(f'Number of tokens in the train sample: {len(tokens)}')
     print(f'Number of distinct tokens in the train sample: \

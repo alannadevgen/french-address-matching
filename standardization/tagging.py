@@ -143,7 +143,7 @@ def tag_tokens(
 
                 row_tags[index] = "PARCELLE"
 
-            # identify complement COMP
+            # identify complement COMPADR
             elif re.match(
                 "^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|"
                 "^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$|"
@@ -171,8 +171,7 @@ def tag_tokens(
                 row_tags[index] = "PARCELLE"
 
             # identify COMMUNE
-            elif re.match("^COMMUNES?$", row_tokens[index]) and not\
-                index_row and\
+            elif re.match("^COMMUNES?$", row_tokens[index]) and index != 0 and\
                     row_tokens[index-1] not in ['LA', 'DES']:
 
                 row_tags[index] = 'COMMUNE'
@@ -379,11 +378,11 @@ def tag_tokens(
             # which are not PARCELLE and remove LIBVOIE or LIEU containing
             # only one token of 2 letters
 
-            if row_tags[index] in ['LIBVOIE', 'LIEU']\
-                    and re.match(
-                        "[A-Z]+[0-9]+|[0-9]+[A-Z]+", row_tokens[index]
-                        ):
-                row_tags[index] = 'INCONNU'
+            # if row_tags[index] in ['LIBVOIE', 'LIEU']\
+            #         and re.match(
+            #             "[A-Z]+[0-9]+|[0-9]+[A-Z]+", row_tokens[index]
+            #             ):
+            #     row_tags[index] = 'INCONNU'
 
             # if nothing after COMMUNE (probably end of LIBVOIE or LIEU)
             if row_tokens[index] in ['COMMUNE', 'COMMUNES']\
@@ -421,7 +420,7 @@ def tag_tokens(
                                 row_tags[index2] = 'LIEU'
 
         # if NUMVOIE at the end of an address tags it as INCONNU
-        if row_tags[len(row_tags)-1] == 'NUMVOIE':
+        if row_tags[len(row_tags)-1] == 'NUMVOIE' and row_tags[0] == 'NUMVOIE':
             row_tags[len(row_tags)-1] = 'INCONNU'
 
         list_tags.append(row_tags)
