@@ -10,7 +10,7 @@ import click
 import pandas as pd
 import numpy as np
 from time import time
-import json
+
 # from HMM.transition import compute_transition_matrix, plot_transition_matrix
 # from HMM.transition import creckages :
 # on télécharge les données, on installe les librairies qui ne sont pas
@@ -37,7 +37,7 @@ def main(create_sample, size):
     FILE_KEY_S3 = 'DonneesCompletes.csv'
     file_io_csv = IOcsv()
     file_io_json = IOjson()
-
+    '''
     if create_sample:
         print("Creating new sample.\n")
         # import of the data
@@ -112,8 +112,8 @@ def main(create_sample, size):
 
     # import train.csv
     tagged_addresses = file_io_csv.import_csv(bucket=BUCKET,
-                                          file_key_s3='final_reattached_tokens.csv',
-                                          sep=';')
+                                              file_key_s3='final_reattached_tokens.csv',
+                                              sep=';')
 
     # keep indexes in a column
     tagged_addresses['index'] = tagged_addresses['INDEX']
@@ -208,8 +208,9 @@ def main(create_sample, size):
 
     final_train = create_training_dataset(tags, incorrect_indexes)
 
+    '''
     FILE_KEY_S3_FINAL_TRAIN = "final_train.json"
-    file_io_json.export_json(final_train, BUCKET, FILE_KEY_S3_FINAL_TRAIN)
+    # file_io_json.export_json(final_train, BUCKET, FILE_KEY_S3_FINAL_TRAIN)
 
     # list of possible incorrect addresses
     addresses_to_check = []
@@ -218,10 +219,9 @@ def main(create_sample, size):
         complete_adress = list_addresses[adress]
         if not complete_adress['valid']:
             addresses_to_check.append(complete_adress)
-    # 181 addresses to check among 10 000 (most of them are correct)
+    # 194 addresses to check among 10 000 (most of them are correct)
     print(len(addresses_to_check))
     print(addresses_to_check)
-    print(list_addresses['0'])
 
     execution_time = time() - start_time
     seconds = round(execution_time, 2)
