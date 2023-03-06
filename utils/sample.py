@@ -6,7 +6,7 @@ class Sample:
     def __init__(self, dataset, size):
         self.dataset = pd.DataFrame(dataset)
         self.size = size
-        self.file_io = IO()
+        self.file_io = IOcsv()
 
     def create_sample(self):
         self.sample_dataset = self.dataset.sample(

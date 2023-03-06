@@ -137,21 +137,21 @@ def tag_tokens(
                 row_tags[index] = "LIBVOIE"
 
             # identify PARCELLE
-            elif re.match("^PC$|^CADAST|^PARCC?EL|^0{3}$|^FEUIL"
-                          "|^SEC?T?ION|^REF\\.?$|REFERENCE?S?$",
+            elif re.match("^PC$|^CADAST|^PARCC?EL|^0{3}$|^FEUILLE$"
+                          "|^SEC?T?ION|REFERENCE?S?$",
                           row_tokens[index]):
 
                 row_tags[index] = "PARCELLE"
 
             # identify complement COMP
             elif re.match(
-                "^CAVE|^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|"
+                "^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|"
                 "^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$|"
                 "^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|^IM?MEUB|^BATIM|"
-                "^ENTRE{0,2}S?$|^PORTE?S$|^PAVIL|^ETA?GE?S?|RDC|^REZ$|"
+                "^ENTRE{0,2}S?$|^PORTES?$|^PAVIL|^ETA?GE?S?|RDC|^REZ$|"
                 "^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI|"
-                "GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?"
-                    "|^[0-9]{1,2}I?E[MR]E?$", row_tokens[index]):
+                "GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?",
+                    row_tokens[index]):
                 row_tags[index] = "COMPADR"
 
             # identify postal code CP
@@ -234,7 +234,8 @@ def tag_tokens(
                     libvoie_file
                     )
 
-            elif re.match("^ETG|ETAGE$", row_tokens[index]):
+            elif re.match("^ETG|ETAGE|BATIMENT|APPARTEMENT$",
+                          row_tokens[index]):
                 row_tags[index] = "COMPADR"
                 if row_tokens[index + 1].isdigit() and\
                         row_tags[index + 1] == 'INCONNU':

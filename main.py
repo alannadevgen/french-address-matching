@@ -47,16 +47,16 @@ def main(create_sample, size):
         # create the sample
         sample.create_sample()
         #  put the sample in the BUCKET
-        sample.save_sample_file(BUCKET, 'sample.csv')
+        sample.save_sample_file(BUCKET, 'final_sample.csv')
     else:
         print("Importing previously created sample.\n")
         # import the previous sample
         df_sample = file_io_csv.import_csv(
             bucket=BUCKET, file_key_s3='sample.csv', sep=';'
         )
-    '''
+
     # import others datasets
-    df_sample = file_io_csv.import_csv(BUCKET, 'sample.csv', sep=';')
+    df_sample = file_io_csv.import_csv(BUCKET, 'final_sample.csv', sep=';')
     replacement = pd.read_csv('remplacement.csv', sep=",")
     lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
@@ -106,13 +106,13 @@ def main(create_sample, size):
 
     df_train = tags_to_df(reattached_tokens)
 
-    FILE_KEY_S3_TRAIN = "train.csv"
+    FILE_KEY_S3_TRAIN = "final_reattached_tokens.csv"
     file_io_csv.export_csv(df_train, BUCKET, FILE_KEY_S3_TRAIN)
     ########################################################
 
     # import train.csv
-    tagged_addresses = file_io.import_csv(bucket=BUCKET,
-                                          file_key_s3='train.csv',
+    tagged_addresses = file_io_csv.import_csv(bucket=BUCKET,
+                                          file_key_s3='final_reattached_tokens.csv',
                                           sep=';')
 
     # keep indexes in a column
@@ -177,7 +177,7 @@ def main(create_sample, size):
                                                  'adresse_corr', 'CODGEO_2021',
                                                  'cp_corr')
 
-    FILE_KEY_S3_MATCH = "matching.csv"
+    FILE_KEY_S3_MATCH = "final_matching.csv"
     file_io_csv.export_csv(matched_corr_addresses, BUCKET, FILE_KEY_S3_MATCH)
     ##########################################
 
@@ -207,10 +207,9 @@ def main(create_sample, size):
     #################
 
     final_train = create_training_dataset(tags, incorrect_indexes)
-    '''
 
     FILE_KEY_S3_FINAL_TRAIN = "final_train.json"
-    # file_io_json.export_json(final_train, BUCKET, FILE_KEY_S3_FINAL_TRAIN)
+    file_io_json.export_json(final_train, BUCKET, FILE_KEY_S3_FINAL_TRAIN)
 
     # list of possible incorrect addresses
     addresses_to_check = []
@@ -222,6 +221,7 @@ def main(create_sample, size):
     # 181 addresses to check among 10 000 (most of them are correct)
     print(len(addresses_to_check))
     print(addresses_to_check)
+    print(list_addresses['0'])
 
     execution_time = time() - start_time
     seconds = round(execution_time, 2)
