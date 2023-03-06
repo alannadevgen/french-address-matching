@@ -47,7 +47,7 @@ def main(create_sample, size):
         # create the sample
         sample.create_sample()
         #  put the sample in the BUCKET
-        sample.save_sample_file(BUCKET, 'final_sample.csv')
+        sample.save_sample_file(BUCKET, 'sample.csv')
     else:
         print("Importing previously created sample.\n")
         # import the previous sample
