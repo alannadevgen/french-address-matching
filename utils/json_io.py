@@ -1,29 +1,9 @@
-import s3fs
 import json
-import os
+from utils.file_io import FileIO
 
 
-class IOjson:
-    def get_credentials(self):
-        '''
-        Get the credentials to connect to the S3 Datalab file system
-        '''
-        # environment variables
-        CLIENT_KWARGS = {
-            'endpoint_url': 'https://' + os.environ['AWS_S3_ENDPOINT']
-        }
-        KEY = os.environ['AWS_ACCESS_KEY_ID']
-        SECRET = os.environ['AWS_SECRET_ACCESS_KEY']
-        TOKEN = os.environ['AWS_SESSION_TOKEN']
-        file_system = s3fs.S3FileSystem(
-            client_kwargs=CLIENT_KWARGS,
-            key=KEY,
-            secret=SECRET,
-            token=TOKEN
-        )
-        return file_system
-
-    def import_json(
+class IOjson(FileIO):
+    def import_file(
         self, bucket: str, file_key_s3: str,
     ):
         '''
@@ -39,7 +19,7 @@ class IOjson:
             dict_file = json.load(file_input)
         return dict_file
 
-    def export_json(self, dict_file, bucket: str, file_key_s3: str):
+    def export_file(self, dict_file, bucket: str, file_key_s3: str):
         '''
         export_json allow to transform a dictionnary into a csv file
         and to export it with any vscode service on the datalab using
