@@ -1,7 +1,8 @@
 import re
+import numpy as np
 
 
-def clean(field):
+def clean_label(field):
     '''
     clean addresses
     field: address, city or postal code
@@ -82,3 +83,22 @@ def clean(field):
     field_new = re.sub(r'[^A-Za-z0-9 ]+', '', field_new)
 
     return field_new
+
+
+def clean_code(field, pad_with_zero=True):
+    try:
+        # transform float type for CP
+        new_field = float(field)
+        new_field = int(new_field)
+        new_field = str(new_field)
+
+    except:
+        if field == np.nan:
+            new_field = ''
+        else:
+            new_field = str(field)
+
+    if len(new_field) == 4:
+        new_field = '0' + new_field
+
+    return new_field

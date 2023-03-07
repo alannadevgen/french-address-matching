@@ -1,4 +1,4 @@
-from standardization.cleaning import clean
+from standardization.cleaning import clean_label, clean_code
 import string
 import re
 
@@ -59,7 +59,7 @@ def split_digit_letter(word):
 #         return list_tokens
 
 
-def tokenize(field, replacement_file):
+def tokenize_label(field, replacement_file):
     '''
     tokenize: split field in tokens,
     delete tokens composed only of punctuation and useless spaces
@@ -73,7 +73,7 @@ def tokenize(field, replacement_file):
         if type(field.iloc[row]) == str:
 
             # clean the field of the row
-            clean_adress = clean(field.iloc[row])
+            clean_adress = clean_label(field.iloc[row])
 
             # split tokens
             tokenized_field = re.split(',| |;', clean_adress)
@@ -141,6 +141,32 @@ def tokenize(field, replacement_file):
 
         else:
             tokenized_fields.append(str(field.iloc[row]))
+
+    return tokenized_fields
+
+
+def tokenize_code(field):
+    '''
+    '''
+    nrows = field.shape[0]
+    tokenized_fields = []
+
+    for row in range(nrows):
+        tokenized_field = ''
+
+        # clean the field of the row
+        clean_adress = clean_code(field.iloc[row])
+
+        # split tokens
+        tokenized_field = re.split(',| |;', clean_adress)
+
+        # check if only one CP and correct format (5 characters)
+        if len(tokenized_field) == 1 and\
+            len(tokenized_field[0]) == 5 and\
+                re.match('^[A-Z0-9]{2}[0-9]{3}$', tokenized_field[0]):
+            tokenized_field = tokenized_field[0]
+
+        tokenized_fields.append(tokenized_field)
 
     return tokenized_fields
 

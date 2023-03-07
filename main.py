@@ -1,4 +1,4 @@
-from standardization.tokenization import tokenize
+from standardization.tokenization import tokenize_label, tokenize_code
 from standardization.tagging import tag_tokens, tags_to_df, reattach_tokens,\
     remove_perso_info
 from matching.matching import match_addresses, match_addresses_cor,\
@@ -68,8 +68,9 @@ def main(create_sample, size):
     communes = df.iloc[:, 2]
 
     # create tokens for the 100 first addresses
-    tokens_addresses = tokenize(addresses, replacement_file=replacement)
-    tokens_communes = tokenize(communes, replacement_file=replacement)
+    tokens_addresses = tokenize_label(addresses, replacement_file=replacement)
+    tokens_communes = tokenize_label(communes, replacement_file=replacement)
+    clean_cp = tokenize_code(cp)
 
     # print frequent tokens
     # frequent = most_frequent_tokens(tokens, 100)
@@ -79,7 +80,7 @@ def main(create_sample, size):
     # tag the tokens with their label
     tags = tag_tokens(
         tokens_addresses,
-        cp,
+        clean_cp,
         tokens_communes,
         libvoie_file=lib_voie
     )
@@ -119,6 +120,10 @@ def main(create_sample, size):
 
     # merge tagged tokens (complete_df) with original data (df)
     complete_df = tagged_addresses.set_index('INDEX').join(df)
+
+    complete_df.index = [ind for ind in range(complete_df.shape[0])]
+    complete_df['cp_corr'] = tokenize_code(complete_df['cp_corr'])
+    complete_df['CODGEO_2021'] = tokenize_code(complete_df['CODGEO_2021'])
 
     # change indexes to iter over them
     complete_df.index = [ind for ind in range(complete_df.shape[0])]
@@ -205,6 +210,7 @@ def main(create_sample, size):
         print('\n')
     #################
     '''
+
     # final_train = create_training_dataset(tags, incorrect_indexes)
 
     FILE_KEY_S3_FINAL_TRAIN = "final_train.json"

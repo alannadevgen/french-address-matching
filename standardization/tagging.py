@@ -155,8 +155,11 @@ def tag_tokens(
                 row_tags[index] = "COMPADR"
 
             # identify postal code CP
-            elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]|\
-            |[1-8]\\d|9[0-8])\\d{3}$", row_tokens[index]):
+            # elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]|\
+            # |[1-8]\\d|9[0-8])\\d{3}$", row_tokens[index]):
+            #     row_tags[index] = "CP"
+            elif row_tokens[index] in list(tokenized_cp):
+
                 row_tags[index] = "CP"
 
             # identify PARCELLE (when elements are not splited by blankspace)
