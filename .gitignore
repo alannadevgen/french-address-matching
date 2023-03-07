@@ -134,3 +134,7 @@ dmypy.json
 # ignore CSV files
 *.csv
 sample.csv
+
+# ignore PNG files
+*.png
+transition_matrix.png
