@@ -71,8 +71,8 @@ def match_addresses(df, numvoie_col, libvoie_col, lieu_col,
     '''
     cols = list(df.columns)
     cols_to_add = {}
-    elem_to_add = ['label', 'score', 'postcode', 'citycode', 'city',
-                   'type', 'x', 'y']
+    elem_to_add = ['id', 'label', 'score', 'postcode', 'citycode',
+                   'city', 'type', 'x', 'y']
     for elem in elem_to_add:
         cols_to_add[elem] = []
     for index, row in df.iterrows():
@@ -119,8 +119,8 @@ def match_addresses_cor(df, addresses_corr_col, citycode_col, postalcode_col):
     '''
     cols = list(df.columns)
     cols_to_add = {}
-    elem_to_add = ['label', 'score', 'postcode', 'citycode', 'city',
-                   'type', 'x', 'y']
+    elem_to_add = ['id', 'label', 'score', 'postcode', 'citycode',
+                   'city', 'type', 'x', 'y']
 
     for elem in elem_to_add:
         cols_to_add[elem] = []
@@ -161,16 +161,16 @@ def incorrect_addresses(df):
     count_indexes = df['index'].value_counts()
     addresses_to_correct = []
     for index, row in df.iterrows():
-        if df.iloc[index, cols.index('label_corr')] not in\
+        if df.iloc[index, cols.index('id_corr')] not in\
             ['not found', 'no results', 'incorrect'] and\
-            df.iloc[index, cols.index('label')] !=\
-                df.iloc[index, cols.index('label_corr')] and\
+            df.iloc[index, cols.index('id')] !=\
+                df.iloc[index, cols.index('id_corr')] and\
                 count_indexes.loc[df.iloc[index, cols.index('index')]] == 1:
             addresses_to_correct.append(df.iloc[index, cols.index('index')])
     return addresses_to_correct
 
 
-def create_training_dataset(list_tags, index_incorrect_addresses):
+def create_training_dataset_json(list_tags, index_incorrect_addresses=None):
     '''
     '''
     training_dataset = {}
@@ -179,9 +179,35 @@ def create_training_dataset(list_tags, index_incorrect_addresses):
         tokens = list_tags[index_tag][0]
         tags = list_tags[index_tag][1]
         valid = True
-        if index_tag in index_incorrect_addresses:
+        if index_incorrect_addresses and\
+                index_tag in index_incorrect_addresses:
             valid = False
         training_dataset[index_tag]['tokens'] = tokens
         training_dataset[index_tag]['tags'] = tags
         training_dataset[index_tag]['valid'] = valid
+    return training_dataset
+
+
+def create_training_dataset_csv(list_tags, index_incorrect_addresses=None):
+    '''
+    '''
+    training_dataset = pd.DataFrame()
+    all_tokens = []
+    all_tags = []
+    all_valid = []
+    for index_tag in range(len(list_tags)):
+        tokens = list_tags[index_tag][0]
+        tags = list_tags[index_tag][1]
+        valid = True
+        if index_incorrect_addresses and\
+                index_tag in index_incorrect_addresses:
+            valid = False
+        all_tokens.append(tokens)
+        all_tags.append(tags)
+        all_valid.append(valid)
+
+    training_dataset['tokens'] = all_tokens
+    training_dataset['tags'] = all_tags
+    training_dataset['valid'] = all_valid
+
     return training_dataset
