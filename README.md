@@ -21,23 +21,35 @@ pip3 install -r requirements.txt
 
 ```bash
 python3 main.py --help
-# Usage: main.py [OPTIONS]
-#
+# Usage: main.py [OPTIONS] BUCKET CSV_FILE ADDRESSES_COL CITIES_COL
+#                POSTAL_CODE_COL CITY_CODE_COL
+
 # Options:
-#   --create-sample BOOLEAN            Create a new sample of the dataset.
-#   --help                             Show this message and exit.
+#   --create-sample BOOLEAN   Create a new sample of the dataset.
+#   --size INTEGER            Sample size.
+#   --correct_addresses TEXT  Column containing corrected addresses.
+#   --help                    Show this message and exit.
+```
+
+```bash
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021
 ```
 
 By defaut, `--create-sample` is set to False.
 
 ```bash
 # default values
-python3 main.py --create-sample False
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --create-sample False
 # create a new sample for training data
-python3 main.py --create-sample True
-# all process
 python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --create-sample True
 ```
+
+By defaut, `--correct_addresses` is set to adresse_corr.
+
+```bash
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --correct_addresses adresse_corr
+```
+
 
 ## Contributors
 
