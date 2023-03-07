@@ -79,11 +79,19 @@ class TransitionMatrix:
         if file is None:
             file = self.file
         # plot the transition matrix
-        sns.heatmap(transition_matrix, cmap="Blues")
+        heatmap = sns.heatmap(transition_matrix, cmap="Blues", annot=True, fmt=".1f")
         # add title
         plt.title('Matrice de transition', weight="bold", size=16)
         # ajust margins
         plt.tight_layout()
+        # add text if >= 0.5
+        heatmap.set_xticklabels(heatmap.get_xticklabels(), rotation=60)
+        for t in heatmap.texts:
+            if float(t.get_text()) >= 0.5:
+                t.set_text(t.get_text())
+            else:
+                t.set_text("") # if not it sets an empty text
+
         # save file
         plt.savefig(file)
         img_data = io.BytesIO()
