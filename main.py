@@ -10,11 +10,7 @@ import click
 import pandas as pd
 import numpy as np
 from time import time
-from HMM.transition import compute_transition_matrix, plot_transition_matrix
-# from HMM.transition import creckages :
-# on télécharge les données, on installe les librairies qui ne sont pas
-# presentes par défaut et on récupère les fichiers nécessairesate_train
-# test_sample, compute_transition_matrix
+from HMM.transition_matrix import TransitionMatrix
 
 
 @click.command()
@@ -231,14 +227,17 @@ def main(create_sample, size):
            all_tokens, all_tags
             ))
     # 194 addresses to check among 10 000 (most of them are correct)
-    print(len(addresses_to_check))
+    print("Number of addresses to check:", len(addresses_to_check))
     # print(addresses_to_check)
 
     # tags of the final (sample)
-    # display_statistics(train_sample)
-    transition_matrix = compute_transition_matrix(list_all_tags)
-    print(transition_matrix)
-    plot_transition_matrix(transition_matrix)
+    tm = TransitionMatrix()
+    # tm.display_statistics(train_sample)
+    transition_matrix = tm.compute_transition_matrix(list_all_tags)
+    print("\n----------------------------------------------------------------------------------------------------------------\n")
+    print("Transition matrix\n\n",transition_matrix)
+    image = tm.plot_transition_matrix(transition_matrix)
+    tm.save_transition_matrix(image=image, bucket=BUCKET)
 
     execution_time = time() - start_time
     seconds = round(execution_time, 2)
