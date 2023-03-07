@@ -35,6 +35,8 @@ By defaut, `--create-sample` is set to False.
 python3 main.py --create-sample False
 # create a new sample for training data
 python3 main.py --create-sample True
+# all process
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --create-sample True
 ```
 
 ## Contributors
