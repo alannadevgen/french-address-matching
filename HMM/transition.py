@@ -72,7 +72,11 @@ def compute_transition_matrix(tags):
 
 
 def plot_transition_matrix(transition_matrix, file="transition_matrix.png"):
-    heatmap = sns.heatmap(transition_matrix, cmap="Blues")
-    plt.title('Matrice de transition')
-    fig = heatmap.get_figure()
-    fig.savefig(file)
+    # plot the transition matrix
+    sns.heatmap(transition_matrix, cmap="Blues")
+    # add title
+    plt.title('Matrice de transition', weight="bold", size=16)
+    # ajust margins
+    plt.tight_layout()
+    # save file
+    plt.savefig(file)
