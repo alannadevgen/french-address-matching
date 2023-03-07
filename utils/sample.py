@@ -14,4 +14,4 @@ class Sample:
         )
 
     def save_sample_file(self, path, file):
-        self.file_io.export_csv(self.sample_dataset, path, file)
+        self.file_io.export_file(self.sample_dataset, path, file)
