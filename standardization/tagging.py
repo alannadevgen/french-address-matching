@@ -148,7 +148,7 @@ def tag_tokens(
                 "^COULOIR|^CO[NM]PLEM|^ADRES|^VIDE|"
                 "^SAN?IT?AIR|^PARK|^LOCAUX?$|^DIVERS?$|^SORTIE?S?|^SOLS?$|"
                 "^ORDUR|^CIR^CULATION|^LOGEM|^AP?PART|^IM?MEUB|^BATIM|"
-                "^ENTRE{0,2}S?$|^PORTES?$|^PAVIL|^ETA?GE?S?|RDC|^REZ$|"
+                "^ENTRE{0,2}S?$|^PORTES?$|^ETA?GE?S?|RDC|^REZ$|"
                 "^CHAUS?SE?ES?$|^DAL?LE{0,2}S?$|^CHAMBR|SDB|^CUISI|"
                 "GA[GR]A[GR]E|GRENIER|CHAUFERIES?|CHAUDIERES?",
                     row_tokens[index]):
