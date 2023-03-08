@@ -170,7 +170,8 @@ def incorrect_addresses(df):
     return addresses_to_correct
 
 
-def create_training_dataset_json(list_tags, index_incorrect_addresses=None):
+def create_training_dataset_json(list_tags, df_matching,
+                                 index_incorrect_addresses=None):
     '''
     '''
     training_dataset = {}
@@ -178,6 +179,11 @@ def create_training_dataset_json(list_tags, index_incorrect_addresses=None):
         training_dataset[index_tag] = {}
         tokens = list_tags[index_tag][0]
         tags = list_tags[index_tag][1]
+        # print(df_matching['index'] == index_tag)
+        # print(df_matching.loc[df_matching['index'] == index_tag, 'score'])
+        # print(df_matching.loc[df_matching['index'] == index_tag, 'score'][df_matching['index']])
+        print(df_matching.loc[df_matching['index'] == index_tag, 'score'])
+        score = df_matching.loc[df_matching['index'] == index_tag, 'score']
         valid = True
         if index_incorrect_addresses and\
                 index_tag in index_incorrect_addresses:
@@ -185,19 +191,23 @@ def create_training_dataset_json(list_tags, index_incorrect_addresses=None):
         training_dataset[index_tag]['tokens'] = tokens
         training_dataset[index_tag]['tags'] = tags
         training_dataset[index_tag]['valid'] = valid
+        training_dataset[index_tag]['score'] = score
     return training_dataset
 
 
-def create_training_dataset_csv(list_tags, index_incorrect_addresses=None):
+def create_training_dataset_csv(list_tags, df_matching,
+                                index_incorrect_addresses=None):
     '''
     '''
     training_dataset = pd.DataFrame()
     all_tokens = []
     all_tags = []
     all_valid = []
+    all_scores = []
     for index_tag in range(len(list_tags)):
         tokens = list_tags[index_tag][0]
         tags = list_tags[index_tag][1]
+        score = df_matching.loc[df_matching['index'] == index_tag, 'score'][0]
         valid = True
         if index_incorrect_addresses and\
                 index_tag in index_incorrect_addresses:
@@ -205,9 +215,11 @@ def create_training_dataset_csv(list_tags, index_incorrect_addresses=None):
         all_tokens.append(tokens)
         all_tags.append(tags)
         all_valid.append(valid)
+        all_scores.append(score)
 
     training_dataset['tokens'] = all_tokens
     training_dataset['tags'] = all_tags
     training_dataset['valid'] = all_valid
+    training_dataset['score'] = all_scores
 
     return training_dataset

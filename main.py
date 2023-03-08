@@ -46,14 +46,14 @@ from HMM.transition_matrix import TransitionMatrix
 )
 @click.option(
     '--size',
-    default=100,
+    default=1000,
     help='Sample size.',
     type=int
 )
 @click.option(
     '--correct_addresses',
     default='adresse_corr',
-    help='Sample size.',
+    help='Column containing corrected addresses.',
     type=str
 )
 def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
@@ -180,7 +180,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     #########################################################################
     matched_addresses = file_io_csv.import_file(BUCKET,
                                                 'matching.csv', sep=';')
-
+    incorrect_indexes = None
     if add_corected_addresses:
         incorrect_indexes = incorrect_addresses(matched_addresses)
         print(f'NUMBER OF ADDRESSES WITH POSSIBLE '
@@ -204,13 +204,18 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                                         ])
             print('\n')
 
-    train_json = create_training_dataset_json(tags, incorrect_indexes)
-    FILE_KEY_S3_TRAIN_JSON = "train.json"
-    file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
+    # train_json = create_training_dataset_json(tags, matched_addresses,
+    #                                           incorrect_indexes)
+    # FILE_KEY_S3_TRAIN_JSON = "train.json"
+    # file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
 
-    train_csv = create_training_dataset_csv(tags, incorrect_indexes)
-    FILE_KEY_S3_TRAIN_CSV = "train.csv"
-    file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
+    # train_csv = create_training_dataset_csv(tags, matched_addresses,
+    #                                         incorrect_indexes)
+    # FILE_KEY_S3_TRAIN_CSV = "train.csv"
+    # file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
+
+    # train_non_valid = train_csv[train_csv['valid'] == False]
+    # file_io_csv.export_file(train_non_valid, BUCKET, 'non_valid.csv')
 
     #########################################################################
 
