@@ -42,6 +42,12 @@ By defaut, `--create-sample` is set to False.
 python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --create-sample False
 # create a new sample for training data
 python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --create-sample True
+# only perform the creation of the training sample
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps train
+# only perform the hmm
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps hmm
+# perform all
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps all
 ```
 
 By defaut, `--correct_addresses` is set to adresse_corr.
