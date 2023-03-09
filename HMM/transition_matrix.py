@@ -81,7 +81,7 @@ class TransitionMatrix:
         # plot the transition matrix
         heatmap = sns.heatmap(transition_matrix, cmap="Blues", annot=True, fmt=".1f")
         # add title
-        plt.title('Matrice de transition', weight="bold", size=16)
+        plt.title('Transition matrix', weight="bold", size=16)
         # ajust margins
         plt.tight_layout()
         # add text if >= 0.5
