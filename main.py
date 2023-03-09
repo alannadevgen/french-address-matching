@@ -72,7 +72,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     FILE_KEY_S3 = csv_file
     file_io_csv = IOcsv()
     file_io_json = IOjson()
-
+    '''
     if create_sample:
         print("Creating new sample.\n")
         # import of the data
@@ -87,12 +87,12 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print("Importing previously created sample.\n")
         # import the previous sample
         df_sample = file_io_csv.import_file(
-            bucket=BUCKET, file_key_s3='final_sample.csv', sep=';'
+            bucket=BUCKET, file_key_s3='sample.csv', sep=';'
         )
-    '''
+
     #########################################################################
     # import csv file
-    df_sample = file_io_csv.import_file(BUCKET, 'final_sample.csv', sep=';')
+    df_sample = file_io_csv.import_file(BUCKET, 'sample.csv', sep=';')
 
     # import other datasets (contained in the project)
     replacement = pd.read_csv('remplacement.csv', sep=",")
@@ -135,7 +135,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
     df_train = tags_to_df(reattached_tokens)
 
-    FILE_KEY_S3_REATTACHED = "final_reattached_tokens.csv"
+    FILE_KEY_S3_REATTACHED = "reattached_tokens.csv"
     file_io_csv.export_file(df_train, BUCKET, FILE_KEY_S3_REATTACHED)
 
     #########################################################################
@@ -143,7 +143,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     #########################################################################
     # import the previous file
     tagged_addresses = file_io_csv.import_file(bucket=BUCKET,
-                                               file_key_s3='final_reattached_tokens.csv',
+                                               file_key_s3='reattached_tokens.csv',
                                                sep=';')
 
     # keep indexes in a column
@@ -174,13 +174,13 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                                                 city_code_col,
                                                 postal_code_col)
 
-    FILE_KEY_S3_MATCH = "final_matching.csv"
+    FILE_KEY_S3_MATCH = "matching.csv"
     file_io_csv.export_file(matched_addresses, BUCKET, FILE_KEY_S3_MATCH)
     #########################################################################
 
     #########################################################################
     matched_addresses = file_io_csv.import_file(BUCKET,
-                                                'final_matching.csv', sep=';')
+                                                'matching.csv', sep=';')
     incorrect_indexes = None
     if add_corected_addresses:
         incorrect_indexes = incorrect_addresses(matched_addresses)
@@ -207,16 +207,16 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
     train_json = create_training_dataset_json(tags, matched_addresses,
                                               incorrect_indexes)
-    FILE_KEY_S3_TRAIN_JSON = "final_train.json"
+    FILE_KEY_S3_TRAIN_JSON = "train.json"
     file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
 
     train_csv = create_training_dataset_csv(tags, matched_addresses,
                                             incorrect_indexes)
-    FILE_KEY_S3_TRAIN_CSV = "final_train.csv"
+    FILE_KEY_S3_TRAIN_CSV = "train.csv"
     file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
 
     train_non_valid = train_csv[train_csv['valid'] == False]
-    file_io_csv.export_file(train_non_valid, BUCKET, 'final_non_valid.csv')
+    file_io_csv.export_file(train_non_valid, BUCKET, 'non_valid.csv')
 
     #########################################################################
     '''
