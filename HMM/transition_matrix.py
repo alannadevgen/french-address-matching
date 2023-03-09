@@ -15,7 +15,7 @@ class TransitionMatrix:
         train_set, test_set = train_test_split(tags, train_size=0.75)
         return (train_set, train_set)
 
-    def display_statistics(self, tags):
+    def display_statistics(self, tags, print_all=True):
         tokens = [token for address in tags for token in address[0]]
         vocabulary = set(tokens)
         nb_distinct_vocab = len(vocabulary)
@@ -26,28 +26,27 @@ class TransitionMatrix:
         if 'PERSO' in set_tags:
             list_tags.append('PERSO')
         nb_distinct_tags = len(list_tags)
-        print(f'Number of tokens in the train sample: {len(tokens)}')
-        print(f'Number of distinct tokens in the train sample: {nb_distinct_vocab}')
-        print(f'Number of distinct tags: {nb_distinct_tags}')
+        if print_all:
+            print(f'Number of tokens in the train sample: {len(tokens)}')
+            print(f'Number of distinct tokens in the train sample: {nb_distinct_vocab}')
+            print(f'Number of distinct tags: {nb_distinct_tags}')
         distribution_tags = {}
         for elem in list_tags:
             distribution_tags[elem] = 0
             for tag in tags:
                 if tag == elem:
                     distribution_tags[elem] += 1
-        print("\n----------------------------------------------------------------------------------------------------------------\n")
-        print('Number of tokens for each tag:')
-        for tag, number in distribution_tags.items():
-            print("  ", tag, ":", number)
+        if print_all:
+            print("\n----------------------------------------------------------------------------------------------------------------\n")
+            print('Number of tokens for each tag:')
+            for tag, number in distribution_tags.items():
+                print("  ", tag, ":", number)
         return (list_tags, vocabulary)
 
     def t2_given_t1(self, t1, t2, tags):
         count_t1 = 0
         count_t1_t2 = 0
         for address in tags:
-            # for tag in address[1]:
-            #     if tag == t1:
-            #         count_t1 += 1
             for index_tag in range(1, len(address[1])):
                 if address[1][index_tag] == t2 and address[1][index_tag-1] == t1:
                     count_t1_t2 += 1
@@ -56,6 +55,39 @@ class TransitionMatrix:
 
         return (count_t1_t2, count_t1)
 
+    def intial_distrib(self, t, tags):
+        count_t = 0
+        count_total = 0
+        for address in tags:
+            if address[1][0] == t:
+                count_t += 1
+            count_total += 1
+        return (count_t, count_total)
+
+    def word_given_tag(self, word, tag, tags):
+        count_tag = 0
+        count_tag_word = 0
+        for addresse in tags:
+            for index_tag_adr in range(len(addresse[0])):
+                if addresse[1][index_tag_adr] == tag:
+                    count_tag += 1
+                if addresse[0][index_tag_adr] == word and\
+                        addresse[1][index_tag_adr] == tag:
+                    count_tag_word += 1
+        return (count_tag_word, count_tag)
+
+    def compute_emission_word(self, word, tags):
+        info = self.display_statistics(tags, print_all=False)
+        list_tags = list(info[0])
+        emission = np.zeros(len(list_tags))
+        for i, t in enumerate(list_tags):
+            res_word_given_tag = self.word_given_tag(word, t, tags)
+            emission[i] = res_word_given_tag[0] / res_word_given_tag[1]
+        emission_df = pd.DataFrame(emission,
+                                   columns=['probability_given_tag'],
+                                   index=list_tags)
+        return emission_df
+
     def compute_transition_matrix(self, tags):
         info = self.display_statistics(tags)
         set_tags = info[0]
@@ -63,17 +95,24 @@ class TransitionMatrix:
 
         # nb_distinct_vocab = len(info[1])
         tags_matrix = np.zeros(
-            (nb_distinct_tags, nb_distinct_tags), dtype='float32'
+            (nb_distinct_tags + 1, nb_distinct_tags), dtype='float32'
             )
+        for j, t in enumerate(list(set_tags)):
+            res_init_distrib = self.intial_distrib(t, tags)
+            tags_matrix[0, j] = res_init_distrib[0] / res_init_distrib[1]
         for i, t1 in enumerate(list(set_tags)):
             for j, t2 in enumerate(list(set_tags)):
-                tags_matrix[i, j] = self.t2_given_t1(t1, t2, tags)[0] /\
-                    self.t2_given_t1(t1, t2, tags)[1]
+                res_t2_t1 = self.t2_given_t1(t1, t2, tags)
+                tags_matrix[i+1, j] = res_t2_t1[0] / res_t2_t1[1]
+
+        # cols
+        cols = list(set_tags)
+        indexes = ['<START>'] + list(set_tags)
 
         # convert the matrix to a df for better readability
         tags_df = pd.DataFrame(
             tags_matrix,
-            columns=list(set_tags), index=list(set_tags)
+            columns=cols, index=indexes
             )
         return tags_df
 
