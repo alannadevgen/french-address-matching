@@ -91,8 +91,8 @@ class TransitionMatrix:
         for t in heatmap.texts:
             if float(t.get_text()) >= 0.5:
                 t.set_text(t.get_text())
-            # else:
-            #     t.set_text("")
+            else:
+                t.set_text("")
                 # if not it sets an empty text
 
         # save file
