@@ -175,23 +175,27 @@ def create_training_dataset_json(list_tags, df_matching,
     '''
     '''
     training_dataset = {}
-    for index_tag in range(len(list_tags)):
+    for index_tag in range(df_matching.shape[0]):
         training_dataset[index_tag] = {}
-        tokens = list_tags[index_tag][0]
-        tags = list_tags[index_tag][1]
-        # print(df_matching['index'] == index_tag)
-        # print(df_matching.loc[df_matching['index'] == index_tag, 'score'])
-        # print(df_matching.loc[df_matching['index'] == index_tag, 'score'][df_matching['index']])
-        print(df_matching.loc[df_matching['index'] == index_tag, 'score'])
-        score = df_matching.loc[df_matching['index'] == index_tag, 'score']
+        index = df_matching.loc[index_tag, 'index']
+        tokens = list_tags[index][0]
+        tags = list_tags[index][1]
+        score = df_matching.loc[index_tag, 'score']
+        score_corr = df_matching.loc[index_tag, 'score_corr']
+        label = df_matching.loc[index_tag, 'label']
+        label_corr = df_matching.loc[index_tag, 'label_corr']
         valid = True
         if index_incorrect_addresses and\
                 index_tag in index_incorrect_addresses:
             valid = False
+        training_dataset[index_tag]['index_input'] = str(index)
         training_dataset[index_tag]['tokens'] = tokens
         training_dataset[index_tag]['tags'] = tags
         training_dataset[index_tag]['valid'] = valid
         training_dataset[index_tag]['score'] = score
+        training_dataset[index_tag]['score_corr'] = score_corr
+        training_dataset[index_tag]['label'] = label
+        training_dataset[index_tag]['label_corr'] = label_corr
     return training_dataset
 
 
@@ -200,26 +204,42 @@ def create_training_dataset_csv(list_tags, df_matching,
     '''
     '''
     training_dataset = pd.DataFrame()
+    all_indexes = []
     all_tokens = []
     all_tags = []
     all_valid = []
     all_scores = []
-    for index_tag in range(len(list_tags)):
-        tokens = list_tags[index_tag][0]
-        tags = list_tags[index_tag][1]
-        score = df_matching.loc[df_matching['index'] == index_tag, 'score'][0]
+    all_scores_corr = []
+    all_labels = []
+    all_labels_corr = []
+    for index_tag in range(df_matching.shape[0]):
+        index = df_matching.loc[index_tag, 'index']
+        tokens = list_tags[index][0]
+        tags = list_tags[index][1]
+        score = df_matching.loc[index_tag, 'score']
+        score_corr = df_matching.loc[index_tag, 'score_corr']
+        label = df_matching.loc[index_tag, 'label']
+        label_corr = df_matching.loc[index_tag, 'label_corr']
         valid = True
         if index_incorrect_addresses and\
                 index_tag in index_incorrect_addresses:
             valid = False
+        all_indexes.append(index)
         all_tokens.append(tokens)
         all_tags.append(tags)
         all_valid.append(valid)
         all_scores.append(score)
+        all_scores_corr.append(score_corr)
+        all_labels.append(label)
+        all_labels_corr.append(label_corr)
 
+    training_dataset['index_input'] = all_indexes
     training_dataset['tokens'] = all_tokens
     training_dataset['tags'] = all_tags
     training_dataset['valid'] = all_valid
     training_dataset['score'] = all_scores
+    training_dataset['score_corr'] = all_scores_corr
+    training_dataset['label'] = all_labels
+    training_dataset['label_corr'] = all_labels_corr
 
     return training_dataset

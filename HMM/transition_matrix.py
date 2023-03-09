@@ -20,15 +20,17 @@ class TransitionMatrix:
         vocabulary = set(tokens)
         nb_distinct_vocab = len(vocabulary)
         tags = [tag for address in tags for tag in address[1]]
-        # set_tags = set(tags)
-        set_tags = ['NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'LIEU', 'CP', 'COMMUNE',
-                    'COMPADR', 'PARCELLE', 'PERSO', 'INCONNU']
-        nb_distinct_tags = len(set_tags)
+        set_tags = list(set(tags))
+        list_tags = ['NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'LIEU', 'CP', 'COMMUNE',
+                     'COMPADR', 'PARCELLE', 'INCONNU']
+        if 'PERSO' in set_tags:
+            list_tags.append('PERSO')
+        nb_distinct_tags = len(list_tags)
         print(f'Number of tokens in the train sample: {len(tokens)}')
         print(f'Number of distinct tokens in the train sample: {nb_distinct_vocab}')
         print(f'Number of distinct tags: {nb_distinct_tags}')
         distribution_tags = {}
-        for elem in set_tags:
+        for elem in list_tags:
             distribution_tags[elem] = 0
             for tag in tags:
                 if tag == elem:
@@ -37,7 +39,7 @@ class TransitionMatrix:
         print('Number of tokens for each tag:')
         for tag, number in distribution_tags.items():
             print("  ", tag, ":", number)
-        return (set_tags, vocabulary)
+        return (list_tags, vocabulary)
 
     def t2_given_t1(self, t1, t2, tags):
         count_t1 = 0
@@ -89,8 +91,9 @@ class TransitionMatrix:
         for t in heatmap.texts:
             if float(t.get_text()) >= 0.5:
                 t.set_text(t.get_text())
-            else:
-                t.set_text("") # if not it sets an empty text
+            # else:
+            #     t.set_text("")
+                # if not it sets an empty text
 
         # save file
         plt.savefig(file)

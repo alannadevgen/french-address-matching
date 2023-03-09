@@ -46,7 +46,7 @@ from HMM.transition_matrix import TransitionMatrix
 )
 @click.option(
     '--size',
-    default=1000,
+    default=10000,
     help='Sample size.',
     type=int
 )
@@ -87,12 +87,12 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print("Importing previously created sample.\n")
         # import the previous sample
         df_sample = file_io_csv.import_file(
-            bucket=BUCKET, file_key_s3='sample.csv', sep=';'
+            bucket=BUCKET, file_key_s3='final_sample.csv', sep=';'
         )
-
+    '''
     #########################################################################
     # import csv file
-    df_sample = file_io_csv.import_file(BUCKET, 'sample.csv', sep=';')
+    df_sample = file_io_csv.import_file(BUCKET, 'final_sample.csv', sep=';')
 
     # import other datasets (contained in the project)
     replacement = pd.read_csv('remplacement.csv', sep=",")
@@ -110,7 +110,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     # extract different columns to transform them
     addresses = df[addresses_col]
     cp = df[postal_code_col]
-    communes = df[city_code_col]
+    communes = df[cities_col]
 
     # create tokens for the 100 first addresses
     tokens_addresses = tokenize_label(addresses, replacement_file=replacement)
@@ -135,14 +135,15 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
     df_train = tags_to_df(reattached_tokens)
 
-    FILE_KEY_S3_REATTACHED = "reattached_tokens.csv"
+    FILE_KEY_S3_REATTACHED = "final_reattached_tokens.csv"
     file_io_csv.export_file(df_train, BUCKET, FILE_KEY_S3_REATTACHED)
+
     #########################################################################
 
     #########################################################################
     # import the previous file
     tagged_addresses = file_io_csv.import_file(bucket=BUCKET,
-                                               file_key_s3='reattached_tokens.csv',
+                                               file_key_s3='final_reattached_tokens.csv',
                                                sep=';')
 
     # keep indexes in a column
@@ -173,13 +174,13 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                                                 city_code_col,
                                                 postal_code_col)
 
-    FILE_KEY_S3_MATCH = "matching.csv"
+    FILE_KEY_S3_MATCH = "final_matching.csv"
     file_io_csv.export_file(matched_addresses, BUCKET, FILE_KEY_S3_MATCH)
     #########################################################################
 
     #########################################################################
     matched_addresses = file_io_csv.import_file(BUCKET,
-                                                'matching.csv', sep=';')
+                                                'final_matching.csv', sep=';')
     incorrect_indexes = None
     if add_corected_addresses:
         incorrect_indexes = incorrect_addresses(matched_addresses)
@@ -204,34 +205,39 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                                         ])
             print('\n')
 
-    # train_json = create_training_dataset_json(tags, matched_addresses,
-    #                                           incorrect_indexes)
-    # FILE_KEY_S3_TRAIN_JSON = "train.json"
-    # file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
+    train_json = create_training_dataset_json(tags, matched_addresses,
+                                              incorrect_indexes)
+    FILE_KEY_S3_TRAIN_JSON = "final_train.json"
+    file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
 
-    # train_csv = create_training_dataset_csv(tags, matched_addresses,
-    #                                         incorrect_indexes)
-    # FILE_KEY_S3_TRAIN_CSV = "train.csv"
-    # file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
+    train_csv = create_training_dataset_csv(tags, matched_addresses,
+                                            incorrect_indexes)
+    FILE_KEY_S3_TRAIN_CSV = "final_train.csv"
+    file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
 
-    # train_non_valid = train_csv[train_csv['valid'] == False]
-    # file_io_csv.export_file(train_non_valid, BUCKET, 'non_valid.csv')
+    train_non_valid = train_csv[train_csv['valid'] == False]
+    file_io_csv.export_file(train_non_valid, BUCKET, 'final_non_valid.csv')
 
     #########################################################################
+    '''
+    FILE_KEY_S3_TRAIN_JSON = "final_train.json"
 
     # list of possible incorrect addresses
-
+    add_corected_addresses = True
     addresses_to_check = []
     list_addresses = file_io_json.import_file(BUCKET,
                                               FILE_KEY_S3_TRAIN_JSON)
     all_tokens = []
     all_tags = []
+    recorded_indexes = []
     for adress in list(list_addresses.keys()):
-        complete_adress = list_addresses[adress]
-        if add_corected_addresses and not complete_adress['valid']:
-            addresses_to_check.append(complete_adress)
-        all_tokens.append(complete_adress['tokens'])
-        all_tags.append(complete_adress['tags'])
+        if list_addresses[adress]['index_input'] not in recorded_indexes:
+            recorded_indexes.append(list_addresses[adress]['index_input'])
+            complete_adress = list_addresses[adress]
+            if add_corected_addresses and not complete_adress['valid']:
+                addresses_to_check.append(complete_adress)
+            all_tokens.append(complete_adress['tokens'])
+            all_tags.append(complete_adress['tags'])
     list_all_tags = list(zip(
         all_tokens, all_tags
             ))
@@ -247,6 +253,16 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     image = tm.plot_transition_matrix(transition_matrix)
     tm.save_transition_matrix(image=image, bucket=BUCKET)
 
+    '''
+    # tags of the final (sample)
+    tm = TransitionMatrix()
+    # tm.display_statistics(train_sample)
+    transition_matrix = tm.compute_transition_matrix(tags)
+    print("\n----------------------------------------------------------------------------------------------------------------\n")
+    print("Transition matrix\n\n", transition_matrix)
+    image = tm.plot_transition_matrix(transition_matrix)
+    tm.save_transition_matrix(image=image, bucket=BUCKET)
+    '''
     #################
 
     execution_time = time() - start_time
