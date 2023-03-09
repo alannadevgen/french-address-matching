@@ -11,7 +11,8 @@ import click
 import pandas as pd
 from time import time
 from HMM.transition_matrix import TransitionMatrix
-
+from HMM.emission import Emission
+from HMM.viterbi import Viterbi
 
 @click.command()
 @click.argument(
@@ -153,8 +154,8 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         #########################################################################
         # import the previous file
         tagged_addresses = file_io_csv.import_file(bucket=BUCKET,
-                                                file_key_s3='reattached_tokens.csv',
-                                                sep=';')
+                                                   file_key_s3='reattached_tokens.csv',
+                                                   sep=';')
 
         # keep indexes in a column
         tagged_addresses['index'] = tagged_addresses['INDEX']
@@ -274,6 +275,11 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print("Transition matrix\n\n", transition_matrix)
         image = tm.plot_transition_matrix(transition_matrix)
         tm.save_transition_matrix(image=image, bucket=BUCKET)
+        # e = Emission(list_all_tags)
+        # print(e.compute_emission_word('RUE'))
+
+        vit = Viterbi(list_all_tags, transition_matrix)
+        print(vit.solve_viterbi(['1', 'RUE', 'DE', 'AAAA']))
 
     '''
     # CODE TRANSITION MATRIX WITH PERSO
