@@ -14,7 +14,7 @@ class Viterbi:
         self.emission = Emission(tags)
         self.list_states = transition_matrix.columns
 
-    def solve_viterbi(self, observed_sequence):
+    def solve_viterbi(self, observed_sequence, smoothing=True):
         '''
         Viterbi algorithm
         '''
@@ -25,7 +25,7 @@ class Viterbi:
         optimal = np.zeros((nb_states, len_seq - 1)).astype(np.int32)
         init_distrib = self.transition[0, :].flatten()
         vec_emission_first_word = np.array(self.emission.compute_emission_word(
-            observed_sequence[0]
+            observed_sequence[0], smoothing=smoothing
         )).flatten()
         proba_matrix[:, 0] = np.multiply(init_distrib, vec_emission_first_word)
 
@@ -34,7 +34,7 @@ class Viterbi:
                 temp_prod = np.multiply(self.transition[state+1, :].flatten(),
                                         proba_matrix[:, token-1])
                 vec_emission_word = self.emission.compute_emission_word(
-                    observed_sequence[token]
+                    observed_sequence[token], smoothing=smoothing
                     )
                 current_state = self.list_states[state]
                 proba_emission_word =\

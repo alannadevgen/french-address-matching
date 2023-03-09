@@ -279,7 +279,12 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         # print(e.compute_emission_word('RUE'))
 
         vit = Viterbi(list_all_tags, transition_matrix)
-        print(vit.solve_viterbi(['1', 'RUE', 'DE', 'AAAA']))
+        print(vit.solve_viterbi(['0', 'KERLANN'], smoothing=True))
+        print(vit.solve_viterbi(['0', 'KERLANN'], smoothing=False))
+        print(vit.solve_viterbi(['10', '000', 'AB', '001'], smoothing=True))
+        print(vit.solve_viterbi(['10', '000', 'AB', '001'], smoothing=False))
+        print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=True))
+        print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=False))
 
     '''
     # CODE TRANSITION MATRIX WITH PERSO
