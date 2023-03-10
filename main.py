@@ -103,7 +103,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         #########################################################################
         # import csv file
-        df_sample = file_io_csv.import_file(BUCKET, 'sample.csv', sep=';')
+        df_sample = file_io_csv.import_file(BUCKET, 'final_sample.csv', sep=';')
 
         # import other datasets (contained in the project)
         replacement = pd.read_csv('remplacement.csv', sep=",")

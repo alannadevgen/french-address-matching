@@ -165,7 +165,7 @@ def incorrect_addresses(df):
             ['not found', 'no results', 'incorrect'] and\
             df.iloc[index, cols.index('id')] !=\
                 df.iloc[index, cols.index('id_corr')] and\
-                count_indexes.loc[df.iloc[index, cols.index('index')]] == 1:
+                count_indexes[df.iloc[index, cols.index('index')]] == 1:
             addresses_to_correct.append(df.iloc[index, cols.index('index')])
     return addresses_to_correct
 
@@ -186,7 +186,7 @@ def create_training_dataset_json(list_tags, df_matching,
         label_corr = df_matching.loc[index_tag, 'label_corr']
         valid = True
         if index_incorrect_addresses and\
-                index_tag in index_incorrect_addresses:
+                index in index_incorrect_addresses:
             valid = False
         training_dataset[index_tag]['index_input'] = str(index)
         training_dataset[index_tag]['tokens'] = tokens
@@ -222,7 +222,7 @@ def create_training_dataset_csv(list_tags, df_matching,
         label_corr = df_matching.loc[index_tag, 'label_corr']
         valid = True
         if index_incorrect_addresses and\
-                index_tag in index_incorrect_addresses:
+                index in index_incorrect_addresses:
             valid = False
         all_indexes.append(index)
         all_tokens.append(tokens)
