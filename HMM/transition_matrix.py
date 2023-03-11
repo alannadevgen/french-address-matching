@@ -64,30 +64,6 @@ class TransitionMatrix:
             count_total += 1
         return (count_t, count_total)
 
-    def word_given_tag(self, word, tag, tags):
-        count_tag = 0
-        count_tag_word = 0
-        for addresse in tags:
-            for index_tag_adr in range(len(addresse[0])):
-                if addresse[1][index_tag_adr] == tag:
-                    count_tag += 1
-                if addresse[0][index_tag_adr] == word and\
-                        addresse[1][index_tag_adr] == tag:
-                    count_tag_word += 1
-        return (count_tag_word, count_tag)
-
-    def compute_emission_word(self, word, tags):
-        info = self.display_statistics(tags, print_all=False)
-        list_tags = list(info[0])
-        emission = np.zeros(len(list_tags))
-        for i, t in enumerate(list_tags):
-            res_word_given_tag = self.word_given_tag(word, t, tags)
-            emission[i] = res_word_given_tag[0] / res_word_given_tag[1]
-        emission_df = pd.DataFrame(emission,
-                                   columns=['probability_given_tag'],
-                                   index=list_tags)
-        return emission_df
-
     def compute_transition_matrix(self, tags):
         info = self.display_statistics(tags)
         set_tags = info[0]
