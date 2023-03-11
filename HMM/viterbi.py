@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from utils.png_io import IOpng
 from HMM.transition_matrix import TransitionMatrix
 from HMM.emission import Emission
+from time import time
 
 
 class Viterbi:
@@ -13,6 +14,7 @@ class Viterbi:
         self.transition = np.matrix(transition_matrix)
         self.emission = Emission(tags)
         self.list_states = transition_matrix.columns
+        self.init_distrib = self.transition[0, :].flatten()
 
     def solve_viterbi(self, observed_sequence, smoothing=True):
         '''
@@ -23,28 +25,27 @@ class Viterbi:
 
         proba_matrix = np.zeros((nb_states, len_seq))
         optimal = np.zeros((nb_states, len_seq - 1)).astype(np.int32)
-        init_distrib = self.transition[0, :].flatten()
         vec_emission_first_word = np.array(self.emission.compute_emission_word(
             observed_sequence[0], smoothing=smoothing
         )).flatten()
-        proba_matrix[:, 0] = np.multiply(init_distrib, vec_emission_first_word)
+        proba_matrix[:, 0] = np.multiply(self.init_distrib,
+                                         vec_emission_first_word)
 
         for token in range(1, len_seq):
+            vec_emission_word = self.emission.compute_emission_word(
+                    observed_sequence[token], smoothing=smoothing
+                    )
             for state in range(nb_states):
                 temp_prod = np.multiply(self.transition[state+1, :].flatten(),
                                         proba_matrix[:, token-1])
-                vec_emission_word = self.emission.compute_emission_word(
-                    observed_sequence[token], smoothing=smoothing
-                    )
                 current_state = self.list_states[state]
                 proba_emission_word =\
-                    vec_emission_word.loc[current_state, 'probability_given_tag']
+                    vec_emission_word.loc[current_state,
+                                          'probability_given_tag']
                 proba_matrix[state, token] = np.max(temp_prod) *\
                     proba_emission_word
 
                 optimal[state, token-1] = np.argmax(temp_prod)
-                # print(temp_prod)
-                # print(optimal)
 
         # Backtracking
         optimal_state_seq = np.zeros(len_seq).astype(np.int32)
