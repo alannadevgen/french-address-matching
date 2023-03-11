@@ -16,7 +16,7 @@ class Viterbi:
         self.list_states = transition_matrix.columns
         self.init_distrib = self.transition[0, :].flatten()
 
-    def solve_viterbi(self, observed_sequence, smoothing=True):
+    def solve_viterbi(self, observed_sequence, smoothing=True, delta=1):
         '''
         Viterbi algorithm
         '''
@@ -33,8 +33,9 @@ class Viterbi:
 
         for token in range(1, len_seq):
             vec_emission_word = self.emission.compute_emission_word(
-                    observed_sequence[token], smoothing=smoothing
+                    observed_sequence[token], smoothing=smoothing, delta=delta
                     )
+            # print(vec_emission_word)
             for state in range(nb_states):
                 temp_prod = np.multiply(self.transition[state+1, :].flatten(),
                                         proba_matrix[:, token-1])
@@ -48,6 +49,7 @@ class Viterbi:
                 optimal[state, token-1] = np.argmax(temp_prod)
 
         # Backtracking
+        # print(proba_matrix, optimal)
         optimal_state_seq = np.zeros(len_seq).astype(np.int32)
         optimal_state_seq[-1] = np.argmax(proba_matrix[:, -1])
         for token in range(len_seq - 2, -1, -1):
