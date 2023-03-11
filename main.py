@@ -285,6 +285,8 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print(vit.solve_viterbi(['10', '000', 'AB', '001'], smoothing=False))
         print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=True))
         print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=False))
+        print(vit.solve_viterbi(['LA', 'PLAINE', '10', 'CHEMIN', 'DU', 'BOURG'], smoothing=True))
+        print(vit.solve_viterbi(['LA', 'PLAINE', '10', 'CHEMIN', 'DU', 'BOURG'], smoothing=False))
 
     '''
     # CODE TRANSITION MATRIX WITH PERSO
