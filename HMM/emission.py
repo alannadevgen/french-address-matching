@@ -27,7 +27,7 @@ class Emission:
                     dict_tags[tag_adr]['count_tag_word'] += 1
         return dict_tags
 
-    def compute_emission_word(self, word, smoothing=True):
+    def compute_emission_word(self, word, smoothing=True, delta=1):
         tm = TransitionMatrix()
         info = tm.display_statistics(self.tags, print_all=False)
         list_tags = list(info[0])
@@ -37,8 +37,9 @@ class Emission:
             res_word_given_tag = dict_tags[t]
             if smoothing:
                 # perform a Laplace smoothing:
-                emission[i] = (res_word_given_tag['count_tag_word'] + 1) \
-                    / (res_word_given_tag['count_tag'] + len(list(info[1])))
+                emission[i] = (res_word_given_tag['count_tag_word'] + delta) \
+                    / (res_word_given_tag['count_tag'] +
+                       delta * len(list(info[1])))
             else:
                 emission[i] = res_word_given_tag['count_tag_word'] \
                     / res_word_given_tag['count_tag']
