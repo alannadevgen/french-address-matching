@@ -13,6 +13,7 @@ from time import time
 from HMM.transition_matrix import TransitionMatrix
 from HMM.emission import Emission
 from HMM.viterbi import Viterbi
+from HMM.split_sample import SplitSample
 
 @click.command()
 @click.argument(
@@ -279,14 +280,30 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         # print(e.compute_emission_word('RUE'))
 
         vit = Viterbi(list_all_tags, transition_matrix)
-        print(vit.solve_viterbi(['0', 'KERLANN'], smoothing=True))
-        print(vit.solve_viterbi(['0', 'KERLANN'], smoothing=False))
-        print(vit.solve_viterbi(['10', '000', 'AB', '001'], smoothing=True))
-        print(vit.solve_viterbi(['10', '000', 'AB', '001'], smoothing=False))
-        print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=True))
-        print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=False))
-        print(vit.solve_viterbi(['LA', 'PLAINE', '10', 'CHEMIN', 'DU', 'BOURG'], smoothing=True))
-        print(vit.solve_viterbi(['LA', 'PLAINE', '10', 'CHEMIN', 'DU', 'BOURG'], smoothing=False))
+        # print(vit.solve_viterbi(['0', 'KERLANN'], smoothing=True))
+        # print(vit.solve_viterbi(['0', 'KERLANN'], smoothing=False))
+        # print(vit.solve_viterbi(['10', '000', 'AB', '001'], smoothing=True))
+        # print(vit.solve_viterbi(['10', '000', 'AB', '001'], smoothing=False))
+        # print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=True))
+        # print(vit.solve_viterbi(['202', 'CITE', 'DES', 'LILAS'], smoothing=False))
+        # print(vit.solve_viterbi(['LA', 'PLAINE', '10', 'CHEMIN', 'DU', 'BOURG'], smoothing=True))
+        # print(vit.solve_viterbi(['LA', 'PLAINE', '10', 'CHEMIN', 'DU', 'BOURG'], smoothing=False))
+        sp = SplitSample(list_all_tags)
+        train_data, test_data = sp.split()
+        tm = TransitionMatrix()
+        transition_matrix = tm.compute_transition_matrix(train_data)
+        print(transition_matrix)
+        vit2 = Viterbi(train_data, transition_matrix)
+        for ind in range(10):
+            print(test_data[ind])
+            print(vit2.solve_viterbi(test_data[ind][0], delta=0.000000000001))
+            print(vit2.solve_viterbi(test_data[ind][0], delta=0.001))
+            print(vit2.solve_viterbi(test_data[ind][0], delta=0.01))
+            print(vit2.solve_viterbi(test_data[ind][0], delta=0.5))
+            print(vit2.solve_viterbi(test_data[ind][0]))
+            print(vit2.solve_viterbi(test_data[ind][0], delta=5))
+            print(vit2.solve_viterbi(test_data[ind][0], delta=10))
+            print(vit2.solve_viterbi(test_data[ind][0], smoothing=False))
 
     '''
     # CODE TRANSITION MATRIX WITH PERSO
