@@ -14,6 +14,7 @@ from HMM.transition_matrix import TransitionMatrix
 from HMM.emission import Emission
 from HMM.viterbi import Viterbi
 from HMM.split_sample import SplitSample
+from HMM.performance import Performance
 
 @click.command()
 @click.argument(
@@ -270,27 +271,24 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         # tags of the final (sample)
         tm = TransitionMatrix()
-        # tm.display_statistics(train_sample)
+
         transition_matrix = tm.compute_transition_matrix(list_all_tags)
         print("\n----------------------------------------------------------------------------------------------------------------\n")
         print("Transition matrix\n\n", transition_matrix)
         image = tm.plot_transition_matrix(transition_matrix)
         tm.save_transition_matrix(image=image, bucket=BUCKET)
-        # e = Emission(list_all_tags)
-        # print(e.compute_emission_word('RUE'))
 
-        vit = Viterbi(list_all_tags, transition_matrix)
         sp = SplitSample(list_all_tags)
         train_data, test_data = sp.split()
-        tm = TransitionMatrix()
-        transition_matrix = tm.compute_transition_matrix(train_data)
-        print(transition_matrix)
-        vit2 = Viterbi(train_data, transition_matrix)
-        for ind in range(10):
-            print(test_data[ind])
-            print(vit2.solve_viterbi(test_data[ind][0], smoothing='laplace', delta=1))
-            print(vit2.solve_viterbi(test_data[ind][0], smoothing='sp'))
-            print(vit2.solve_viterbi(test_data[ind][0], smoothing=False), '\n')
+        viterbi = Viterbi(train_data)
+        predictions = viterbi.predict(test_data)
+        perf = Performance(test_data, predictions)
+        good_class, bad_class = perf.rate_correct_tagged()
+        print(f'Proportion of addresses correctly tagged:{good_class}')
+        print(f'Proportion of addresses incorrectly tagged:{bad_class}')
+        matrix = perf.matrix_true_pred()
+        print(matrix)
+
 
     '''
     # CODE TRANSITION MATRIX WITH PERSO
