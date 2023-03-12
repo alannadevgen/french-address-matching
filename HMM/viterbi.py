@@ -10,13 +10,16 @@ from time import time
 
 
 class Viterbi:
-    def __init__(self, tags, transition_matrix):
+    def __init__(self, tags):
+        tm = TransitionMatrix()
+        transition_matrix = tm.compute_transition_matrix(tags)
+        self.list_tags = tm.list_tags
         self.transition = np.matrix(transition_matrix)[1:, :]
         self.emission = Emission(tags)
         self.list_states = transition_matrix.columns
         self.init_distrib = np.matrix(transition_matrix)[0, :].flatten()
 
-    def solve_viterbi(self, observed_sequence, smoothing='sp', delta=1):
+    def solve_viterbi(self, observed_sequence, smoothing='laplace', delta=1):
         '''
         Viterbi algorithm
         '''
@@ -59,3 +62,10 @@ class Viterbi:
             optimal_seq_text.append(self.list_states[elem])
 
         return optimal_seq_text
+
+    def predict(self, test_sample, smoothing='laplace', delta=1):
+        res_predictions = []
+        for addresse in test_sample:
+            res = self.solve_viterbi(addresse[0], smoothing, delta)
+            res_predictions.append(res)
+        return res_predictions
