@@ -27,7 +27,7 @@ class Emission:
                     dict_tags[tag_adr]['count_tag_word'] += 1
         return dict_tags
 
-    def compute_emission_word(self, word, smoothing=True, delta=1):
+    def compute_emission_word(self, word, smoothing='sp', delta=1):
         tm = TransitionMatrix()
         info = tm.display_statistics(self.tags, print_all=False)
         list_tags = list(info[0])
@@ -35,14 +35,22 @@ class Emission:
         dict_tags = self.word_given_tags(word, list_tags)
         for i, t in enumerate(list_tags):
             res_word_given_tag = dict_tags[t]
-            if smoothing:
+            if smoothing == 'laplace':
                 # perform a Laplace smoothing:
                 emission[i] = (res_word_given_tag['count_tag_word'] + delta) \
                     / (res_word_given_tag['count_tag'] +
                        delta * len(list(info[1])))
+            elif smoothing == 'sp':
+                # replace probability of 0 by very small probability
+                if not res_word_given_tag['count_tag_word']:
+                    emission[i] = 10**(-6)
+                else:
+                    emission[i] = res_word_given_tag['count_tag_word'] \
+                        / res_word_given_tag['count_tag']
             else:
+                # no smoothing
                 emission[i] = res_word_given_tag['count_tag_word'] \
-                    / res_word_given_tag['count_tag']
+                        / res_word_given_tag['count_tag']
         emission_df = pd.DataFrame(emission,
                                    columns=['probability_given_tag'],
                                    index=list_tags)
