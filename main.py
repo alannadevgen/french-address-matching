@@ -11,10 +11,11 @@ import click
 import pandas as pd
 from time import time
 from HMM.transition_matrix import TransitionMatrix
-from HMM.emission import Emission
+# from HMM.emission import Emission
 from HMM.viterbi import Viterbi
 from HMM.split_sample import SplitSample
 from HMM.performance import Performance
+
 
 @click.command()
 @click.argument(
@@ -96,16 +97,17 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             sample.create_sample()
             #  put the sample in the BUCKET
             sample.save_sample_file(BUCKET, 'sample.csv')
-        else:
-            print("Importing previously created sample.\n")
-            # import the previous sample
             df_sample = file_io_csv.import_file(
                 bucket=BUCKET, file_key_s3='sample.csv', sep=';'
             )
+        else:
+            print("Importing previously created sample.\n")
+            # import of the previous sample
+            df_sample = file_io_csv.import_file(
+                bucket=BUCKET, file_key_s3='final_sample.csv', sep=';'
+            )
 
-        #########################################################################
-        # import csv file
-        df_sample = file_io_csv.import_file(BUCKET, 'final_sample.csv', sep=';')
+        #####################################################################
 
         # import other datasets (contained in the project)
         replacement = pd.read_csv('remplacement.csv', sep=",")
@@ -125,9 +127,11 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         cp = df[postal_code_col]
         communes = df[cities_col]
 
-        # create tokens for the 100 first addresses
-        tokens_addresses = tokenize_label(addresses, replacement_file=replacement)
-        tokens_communes = tokenize_label(communes, replacement_file=replacement)
+        # create tokens for addresses
+        tokens_addresses = tokenize_label(addresses,
+                                          replacement_file=replacement)
+        tokens_communes = tokenize_label(communes,
+                                         replacement_file=replacement)
         clean_cp = tokenize_code(cp)
 
         # tag the tokens with their label
@@ -148,25 +152,30 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         df_train = tags_to_df(reattached_tokens)
 
+        # export the result
         FILE_KEY_S3_REATTACHED = "reattached_tokens.csv"
         file_io_csv.export_file(df_train, BUCKET, FILE_KEY_S3_REATTACHED)
 
-        #########################################################################
+        ##################################################################
 
-        #########################################################################
+        ##################################################################
         # import the previous file
-        tagged_addresses = file_io_csv.import_file(bucket=BUCKET,
-                                                   file_key_s3='reattached_tokens.csv',
-                                                   sep=';')
+        tagged_addresses = file_io_csv.import_file(
+            bucket=BUCKET,
+            file_key_s3='reattached_tokens.csv',
+            sep=';'
+        )
 
-        # keep indexes in a column
+        # stock indexes in a column
         tagged_addresses['index'] = tagged_addresses['INDEX']
 
         # merge tagged tokens (complete_df) with original data (df)
         complete_df = tagged_addresses.set_index('INDEX').join(df)
 
         complete_df.index = [ind for ind in range(complete_df.shape[0])]
-        complete_df[postal_code_col] = tokenize_code(complete_df[postal_code_col])
+        complete_df[postal_code_col] = tokenize_code(
+            complete_df[postal_code_col]
+            )
         complete_df[city_code_col] = tokenize_code(complete_df[city_code_col])
 
         # change indexes to iter over them
@@ -189,16 +198,16 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         FILE_KEY_S3_MATCH = "matching.csv"
         file_io_csv.export_file(matched_addresses, BUCKET, FILE_KEY_S3_MATCH)
-        #########################################################################
+        #####################################################################
 
-        #########################################################################
+        #####################################################################
         matched_addresses = file_io_csv.import_file(BUCKET,
                                                     'matching.csv', sep=';')
         incorrect_indexes = None
         if add_corected_addresses:
             incorrect_indexes = incorrect_addresses(matched_addresses)
             print(f'NUMBER OF ADDRESSES WITH POSSIBLE '
-                f'INCORRECT TAGS: {len(incorrect_indexes)}\n')
+                  f'INCORRECT TAGS: {len(incorrect_indexes)}\n')
             print('INDEXES OF THESE ADDRESSES:')
             print(incorrect_indexes, '\n')
 
@@ -207,19 +216,18 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 print(f'INDEX {index_address}\n')
                 print('TAGGING\n', tags[index_address])
                 print('ADDRESS RETURNED BY THE API (with our tags)\n',
-                    matched_addresses[
-                        matched_addresses['index'] ==
-                        index_address].iloc[0, cols.index('label')
-                                            ])
-                print('ADDRESS RETURNED BY THE API (with previous corrections)\n',
-                    matched_addresses[
-                        matched_addresses['index'] ==
-                        index_address].iloc[0, cols.index('label_corr')
-                                            ])
+                      matched_addresses[
+                        matched_addresses['index'] == index_address
+                        ].iloc[0, cols.index('label')])
+                print('ADDRESS RETURNED BY THE API\
+                    (with previous corrections)\n',
+                      matched_addresses[
+                        matched_addresses['index'] == index_address
+                        ].iloc[0, cols.index('label_corr')])
                 print('\n')
 
         train_json = create_training_dataset_json(tags, matched_addresses,
-                                                incorrect_indexes)
+                                                  incorrect_indexes)
         FILE_KEY_S3_TRAIN_JSON = "train.json"
         file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
 
@@ -233,7 +241,10 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
     #########################################################################
     if steps in ['all', 'hmm']:
-        FILE_KEY_S3_TRAIN_JSON = "final_train.json"
+        if steps == 'all':
+            FILE_KEY_S3_TRAIN_JSON = "train.json"
+        else:
+            FILE_KEY_S3_TRAIN_JSON = "final_train.json"
 
         # list of possible incorrect addresses
         add_corected_addresses = True
@@ -262,7 +273,8 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         # statistics
         print("Number of addresses to check:", len(addresses_to_check))
-        print("Number of addresses in the final training dataset:",
+        print("Number of addresses in the final training dataset " +
+              "(containing only correct addresses):",
               len(list_all_tags))
         # 9796
         # 10,000 addresses and 9,985 addresses
@@ -274,34 +286,37 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         transition_matrix = tm.compute_transition_matrix(list_all_tags)
         print("\n----------------------------------------------------------------------------------------------------------------\n")
-        print("Transition matrix\n\n", transition_matrix)
+        print("Transition matrix (all addresses)\n\n", transition_matrix)
         image = tm.plot_transition_matrix(transition_matrix)
         tm.save_transition_matrix(image=image, bucket=BUCKET)
 
+        # build train and test
         sp = SplitSample(list_all_tags)
         train_data, test_data = sp.split()
         viterbi = Viterbi(train_data)
+        # make predictions
         predictions = viterbi.predict(test_data)
+        # compute performance
         perf = Performance(test_data, predictions)
         good_class, bad_class = perf.rate_correct_tagged()
         print(f'Proportion of addresses correctly tagged:{good_class}')
         print(f'Proportion of addresses incorrectly tagged:{bad_class}')
-        matrix = perf.matrix_true_pred()
-        print(matrix)
 
+        df_true_pred = perf.matrix_true_pred()
+        print('Matrix of the correct tags (row) ' +
+              'and the predicted tags (column):')
+        print(df_true_pred)
+        df_perf = perf.matrix_performance()
+        print('Performance matrix:')
+        print(df_perf)
 
-    '''
-    # CODE TRANSITION MATRIX WITH PERSO
-    # tags of the final (sample)
-    tm = TransitionMatrix()
-    # tm.display_statistics(train_sample)
-    transition_matrix = tm.compute_transition_matrix(tags)
-    print("\n----------------------------------------------------------------------------------------------------------------\n")
-    print("Transition matrix\n\n", transition_matrix)
-    image = tm.plot_transition_matrix(transition_matrix)
-    tm.save_transition_matrix(image=image, bucket=BUCKET)
-    '''
-    #################
+        # export the result about performance in the folder hmm_results
+        file_io_csv.export_file(df_true_pred, BUCKET,
+                                'hmm_results/true_pred.csv', index=True)
+        file_io_csv.export_file(df_perf, BUCKET,
+                                'hmm_results/performance.csv', index=True)
+
+    #########################################################################
 
     execution_time = time() - start_time
     seconds = round(execution_time, 2)
@@ -313,3 +328,14 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
 if __name__ == '__main__':
     main()
+
+
+# # CODE TRANSITION MATRIX WITH PERSO
+# # tags of the final (sample)
+# tm = TransitionMatrix()
+# # tm.display_statistics(train_sample)
+# transition_matrix = tm.compute_transition_matrix(tags)
+# print("\n----------------------------------------------------------------------------------------------------------------\n")
+# print("Transition matrix\n\n", transition_matrix)
+# image = tm.plot_transition_matrix(transition_matrix)
+# tm.save_transition_matrix(image=image, bucket=BUCKET)
