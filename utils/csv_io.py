@@ -20,7 +20,7 @@ class IOcsv(FileIO):
             df = pd.read_csv(file_input, sep=sep, encoding=encoding)
         return df
 
-    def export_file(self, df, bucket: str, file_key_s3: str):
+    def export_file(self, df, bucket: str, file_key_s3: str, index=False):
         '''
         export_csv allow to transform a pandas dataframe into a csv file
         and to export it with any vscode service on the datalab using
@@ -30,4 +30,4 @@ class IOcsv(FileIO):
         file_path_s3 = bucket + "/" + file_key_s3
 
         with file_system.open(file_path_s3, mode='w') as file_output:
-            df.to_csv(file_output, index=False, sep=';')
+            df.to_csv(file_output, index=index, sep=';')
