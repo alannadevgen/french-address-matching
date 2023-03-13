@@ -3,37 +3,90 @@ import pandas as pd
 
 
 class Performance:
+    '''
+    '''
     def __init__(self, sample, predictions):
+        '''
+        '''
         self.true_values = [adr[1] for adr in sample]
         self.predictions = predictions
         self.len_sample = len(sample)
+
         tags_true = [tag for address in sample for tag in address[1]]
         tags_pred = [tag for address in predictions for tag in address]
         self.tags_true = tags_true
         self.tags_pred = tags_pred
+
+        list_set_tags = self.list_set_tag()
+        self.set_tags_true = list_set_tags[0]
+        self.set_tags_pred = list_set_tags[1]
+
+    def list_set_tag(self):
+        '''
+        '''
         list_tags = ['NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'LIEU', 'CP', 'COMMUNE',
                      'COMPADR', 'PARCELLE', 'INCONNU', 'PERSO']
         list_tags_true_present = []
         list_tags_pred_present = []
-        set_tags_true = list(set(tags_true))
-        set_tags_pred = list(set(tags_pred))
+        set_tags_true = list(set(self.tags_true))
+        set_tags_pred = list(set(self.tags_pred))
         for tag_elem in list_tags:
             if tag_elem in set_tags_true:
                 list_tags_true_present.append(tag_elem)
             if tag_elem in set_tags_pred:
                 list_tags_pred_present.append(tag_elem)
 
-        self.set_tags_true = list_tags_true_present
-        self.set_tags_pred = list_tags_pred_present
+        return (list_tags_true_present, list_tags_pred_present)
 
     def count_tags(self, set_tags, tags):
+        '''
+        '''
         count_tags = np.zeros(len(set_tags))
         for tag in tags:
-            ind_vec = set_tags.index(tag)
-            np.add.at(count_tags, [ind_vec], 1)
+            if tag in set_tags:
+                ind_vec = set_tags.index(tag)
+                np.add.at(count_tags, [ind_vec], 1)
         return count_tags
 
+    def count_true_pos(self):
+        '''
+        '''
+        assert len(self.tags_true) == len(self.tags_pred)
+        len_vec = min(len(self.set_tags_true),
+                      len(self.set_tags_pred))
+        vec_true_pos = np.zeros(len_vec)
+        if len_vec == len(self.set_tags_true):
+            set_tags = self.set_tags_true
+        else:
+            set_tags = self.set_tags_pred
+        for ind in range(len(self.tags_true)):
+            if self.tags_true[ind] == self.tags_pred[ind]:
+                ind_true_pos = set_tags.index(self.tags_true[ind])
+                vec_true_pos[ind_true_pos] += 1
+        return (vec_true_pos, set_tags)
+
+    def matrix_performance(self):
+        '''
+        '''
+        res_true_pos = self.count_true_pos()
+        nb_true_pos = res_true_pos[0]
+        list_tags = res_true_pos[1]
+        nb_tags_true = self.count_tags(list_tags, self.tags_true)
+        nb_tags_pred = self.count_tags(list_tags, self.tags_pred)
+
+        precision = np.divide(nb_true_pos, nb_tags_pred)
+        recall = np.divide(nb_true_pos, nb_tags_true)
+        f1_score = (2 * (precision * recall)) / (precision + recall)
+        performance = pd.DataFrame()
+        performance['precision'] = np.round(precision, 3)
+        performance['recall'] = np.round(recall, 3)
+        performance['f1-score'] = np.round(f1_score, 3)
+        performance.index = list_tags
+        return performance
+
     def matrix_true_pred(self):
+        '''
+        '''
         count_tags_true = self.count_tags(self.set_tags_true, self.tags_true)
         assert len(self.tags_true) == len(self.tags_pred)
         matrix_count = np.zeros((len(self.set_tags_true),
@@ -47,12 +100,14 @@ class Performance:
                                   matrix_count)
 
         df_true_df = pd.DataFrame(
-            matrix_true_pred,
+            np.round(matrix_true_pred, 3),
             columns=self.set_tags_pred, index=self.set_tags_true
             )
         return df_true_df
 
     def rate_correct_tagged(self):
+        '''
+        '''
         nb_good_addresses = 0
         nb_bad_addresses = 0
         for ind_adr, adr in enumerate(self.predictions):
