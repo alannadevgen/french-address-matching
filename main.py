@@ -310,6 +310,14 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print('Performance matrix:')
         print(df_perf)
 
+        distrib_true_tags = perf.plot_distrib_tags(on='true_tags')
+        perf.save_barplot(image=distrib_true_tags, bucket=BUCKET,
+                          file='hmm_results/distrib_true_tags.png')
+
+        distrib_pred_tags = perf.plot_distrib_tags(on='predicted_tags')
+        perf.save_barplot(image=distrib_pred_tags, bucket=BUCKET,
+                          file='hmm_results/distrib_pred_tags.png')
+
         # export the result about performance in the folder hmm_results
         file_io_csv.export_file(df_true_pred, BUCKET,
                                 'hmm_results/true_pred.csv', index=True)
