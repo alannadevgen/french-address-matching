@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from utils.png_io import IOpng
+import io
 
 
 class Performance:
@@ -122,3 +125,47 @@ class Performance:
         rate_correct_addresses = round(nb_good_addresses / self.len_sample, 3)
         rate_bad_addresses = round(nb_bad_addresses / self.len_sample, 3)
         return (rate_correct_addresses, rate_bad_addresses)
+
+    def plot_distrib_tags(self, on='true_tags'):
+        '''
+        '''
+        fig = plt.figure()
+        ax = fig.add_axes([0, 0, 1, 1])
+        list_tags = ['NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'LIEU', 'CP', 'COMMUNE',
+                     'COMPADR', 'PARCELLE', 'INCONNU']
+        title = 'Distribution of the '
+        if on == 'true_tags':
+            nb_tags = self.count_tags(list_tags, self.tags_true)
+            title += 'true tags'
+        elif on == 'predicted_tags':
+            nb_tags = self.count_tags(list_tags, self.tags_pred)
+            title += 'predicted tags'
+        else:
+            raise ValueError('Argument "on" can take only two values: \
+                true_tags or predicted tags')
+
+        rects = ax.bar(list_tags, np.int_(nb_tags))
+
+        plt.title(title, weight="bold",
+                  size=16)
+        plt.draw()
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha='right')
+        ax.set_ylabel('Number of tags')
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate('{}'.format(height),
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        ha='center', va='bottom')
+
+        # ajust margins
+        # plt.tight_layout()
+        img_data = io.BytesIO()
+        plt.savefig(img_data, format='png', bbox_inches='tight')
+        img_data.seek(0)
+        return img_data
+
+    def save_barplot(self, image, bucket, file):
+        png_file_io = IOpng()
+        png_file_io.export_file(image=image, bucket=bucket, file_key_s3=file)
