@@ -27,8 +27,9 @@ class TransitionMatrix:
             list_tags.append('PERSO')
         nb_distinct_tags = len(list_tags)
         if print_all:
-            print(f'Number of tokens in the train sample: {len(tokens)}')
-            print(f'Number of distinct tokens in the train sample: {nb_distinct_vocab}')
+            print(f'Number of tokens in the training sample: {len(tokens)}')
+            print(f'Number of distinct tokens in the\
+                  training sample: {nb_distinct_vocab}')
             print(f'Number of distinct tags: {nb_distinct_tags}')
         distribution_tags = {}
         for elem in list_tags:
@@ -48,7 +49,8 @@ class TransitionMatrix:
         count_t1_t2 = 0
         for address in tags:
             for index_tag in range(1, len(address[1])):
-                if address[1][index_tag] == t2 and address[1][index_tag-1] == t1:
+                if address[1][index_tag] == t2 and\
+                        address[1][index_tag-1] == t1:
                     count_t1_t2 += 1
                 if address[1][index_tag-1] == t1:
                     count_t1 += 1
@@ -65,11 +67,10 @@ class TransitionMatrix:
         return (count_t, count_total)
 
     def compute_transition_matrix(self, tags):
-        info = self.display_statistics(tags)
+        info = self.display_statistics(tags, print_all=False)
         set_tags = info[0]
         nb_distinct_tags = len(info[0])
 
-        # nb_distinct_vocab = len(info[1])
         tags_matrix = np.zeros(
             (nb_distinct_tags + 1, nb_distinct_tags), dtype='float32'
             )
@@ -96,7 +97,8 @@ class TransitionMatrix:
         if file is None:
             file = self.file
         # plot the transition matrix
-        heatmap = sns.heatmap(transition_matrix, cmap="Blues", annot=True, fmt=".1f")
+        heatmap = sns.heatmap(transition_matrix, cmap="Blues",
+                              annot=True, fmt=".1f")
         # add title
         plt.title('Transition matrix', weight="bold", size=16)
         # ajust margins
