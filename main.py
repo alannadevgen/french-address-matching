@@ -15,7 +15,8 @@ from HMM.transition_matrix import TransitionMatrix
 from HMM.viterbi import Viterbi
 from HMM.split_sample import SplitSample
 from HMM.performance import Performance
-from HMM.emission import Emission
+# from HMM.emission import Emission
+from HMM.cross_validation import CrossValidation
 
 
 @click.command()
@@ -320,8 +321,13 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         viterbi = Viterbi(train_data)
         # em = Emission(train_data)
         # print(em.compute_emission_word('RUE', smoothing=None))
+        # cv = CrossValidation(train_data, delta=[0.01, 0.1, 1])
+        # opti_delta = cv.find_parameters_cv()
+        # print(opti_delta)
+
+        # print(sp.split_cv(k=3))
         # make predictions
-        predictions = viterbi.predict(test_data)
+        predictions = viterbi.predict(test_data, delta=0.001)
         # compute performance
         perf = Performance(test_data, predictions)
         good_class, bad_class = perf.rate_correct_tagged()
