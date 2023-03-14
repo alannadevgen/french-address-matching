@@ -15,6 +15,7 @@ from HMM.transition_matrix import TransitionMatrix
 from HMM.viterbi import Viterbi
 from HMM.split_sample import SplitSample
 from HMM.performance import Performance
+from HMM.emission import Emission
 
 
 @click.command()
@@ -246,11 +247,27 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         else:
             FILE_KEY_S3_TRAIN_JSON = "final_train.json"
 
+        if steps == 'all':
+            # CODE TRANSITION MATRIX WITH PERSO
+            # tags of the final (sample)
+            tm = TransitionMatrix()
+            # tm.display_statistics(train_sample)
+            transition_matrix = tm.compute_transition_matrix(tags)
+            print("\n----------------------------------------------------------------------------------------------------------------\n")
+            print("Transition matrix\n\n", transition_matrix)
+            image = tm.plot_transition_matrix(transition_matrix)
+            tm.save_transition_matrix(image=image, bucket=BUCKET,
+                                      file='hmm_results/transition_perso.png')
+
         # list of possible incorrect addresses
         add_corected_addresses = True
         addresses_to_check = []
         list_addresses = file_io_json.import_file(BUCKET,
                                                   FILE_KEY_S3_TRAIN_JSON)
+        # index considered valid by MK
+        valid_MK = file_io_csv.import_file(BUCKET, 'valid_MK.csv')
+        list_valid_MK = list((valid_MK['valid_MK']))
+
         all_tokens = []
         all_tags = []
 
@@ -260,8 +277,11 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             if list_addresses[adress]['index_input'] not in recorded_indexes:
                 recorded_indexes.append(list_addresses[adress]['index_input'])
                 complete_adress = list_addresses[adress]
-                if add_corected_addresses and not complete_adress['valid']:
+                if add_corected_addresses and not complete_adress['valid'] and\
+                        int(complete_adress['index_input']) not\
+                        in list_valid_MK:
                     addresses_to_check.append(complete_adress)
+
                 else:
                     all_tokens.append(complete_adress['tokens'])
                     all_tags.append(complete_adress['tags'])
@@ -288,12 +308,18 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print("\n----------------------------------------------------------------------------------------------------------------\n")
         print("Transition matrix (all addresses)\n\n", transition_matrix)
         image = tm.plot_transition_matrix(transition_matrix)
-        tm.save_transition_matrix(image=image, bucket=BUCKET)
+        tm.save_transition_matrix(
+            image=image,
+            bucket=BUCKET,
+            file='hmm_results/transition_without_perso.png'
+            )
 
         # build train and test
         sp = SplitSample(list_all_tags)
         train_data, test_data = sp.split()
         viterbi = Viterbi(train_data)
+        # em = Emission(train_data)
+        # print(em.compute_emission_word('RUE', smoothing=None))
         # make predictions
         predictions = viterbi.predict(test_data)
         # compute performance
@@ -336,14 +362,3 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
 if __name__ == '__main__':
     main()
-
-
-# # CODE TRANSITION MATRIX WITH PERSO
-# # tags of the final (sample)
-# tm = TransitionMatrix()
-# # tm.display_statistics(train_sample)
-# transition_matrix = tm.compute_transition_matrix(tags)
-# print("\n----------------------------------------------------------------------------------------------------------------\n")
-# print("Transition matrix\n\n", transition_matrix)
-# image = tm.plot_transition_matrix(transition_matrix)
-# tm.save_transition_matrix(image=image, bucket=BUCKET)
