@@ -126,31 +126,40 @@ class Performance:
         rate_bad_addresses = round(nb_bad_addresses / self.len_sample, 3)
         return (rate_correct_addresses, rate_bad_addresses)
 
-    def plot_distrib_tags(self, on='true_tags'):
+    def autolabel(self, ax, rects):
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate('{}'.format(height),
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points",
+                        ha='center', va='bottom', fontsize=8)
+
+    def plot_distrib_tags(self):
         '''
         '''
         fig = plt.figure()
         ax = fig.add_axes([0, 0, 1, 1])
         list_tags = ['NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'LIEU', 'CP', 'COMMUNE',
                      'COMPADR', 'PARCELLE', 'INCONNU']
-        title = 'Distribution of the '
-        if on == 'true_tags':
-            nb_tags = self.count_tags(list_tags, self.tags_true)
-            title += 'true tags'
-        elif on == 'predicted_tags':
-            nb_tags = self.count_tags(list_tags, self.tags_pred)
-            title += 'predicted tags'
-        else:
-            raise ValueError('Argument "on" can take only two values: \
-                true_tags or predicted tags')
+        title = 'Distribution of the true and the predicted tags'
+        nb_tags_true = self.count_tags(list_tags, self.tags_true)
+        nb_tags_pred = self.count_tags(list_tags, self.tags_pred)
 
-        rects = ax.bar(list_tags, np.int_(nb_tags))
+        ind = np.arange(len(list_tags))  # the x locations for the groups
+        width = 0.4
+
+        rects_true = ax.bar(ind - width/2, np.int_(nb_tags_true), width, label='true')
+        rects_pred = ax.bar(ind + width/2, np.int_(nb_tags_pred), width, label='predicted')
 
         plt.title(title, weight="bold",
                   size=16)
         plt.draw()
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha='right')
+        ax.set_xticks([i for i in range(len(list_tags))])
+        ax.set_xticklabels(list_tags, rotation=30, ha='right')
+        # ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha='right')
         ax.set_ylabel('Number of tags')
+        '''
         for rect in rects:
             height = rect.get_height()
             ax.annotate('{}'.format(height),
@@ -158,9 +167,9 @@ class Performance:
                         xytext=(0, 3),  # 3 points vertical offset
                         textcoords="offset points",
                         ha='center', va='bottom')
-
-        # ajust margins
-        # plt.tight_layout()
+        '''
+        self.autolabel(ax, rects_true)
+        self.autolabel(ax, rects_pred)
         img_data = io.BytesIO()
         plt.savefig(img_data, format='png', bbox_inches='tight')
         img_data.seek(0)

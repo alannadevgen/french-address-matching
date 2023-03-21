@@ -327,7 +327,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         # print(sp.split_cv(k=3))
         # make predictions
-        predictions = viterbi.predict(test_data, delta=0.001)
+        predictions = viterbi.predict(test_data, delta=0.5)
         # compute performance
         perf = Performance(test_data, predictions)
         good_class, bad_class = perf.rate_correct_tagged()
@@ -342,13 +342,13 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print('Performance matrix:')
         print(df_perf)
 
-        distrib_true_tags = perf.plot_distrib_tags(on='true_tags')
-        perf.save_barplot(image=distrib_true_tags, bucket=BUCKET,
-                          file='hmm_results/distrib_true_tags.png')
+        distrib = perf.plot_distrib_tags()
+        perf.save_barplot(image=distrib, bucket=BUCKET,
+                          file='hmm_results/distrib.png')
 
-        distrib_pred_tags = perf.plot_distrib_tags(on='predicted_tags')
-        perf.save_barplot(image=distrib_pred_tags, bucket=BUCKET,
-                          file='hmm_results/distrib_pred_tags.png')
+        # distrib_pred_tags = perf.plot_distrib_tags(on='predicted_tags')
+        # perf.save_barplot(image=distrib_pred_tags, bucket=BUCKET,
+        #                   file='hmm_results/distrib_pred_tags.png')
 
         # export the result about performance in the folder hmm_results
         file_io_csv.export_file(df_true_pred, BUCKET,
