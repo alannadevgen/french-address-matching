@@ -54,7 +54,7 @@ def clean_label(field):
     field_new = re.sub("Œ", "OE", field_new)
 
     # remove special characters (punctuation)
-    field_new = re.sub('[\\?!/_\\.,;:&\\-\'\\(\\)"]', " ", field_new)
+    field_new = re.sub('[\\?!/_\\.,;:&\\-\'\\(\\)\\/"]', " ", field_new)
 
     # replace common abbreviations
     # field_new = re.sub("SAINT", "ST", field_new)

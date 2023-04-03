@@ -127,12 +127,12 @@ def tokenize_label(field, replacement_file):
                     # else:
                     #     words_new = split_libvoie([word], libvoie_file)
 
-                # remove punctation and N° in one token (useless)
-                # if word not in ['', '/', '-']:
-                if words_new:
-                    tokenized_field_new += words_new
-                elif word != '':
-                    tokenized_field_new.append(word)
+                    # remove punctation and N° in one token (useless)
+                    # if word not in ['', '/', '-']:
+                    if words_new:
+                        tokenized_field_new += words_new
+                    elif word != '':
+                        tokenized_field_new.append(word)
 
             if not tokenized_field_new:
                 tokenized_field_new = ['VIDE']
