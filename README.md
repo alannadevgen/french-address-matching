@@ -25,29 +25,29 @@ python3 main.py --help
 #                POSTAL_CODE_COL CITY_CODE_COL
 
 # Options:
-#   --create-sample BOOLEAN   Create a new sample of the dataset.
-#   --size INTEGER            Sample size.
+#   --steps                   Task to perform: "create_sample", "hc", "hmm", "auto"
+#   --size INTEGER            Sample size. If steps = create_sample
 #   --correct_addresses TEXT  Column containing corrected addresses.
 #   --help                    Show this message and exit.
 ```
 
 ```bash
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021
+# create a sample using the complete file
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps create_sample --size 1000
 ```
 
-By defaut, `--create-sample` is set to False.
+```bash
+# hcc perform only hard-coded rules
+python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps auto
+```
+```bash
+# hmm only perform HMM (Hidden Markov Model)
+python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps auto
+```
 
 ```bash
-# default values
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --create-sample False
-# create a new sample for training data
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --create-sample True
-# only perform the creation of the training sample
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps train
-# only perform the hmm
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps hmm
-# perform all
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps all
+# auto use hcc (hard coded rules) and hmm after if the hcc result is considered incorrect for an address
+python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps auto
 ```
 
 By defaut, `--correct_addresses` is set to adresse_corr.
