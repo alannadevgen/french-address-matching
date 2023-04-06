@@ -22,43 +22,6 @@ def split_digit_letter(word):
     splited_word.append(word[first:last])
     return splited_word
 
-
-# def split_libvoie(list_tokens, libvoie_file):
-#     '''
-#     '''
-#     final = []
-#     for token in list_tokens:
-#         longer = 0
-#         res = []
-
-#         for elem in list(libvoie_file['type_voie_maj']):
-#             inter = re.findall(
-#                 f'[A-Z0-9]+{elem}[A-Z0-9]+|[A-Z0-9]+{elem}|{elem}[A-Z0-9]+',
-#                 token)
-
-#             if len(inter) and len(elem) > longer:
-#                 res = inter
-#                 longer = len(elem)
-#                 correct_elem = elem
-
-#         if len(res):
-
-#             first = token.find(correct_elem)
-#             end = first + len(correct_elem)
-#             first_token = token[0:first]
-#             second_token = token[first:end]
-#             last_token = token[end:len(token)]
-
-#             for token in [first_token, second_token, last_token]:
-#                 if token != '':
-#                     final.append(token)
-#     if final:
-#         list_tokens = final
-#         return split_libvoie(list_tokens, libvoie_file=libvoie_file)
-#     else:
-#         return list_tokens
-
-
 def tokenize_label(field, replacement_file):
     '''
     tokenize: split field in tokens,
@@ -121,14 +84,6 @@ def tokenize_label(field, replacement_file):
                                     break
                             words_new.append(word)
 
-                    # separate LIBVOIE from parasite information
-                    # if words_new:
-                    #     words_new = split_libvoie(words_new, libvoie_file)
-                    # else:
-                    #     words_new = split_libvoie([word], libvoie_file)
-
-                    # remove punctation and N° in one token (useless)
-                    # if word not in ['', '/', '-']:
                     if words_new:
                         tokenized_field_new += words_new
                     elif word != '':

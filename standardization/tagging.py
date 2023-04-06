@@ -155,9 +155,6 @@ def tag_tokens(
                 row_tags[index] = "COMPADR"
 
             # identify postal code CP
-            # elif row_tags[index] == "INCONNU" and re.match("^(?:0[1-9]|\
-            # |[1-8]\\d|9[0-8])\\d{3}$", row_tokens[index]):
-            #     row_tags[index] = "CP"
             elif row_tokens[index] in list(tokenized_cp):
 
                 row_tags[index] = "CP"
@@ -275,7 +272,6 @@ def tag_tokens(
                         row_tags[index-1] = "PARCELLE"
                         row_tags[index] = "PARCELLE"
 
-                    # elif row_tags[index-2] in ["INCONNU", "PARCELLE"]:
                     else:
                         row_tags[index-1] = "PARCELLE"
                         row_tags[index] = "PARCELLE"
@@ -376,17 +372,6 @@ def tag_tokens(
             elif row_tags[index] == 'COMMUNE':
                 row_tags = complete_tags(row_tags, 'COMMUNE', index)
 
-            # clean LIBVOIE (remove sequence of digits or tokens containing
-            # both digits and letters)
-            # which are not PARCELLE and remove LIBVOIE or LIEU containing
-            # only one token of 2 letters
-
-            # if row_tags[index] in ['LIBVOIE', 'LIEU']\
-            #         and re.match(
-            #             "[A-Z]+[0-9]+|[0-9]+[A-Z]+", row_tokens[index]
-            #             ):
-            #     row_tags[index] = 'INCONNU'
-
             # if nothing after COMMUNE (probably end of LIBVOIE or LIEU)
             if row_tokens[index] in ['COMMUNE', 'COMMUNES']\
                     and index == len(row_tags) - 1:
@@ -467,34 +452,6 @@ def remove_perso_info(tags):
         result['kept_addresses'] = index_kept_addresses
 
     return result
-
-
-# def df_tags(tags):
-#     '''
-#     df_tags: create a clean dataframe composed of elements return
-#     by tag function
-#     '''
-#     list_tags = [
-#         'LIEU', 'NUMVOIE', 'LIBVOIE', 'PARCELLE', 'COMPADR',
-#         'CP', 'COMMUNE', 'INCONNU', 'PERSO'
-#         ]
-#     res = {}
-#     for elem in list_tags:
-#         res[elem] = []
-#         for index in range(len(tags)):
-#             tags_adresse = []
-#             for index2 in range(len(tags[index][1])):
-#                 if elem == tags[index][1][index2]:
-#                     tags_adresse.append(tags[index][0][index2])
-
-#             res[elem].append(" ".join(tags_adresse))
-
-#     df = pd.DataFrame()
-#     for tag in list_tags:
-#         df[tag] = res[tag]
-
-#     return df
-
 
 def reattach_tokens(tags, indexes):
     '''

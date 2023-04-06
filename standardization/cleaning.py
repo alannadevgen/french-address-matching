@@ -57,23 +57,7 @@ def clean_label(field):
     field_new = re.sub('[\\?!/_\\.,;:&\\-\'\\(\\)\\/"]', " ", field_new)
 
     # replace common abbreviations
-    # field_new = re.sub("SAINT", "ST", field_new)
-    # field_new = re.sub("S\\/", "SUR", field_new)
     field_new = re.sub("L-D", "LIEUDIT", field_new)
-
-    # convert numbers (written with letters) to numbers (digits)
-    # field_new = re.sub("DEUX", "2", field_new)
-    # field_new = re.sub("TROIS", "3", field_new)
-    # field_new = re.sub("QUATRE", "4", field_new)
-    # field_new = re.sub("CINQ", "5", field_new)
-    # field_new = re.sub("SIX", "6", field_new)
-    # field_new = re.sub("SEPT", "7", field_new)
-    # field_new = re.sub("HUIT", "8", field_new)
-    # field_new = re.sub("NEUF", "9", field_new)
-    # field_new = re.sub("DIX", "10", field_new)
-
-    # remove N°
-    # field_new = re.sub("N°|NADEG|NDEG|", "", field_new)
 
     # replace email adresses by email to identify them
     field_new = re.sub("^[a-zA-Z0-9]+(?:\\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+"
