@@ -1,9 +1,9 @@
 from standardization.tokenization import tokenize_label, tokenize_code
-from standardization.tagging import tag_tokens, tags_to_df, reattach_tokens,\
+from standardization.tagging import tag_tokens, reattach_tokens,\
     remove_perso_info
-from matching.matching import match_addresses, match_addresses_cor,\
-    incorrect_addresses, create_training_dataset_json,\
-    create_training_dataset_csv
+# from matching.matching import match_addresses, match_addresses_cor,\
+# incorrect_addresses, create_training_dataset_json,\
+# create_training_dataset_csv
 from matching.process import process_matching
 from utils.csv_io import IOcsv
 from utils.json_io import IOjson
@@ -13,8 +13,8 @@ import pandas as pd
 from time import time
 from HMM.transition_matrix import TransitionMatrix
 from HMM.viterbi import Viterbi
-from HMM.split_sample import SplitSample
-from HMM.performance import Performance
+# from HMM.split_sample import SplitSample
+# from HMM.performance import Performance
 
 
 @click.command()
@@ -151,8 +151,9 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             # reattach tokens together to have standardized adresses
             reattached_tokens = reattach_tokens(
                 clean_tags, tags_without_perso['kept_addresses'])
-            process_matching(tags, reattached_tokens, df, postal_code_col, city_code_col,
-                             add_corected_addresses, BUCKET, process=steps)
+            process_matching(tags, reattached_tokens, df, postal_code_col,
+                             city_code_col, add_corected_addresses, BUCKET,
+                             process=steps)
             ################################
 
     #########################################################################
@@ -196,21 +197,12 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             all_tokens, all_tags
                 ))
 
-        # statistics
-        # print("Number of addresses to check:", len(addresses_to_check))
-        # print("Number of addresses in the final training dataset " +
-        #       "(containing only correct addresses):",
-        #       len(list_all_tags))
-
         # tags of the final (sample)
 
         # create the transition matrix based on the training dataset
         tm = TransitionMatrix()
 
         transition_matrix = tm.compute_transition_matrix(list_all_tags)
-
-        # print("\n----------------------------------------------------------------------------------------------------------------\n")
-        # print("Transition matrix (all addresses)\n\n", transition_matrix)
 
         image = tm.plot_transition_matrix(transition_matrix)
         tm.save_transition_matrix(
@@ -234,11 +226,10 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
             reattached_tokens = reattach_tokens(
                 clean_tags, tags_without_perso['kept_addresses'])
-            process_matching(res_pred, reattached_tokens, df, postal_code_col, city_code_col,
-                             add_corected_addresses, BUCKET, process=steps)
+            process_matching(res_pred, reattached_tokens, df, postal_code_col,
+                             city_code_col, add_corected_addresses, BUCKET,
+                             process=steps)
 
-            # process_matching(res_pred, df, postal_code_col, city_code_col,
-            #                  add_corected_addresses, BUCKET, process='hmm')
         # tagging with HCC then HMM:
         ############################
         else:
@@ -264,25 +255,13 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                         test_data[adr]['tags'] = pred_tags
                     list_tags.append(test_data[adr]['tags'])
             res_pred = list(zip(list_tokens, list_tags))
-            # PB avec la ligne ci-dessous:
-            #############################
-            # décalage dans les indexs des addresses
-            # mieux de modifier appariement avec API seulement sur les adresses
-            # à corriger avec HMM condition (1) dans le code
-            
-            """
-            # remove personal information
-            tags_without_perso = remove_perso_info(res_pred)
-            clean_tags = tags_without_perso['tagged_tokens']
-            """
 
             reattached_tokens = reattach_tokens(
                 res_pred, tags_without_perso['kept_addresses'])
-            process_matching(res_pred, reattached_tokens, df, postal_code_col, city_code_col,
-                             add_corected_addresses, BUCKET, process=steps)
+            process_matching(res_pred, reattached_tokens, df, postal_code_col,
+                             city_code_col, add_corected_addresses, BUCKET,
+                             process=steps)
 
-            # process_matching(res_pred, df, postal_code_col, city_code_col,
-            #                  add_corected_addresses, BUCKET, process='auto', indexes=None)
     #########################################################################
 
     execution_time = time() - start_time
