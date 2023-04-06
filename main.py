@@ -45,12 +45,6 @@ from HMM.performance import Performance
     'city_code_col',
     type=str
 )
-# @click.option(
-#     '--create-sample',
-#     default=False,
-#     help='Create a new sample of the dataset.',
-#     type=bool
-# )
 @click.option(
     '--size',
     default=1000,
@@ -108,33 +102,13 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             bucket=BUCKET, file_key_s3=FILE_KEY_S3, sep=';'
         )
 
-    '''
-    if steps in ['all', 'train']:
-
-        if create_sample:
-            print("Creating new sample.\n")
-            # import of the data
-            full_df = file_io_csv.import_file(BUCKET, FILE_KEY_S3)
-            # initialisate a sample
-            sample = Sample(dataset=full_df, size=size)
-            # create the sample
-            sample.create_sample()
-            #  put the sample in the BUCKET
-            sample.save_sample_file(BUCKET, 'sample.csv')
-            df_sample = file_io_csv.import_file(
-                bucket=BUCKET, file_key_s3='sample.csv', sep=';'
-            )
-        else:
-            print("Importing previously created sample.\n")
-            # import of the previous sample
-            df_sample = file_io_csv.import_file(
-                bucket=BUCKET, file_key_s3='final_sample.csv', sep=';'
-            )
-        '''
 
     #####################################################################
 
     if steps in ['auto', 'hc', 'hmm']:
+        # tokenization of the addresses:
+        ################################
+
         # import other datasets (contained in the project)
         replacement = pd.read_csv('remplacement.csv', sep=",")
         lib_voie = pd.read_csv('libvoie.csv', sep=",")
@@ -156,8 +130,11 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         # create tokens for addresses
         tokens_addresses = tokenize_label(addresses,
                                           replacement_file=replacement)
+        ################################
 
         if steps in ['auto', 'hc']:
+            # tagging with hcc:
+            ################################
             tokens_communes = tokenize_label(communes,
                                              replacement_file=replacement)
             clean_cp = tokenize_code(cp)
@@ -170,134 +147,16 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 libvoie_file=lib_voie
             )
 
-            '''
-            # remove personal information
-            tags_without_perso = remove_perso_info(tags)
-            clean_tags = tags_without_perso['tagged_tokens']
-
-            # reattach tokens together to have standardized adresses
-            reattached_tokens = reattach_tokens(
-                clean_tags, tags_without_perso['kept_addresses'])
-
-            df_train = tags_to_df(reattached_tokens)
-
-            # export the result
-            FILE_KEY_S3_REATTACHED = "reattached_tokens.csv"
-            file_io_csv.export_file(df_train, BUCKET, FILE_KEY_S3_REATTACHED)
-
-            ##################################################################
-
-            ##################################################################
-            # import the previous file
-            tagged_addresses = file_io_csv.import_file(
-                bucket=BUCKET,
-                file_key_s3='reattached_tokens.csv',
-                sep=';'
-            )
-
-            # stock indexes in a column
-            tagged_addresses['index'] = tagged_addresses['INDEX']
-
-            # merge tagged tokens (complete_df) with original data (df)
-            complete_df = tagged_addresses.set_index('INDEX').join(df)
-
-            complete_df.index = [ind for ind in range(complete_df.shape[0])]
-            complete_df[postal_code_col] = tokenize_code(
-                complete_df[postal_code_col]
-                )
-            complete_df[city_code_col] = tokenize_code(complete_df[city_code_col])
-
-            # change indexes to iter over them
-            complete_df.index = [ind for ind in range(complete_df.shape[0])]
-
-            # match the addresses with the API adresse
-            matched_addresses = match_addresses(complete_df,
-                                                numvoie_col='NUMVOIE',
-                                                libvoie_col='LIBVOIE',
-                                                lieu_col='LIEU',
-                                                postal_code_col=postal_code_col,
-                                                city_code_col=city_code_col)
-
-            # add corr_addresses
-            if add_corected_addresses:
-                matched_addresses = match_addresses_cor(matched_addresses,
-                                                        'adresse_corr',
-                                                        city_code_col,
-                                                        postal_code_col)
-
-            FILE_KEY_S3_MATCH = "matching.csv"
-            file_io_csv.export_file(matched_addresses, BUCKET, FILE_KEY_S3_MATCH)
-            #####################################################################
-
-            #####################################################################
-            matched_addresses = file_io_csv.import_file(BUCKET,
-                                                        'matching.csv', sep=';')
-            incorrect_indexes = None
-            if add_corected_addresses:
-                incorrect_indexes = incorrect_addresses(matched_addresses)
-                print(f'NUMBER OF ADDRESSES WITH POSSIBLE '
-                    f'INCORRECT TAGS: {len(incorrect_indexes)}\n')
-                print('INDEXES OF THESE ADDRESSES:')
-                print(incorrect_indexes, '\n')
-
-                cols = list(matched_addresses.columns)
-                for index_address in incorrect_indexes:
-                    print(f'INDEX {index_address}\n')
-                    print('TAGGING\n', tags[index_address])
-                    print('ADDRESS RETURNED BY THE API (with our tags)\n',
-                        matched_addresses[
-                            matched_addresses['index'] == index_address
-                            ].iloc[0, cols.index('label')])
-                    print('ADDRESS RETURNED BY THE API\
-                        (with previous corrections)\n',
-                        matched_addresses[
-                            matched_addresses['index'] == index_address
-                            ].iloc[0, cols.index('label_corr')])
-                    print('\n')
-
-            train_json = create_training_dataset_json(tags, matched_addresses,
-                                                    incorrect_indexes)
-            FILE_KEY_S3_TRAIN_JSON = "train.json"
-            file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
-
-            train_csv = create_training_dataset_csv(tags, matched_addresses,
-                                                    incorrect_indexes)
-            FILE_KEY_S3_TRAIN_CSV = "train.csv"
-            file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
-
-            train_non_valid = train_csv[train_csv['valid'] == False]
-            file_io_csv.export_file(train_non_valid, BUCKET, 'non_valid.csv')
-
-        else:
-            # create a dataframe composed of the tokens for tagging with HMM
-            df_hmm = pd.DataFrame()
-            df_hmm['index_input'] = [i for i in range(len(tokens_addresses))]
-            df_hmm['tokens'] = tokens_addresses
-        '''
-            print(postal_code_col, city_code_col)
             process_matching(tags, df, postal_code_col, city_code_col,
                              add_corected_addresses, BUCKET, process=steps)
+            ################################
 
     #########################################################################
     if steps in ['auto', 'hmm']:
+
+        # tagging with hmm (if hcc not done before)
         if steps == 'auto':
             FILE_KEY_S3_TRAIN_JSON = "auto.json"
-        # else:
-        #     FILE_KEY_S3_TRAIN_JSON = "hmm.json"
-
-        '''
-        if steps == 'all':
-            # CODE TRANSITION MATRIX WITH PERSO
-            # tags of the final (sample)
-            tm = TransitionMatrix()
-            # tm.display_statistics(train_sample)
-            transition_matrix = tm.compute_transition_matrix(tags)
-            print("\n----------------------------------------------------------------------------------------------------------------\n")
-            print("Transition matrix\n\n", transition_matrix)
-            image = tm.plot_transition_matrix(transition_matrix)
-            tm.save_transition_matrix(image=image, bucket=BUCKET,
-                                      file='hmm_results/transition_perso.png')
-        '''
 
         # SAMPLE with Marlène corr.
         ############################
@@ -338,10 +197,6 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         print("Number of addresses in the final training dataset " +
               "(containing only correct addresses):",
               len(list_all_tags))
-        # 9796
-        # 10,000 addresses and 9,985 addresses
-        # (remove addresses containing PERSO)
-        # 189 non valid addresses -> 9,985 - 189 = 9796 -> ok !
 
         # tags of the final (sample)
         tm = TransitionMatrix()
@@ -358,14 +213,12 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         viterbi = Viterbi(list_all_tags)
 
+        # tagging with hmm to improve hcc:
+        #################################
         if steps == 'hmm':
-            # test_data = file_io_json.import_file(BUCKET,
-            #                                      FILE_KEY_S3_TRAIN_JSON)
-            # TO DO : define test_data
             test_data = list(zip(tokens_addresses))
             predictions = viterbi.predict(test_data, delta=0.5)
             res_pred = list(zip(tokens_addresses, predictions))
-            # stocker predictions !
             process_matching(res_pred, df, postal_code_col, city_code_col,
                              add_corected_addresses, BUCKET, process='hmm')
 
@@ -382,57 +235,19 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                     if not test_data[adr]['valid'] or\
                         test_data[adr]['score'].isdigit() and\
                             float(test_data[adr]['score']) < seuil_auto:
+                        # (1)
                         obs_sequence = test_data[adr]['tokens']
                         pred_tags = viterbi.solve_viterbi(obs_sequence)
                         test_data[adr]['tags'] = pred_tags
                     list_tags.append(test_data[adr]['tags'])
             res_pred = list(zip(list_tokens, list_tags))
+            # PB avec la ligne ci-dessous:
+            #############################
+            # décalage dans les indexs des addresses
+            # mieux de modifier appariement avec API seulement sur les adresses
+            # à corriger avec HMM condition (1) dans le code
             process_matching(res_pred, df, postal_code_col, city_code_col,
                              add_corected_addresses, BUCKET, process='auto')
-
-
-        '''
-        # build train and test
-        sp = SplitSample(list_all_tags)
-        train_data, test_data = sp.split()
-        viterbi = Viterbi(train_data)
-        # em = Emission(train_data)
-        # print(em.compute_emission_word('RUE', smoothing=None))
-        # cv = CrossValidation(train_data, delta=[0.01, 0.1, 1])
-        # opti_delta = cv.find_parameters_cv()
-        # print(opti_delta)
-
-        # print(sp.split_cv(k=3))
-        # make predictions
-        predictions = viterbi.predict(test_data, delta=0.5)
-        # compute performance
-        perf = Performance(test_data, predictions)
-        good_class, bad_class = perf.rate_correct_tagged()
-        print(f'Proportion of addresses correctly tagged:{good_class}')
-        print(f'Proportion of addresses incorrectly tagged:{bad_class}')
-
-        df_true_pred = perf.matrix_true_pred()
-        print('Matrix of the correct tags (row) ' +
-              'and the predicted tags (column):')
-        print(df_true_pred)
-        df_perf = perf.matrix_performance()
-        print('Performance matrix:')
-        print(df_perf)
-
-        distrib = perf.plot_distrib_tags()
-        perf.save_barplot(image=distrib, bucket=BUCKET,
-                          file='hmm_results/distrib.png')
-
-        # distrib_pred_tags = perf.plot_distrib_tags(on='predicted_tags')
-        # perf.save_barplot(image=distrib_pred_tags, bucket=BUCKET,
-        #                   file='hmm_results/distrib_pred_tags.png')
-
-        # export the result about performance in the folder hmm_results
-        file_io_csv.export_file(df_true_pred, BUCKET,
-                                'hmm_results/true_pred.csv', index=True)
-        file_io_csv.export_file(df_perf, BUCKET,
-                                'hmm_results/performance.csv', index=True)
-        '''
     #########################################################################
 
     execution_time = time() - start_time

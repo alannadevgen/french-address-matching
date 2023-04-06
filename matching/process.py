@@ -23,23 +23,23 @@ def process_matching(tags, df, postal_code_col, city_code_col,
     tagged_addresses = tags_to_df(reattached_tokens)
 
     # stock indexes in a column
-    print('index', tagged_addresses['INDEX'])
+    # print('index', tagged_addresses['INDEX'])
     tagged_addresses['index'] = tagged_addresses['INDEX']
-    print(tagged_addresses.head())
+    # print(tagged_addresses.head())
 
     # merge tagged tokens (complete_df) with original data (df)
-    print(df)
+    # print(df)
     tagged_addresses['INDEX'] = [int(elem) for elem in tagged_addresses['INDEX']]
     complete_df = tagged_addresses.set_index('INDEX').join(df)
-    print(complete_df)
+    # print(complete_df)
 
     complete_df.index = [ind for ind in range(complete_df.shape[0])]
     complete_df[postal_code_col] = tokenize_code(
         complete_df[postal_code_col]
         )
-    print(complete_df[postal_code_col])
+    # print(complete_df[postal_code_col])
     complete_df[city_code_col] = tokenize_code(complete_df[city_code_col])
-    print(complete_df.head())
+    # print(complete_df.head())
 
     # change indexes to iter over them
     complete_df.index = [ind for ind in range(complete_df.shape[0])]
@@ -98,6 +98,3 @@ def process_matching(tags, df, postal_code_col, city_code_col,
                                             incorrect_indexes)
     FILE_KEY_S3_TRAIN_CSV = f"{process}.csv"
     file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
-
-    # train_non_valid = train_csv[train_csv['valid'] == False]
-    # file_io_csv.export_file(train_non_valid, BUCKET, 'non_valid.csv')
