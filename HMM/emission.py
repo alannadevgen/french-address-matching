@@ -8,6 +8,9 @@ class Emission:
         self.tags = tags
 
     def word_given_tags(self, word, list_tags):
+        '''
+        compute statistics used in the emission probability
+        '''
         dict_tags = {}
         for i, t in enumerate(list_tags):
             dict_tags[t] = {}
@@ -22,6 +25,9 @@ class Emission:
         return dict_tags
 
     def compute_emission_word(self, word, smoothing='laplace', delta=1):
+        '''
+        compute emission probabilities for a given token
+        '''
         tm = TransitionMatrix()
         info = tm.display_statistics(self.tags, print_all=False)
         list_tags = list(info[0])

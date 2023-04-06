@@ -7,6 +7,8 @@ class SplitSample:
 
     def split(self, train_size=0.8):
         '''
+        split the original sample in two samples :
+        train and test
         '''
         init_sample_size = len(self.init_sample)
         indexes = [i for i in range(init_sample_size)]
@@ -19,6 +21,7 @@ class SplitSample:
 
     def split_cv(self, k=10):
         '''
+        create the samples for the cross validation
         '''
         init_sample_size = len(self.init_sample)
         indexes = [i for i in range(init_sample_size)]

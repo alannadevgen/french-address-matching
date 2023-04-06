@@ -57,6 +57,9 @@ class Viterbi:
         return optimal_seq_text
 
     def predict(self, test_sample, smoothing='laplace', delta=1):
+        '''
+        predict the optimal sequence of tags for a given sequence of obs
+        '''
         res_predictions = []
         for addresse in test_sample:
             res = self.solve_viterbi(addresse[0], smoothing, delta)

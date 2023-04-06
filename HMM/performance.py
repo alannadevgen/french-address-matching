@@ -26,6 +26,7 @@ class Performance:
 
     def list_set_tag(self):
         '''
+        count the distinct tags present in the true distrib and in the pred
         '''
         list_tags = ['NUMVOIE', 'SUFFIXE', 'LIBVOIE', 'LIEU', 'CP', 'COMMUNE',
                      'COMPADR', 'PARCELLE', 'INCONNU', 'PERSO']
@@ -43,6 +44,7 @@ class Performance:
 
     def count_tags(self, set_tags, tags):
         '''
+        compute frequency of each tag
         '''
         count_tags = np.zeros(len(set_tags))
         for tag in tags:
@@ -53,6 +55,7 @@ class Performance:
 
     def count_true_pos(self):
         '''
+        count the number of true positives
         '''
         assert len(self.tags_true) == len(self.tags_pred)
         len_vec = min(len(self.set_tags_true),
@@ -70,6 +73,7 @@ class Performance:
 
     def matrix_performance(self):
         '''
+        compute the performance matrix
         '''
         res_true_pos = self.count_true_pos()
         nb_true_pos = res_true_pos[0]
@@ -89,6 +93,7 @@ class Performance:
 
     def matrix_true_pred(self):
         '''
+        compute the cross matrix between true tags and predicted tags
         '''
         count_tags_true = self.count_tags(self.set_tags_true, self.tags_true)
         assert len(self.tags_true) == len(self.tags_pred)
@@ -110,6 +115,7 @@ class Performance:
 
     def rate_correct_tagged(self):
         '''
+        compute the rate of corrected predicted tags
         '''
         nb_good_addresses = 0
         nb_bad_addresses = 0
@@ -137,6 +143,7 @@ class Performance:
 
     def plot_distrib_tags(self):
         '''
+        plot the distribution of the tags
         '''
         fig = plt.figure()
         ax = fig.add_axes([0, 0, 1, 1])
@@ -159,15 +166,6 @@ class Performance:
         ax.set_xticklabels(list_tags, rotation=30, ha='right')
         # ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha='right')
         ax.set_ylabel('Number of tags')
-        '''
-        for rect in rects:
-            height = rect.get_height()
-            ax.annotate('{}'.format(height),
-                        xy=(rect.get_x() + rect.get_width() / 2, height),
-                        xytext=(0, 3),  # 3 points vertical offset
-                        textcoords="offset points",
-                        ha='center', va='bottom')
-        '''
         self.autolabel(ax, rects_true)
         self.autolabel(ax, rects_pred)
         img_data = io.BytesIO()

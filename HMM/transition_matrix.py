@@ -16,6 +16,9 @@ class TransitionMatrix:
         return (train_set, train_set)
 
     def display_statistics(self, tags, print_all=True):
+        '''
+        display statistics about the tags and the tokens
+        '''
         tokens = [token for address in tags for token in address[0]]
         vocabulary = set(tokens)
         nb_distinct_vocab = len(vocabulary)
@@ -45,6 +48,9 @@ class TransitionMatrix:
         return (list_tags, vocabulary)
 
     def t2_given_t1(self, t1, t2, tags):
+        '''
+        compute the transition probability between two tags
+        '''
         count_t1 = 0
         count_t1_t2 = 0
         for address in tags:
@@ -58,6 +64,9 @@ class TransitionMatrix:
         return (count_t1_t2, count_t1)
 
     def intial_distrib(self, t, tags):
+        '''
+        compute the initial distribution
+        '''
         count_t = 0
         count_total = 0
         for address in tags:
@@ -67,6 +76,9 @@ class TransitionMatrix:
         return (count_t, count_total)
 
     def compute_transition_matrix(self, tags):
+        '''
+        compute the transition matrix
+        '''
         info = self.display_statistics(tags, print_all=False)
         set_tags = info[0]
         nb_distinct_tags = len(info[0])
@@ -94,6 +106,9 @@ class TransitionMatrix:
         return tags_df
 
     def plot_transition_matrix(self, transition_matrix, file=None):
+        '''
+        plot the transition matrix
+        '''
         if file is None:
             file = self.file
         # plot the transition matrix
@@ -120,6 +135,9 @@ class TransitionMatrix:
         return img_data
 
     def save_transition_matrix(self, image, bucket, file=None):
+        '''
+        save the transition matrix as png
+        '''
         if file is None:
             file = self.file
         png_file_io = IOpng()

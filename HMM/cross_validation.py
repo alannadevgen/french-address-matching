@@ -12,6 +12,7 @@ class CrossValidation:
 
     def find_parameters_cv(self):
         '''
+        find optimal delta (smoothing parameter) by cross validation
         '''
         rate_error_delta = []
         for param in self.delta:
