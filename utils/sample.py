@@ -10,7 +10,7 @@ class Sample:
 
     def create_sample(self):
         self.sample_dataset = self.dataset.sample(
-            n=self.size, replace=True
+            n=self.size, replace=False
         )
 
     def save_sample_file(self, path, file):
