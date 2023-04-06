@@ -58,8 +58,15 @@ from HMM.viterbi import Viterbi
     help='Steps to perform : "create_sample", "hc", "hmm", "auto"',
     type=str
 )
+@click.option(
+    '--result_folder',
+    default='result',
+    help='Name of the folder where put the results',
+    type=str
+)
 def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
-         city_code_col, size, correct_addresses, steps, seuil_auto=0.4):
+         city_code_col, size, correct_addresses, steps, result_folder,
+         seuil_auto=0.4):
 
     # Summary of the parameters given by the user
     print(f'Loading data from bucket: {bucket}')
@@ -75,6 +82,8 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     file_io_csv = IOcsv()
     file_io_json = IOjson()
 
+    folder = result_folder
+
     if steps == 'create_sample':
         print("Creating a sample.\n")
         # import of the data
@@ -83,7 +92,6 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         sample = Sample(dataset=full_df, size=size)
         # create the sample
         sample.create_sample()
-        print(sample.sample_dataset.head())
         #  put the sample in the BUCKET
         sample.save_sample_file(BUCKET, 'sample.csv')
         df_sample = file_io_csv.import_file(
@@ -139,7 +147,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 tokens_communes,
                 libvoie_file=lib_voie
             )
-            print(tags[0])
+
             # remove personal information
             tags_without_perso = remove_perso_info(tags)
             clean_tags = tags_without_perso['tagged_tokens']
@@ -149,7 +157,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 clean_tags, tags_without_perso['kept_addresses'])
             process_matching(tags, reattached_tokens, df, postal_code_col,
                              city_code_col, add_corected_addresses, BUCKET,
-                             process=steps)
+                             folder, process=steps)
             ################################
 
     #########################################################################
@@ -224,7 +232,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 clean_tags, tags_without_perso['kept_addresses'])
             process_matching(res_pred, reattached_tokens, df, postal_code_col,
                              city_code_col, add_corected_addresses, BUCKET,
-                             process=steps)
+                             folder, process=steps)
 
         # tagging with HCC then HMM:
         ############################
@@ -256,7 +264,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 res_pred, tags_without_perso['kept_addresses'])
             process_matching(res_pred, reattached_tokens, df, postal_code_col,
                              city_code_col, add_corected_addresses, BUCKET,
-                             process=steps)
+                             folder, process=steps)
 
     #########################################################################
 

@@ -28,12 +28,23 @@ python3 main.py --help
 #   --steps                   Task to perform: "create_sample", "hc", "hmm", "auto" (default "auto")
 #   --size INTEGER            Sample size. If steps = create_sample (default 1000)
 #   --correct_addresses TEXT  Column containing corrected addresses (default "adresse_corr")
+#   --result_folder           Name of the folder where put the results (default "result")
 #   --help                    Show this message and exit.
 ```
 
 ```bash
-# create a sample of size 10000 using the complete file
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps create_sample --size 10000
+# standardize addresses with default arguments for the addresses of the file sample.csv
+# important to give the name of the column :
+# ADDRESSES_COL=adresse
+# CITIES_COL=commune
+# POSTAL_CODE_COL=cp_corr
+# CITY_CODE_COL=CODGEO_2021     (INSEE code)
+python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021
+```
+
+```bash
+# create a sample of size 100 using the complete file
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps create_sample --size 100
 ```
 
 ```bash

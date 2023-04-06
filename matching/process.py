@@ -9,7 +9,7 @@ from standardization.tokenization import tokenize_code
 
 def process_matching(tags, reattached_tokens, df, postal_code_col,
                      city_code_col, add_corected_addresses, BUCKET,
-                     process='hc'):
+                     folder, process='hc'):
     file_io_csv = IOcsv()
     file_io_json = IOjson()
 
@@ -82,10 +82,10 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
 
     train_json = create_training_dataset_json(tags, matched_addresses,
                                               incorrect_indexes)
-    FILE_KEY_S3_TRAIN_JSON = f"{process}.json"
+    FILE_KEY_S3_TRAIN_JSON = f"{folder}/{process}.json"
     file_io_json.export_file(train_json, BUCKET, FILE_KEY_S3_TRAIN_JSON)
 
     train_csv = create_training_dataset_csv(tags, matched_addresses,
                                             incorrect_indexes)
-    FILE_KEY_S3_TRAIN_CSV = f"{process}.csv"
+    FILE_KEY_S3_TRAIN_CSV = f"{folder}/{process}.csv"
     file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
