@@ -12,12 +12,9 @@ import click
 import pandas as pd
 from time import time
 from HMM.transition_matrix import TransitionMatrix
-# from HMM.emission import Emission
 from HMM.viterbi import Viterbi
 from HMM.split_sample import SplitSample
 from HMM.performance import Performance
-# from HMM.emission import Emission
-# from HMM.cross_validation import CrossValidation
 
 
 @click.command()
@@ -66,7 +63,7 @@ from HMM.performance import Performance
     type=str
 )
 def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
-         city_code_col, size, correct_addresses, steps, seuil_auto = 0.4):
+         city_code_col, size, correct_addresses, steps, seuil_auto=0.4):
 
     # Summary of the parameters given by the user
     print(f'Loading data from bucket: {bucket}')
@@ -90,6 +87,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         sample = Sample(dataset=full_df, size=size)
         # create the sample
         sample.create_sample()
+        print(sample.sample_dataset.head())
         #  put the sample in the BUCKET
         sample.save_sample_file(BUCKET, 'sample.csv')
         df_sample = file_io_csv.import_file(
@@ -101,7 +99,6 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         df_sample = file_io_csv.import_file(
             bucket=BUCKET, file_key_s3=FILE_KEY_S3, sep=';'
         )
-
 
     #####################################################################
 
@@ -146,20 +143,27 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 tokens_communes,
                 libvoie_file=lib_voie
             )
+            print(tags[0])
+            # remove personal information
+            tags_without_perso = remove_perso_info(tags)
+            clean_tags = tags_without_perso['tagged_tokens']
 
-            process_matching(tags, df, postal_code_col, city_code_col,
+            # reattach tokens together to have standardized adresses
+            reattached_tokens = reattach_tokens(
+                clean_tags, tags_without_perso['kept_addresses'])
+            process_matching(tags, reattached_tokens, df, postal_code_col, city_code_col,
                              add_corected_addresses, BUCKET, process=steps)
             ################################
 
     #########################################################################
     if steps in ['auto', 'hmm']:
 
-        # tagging with hmm (if hcc not done before)
-        if steps == 'auto':
-            FILE_KEY_S3_TRAIN_JSON = "auto.json"
+        # tagging with hmm only
 
-        # SAMPLE with Marlène corr.
-        ############################
+        FILE_KEY_S3_TRAIN_JSON = f"{steps}.json"
+
+        # use training sample based on Marlene corrections (after HCC)
+        ##############################################################
         # list of possible incorrect addresses
         add_corected_addresses = True
         addresses_to_check = []
@@ -187,23 +191,27 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                     all_tokens.append(complete_adress['tokens'])
                     all_tags.append(complete_adress['tags'])
 
-        # list of all tokens and tags for one address
+        # list of all tokens and tags (training dataset)
         list_all_tags = list(zip(
             all_tokens, all_tags
                 ))
 
         # statistics
-        print("Number of addresses to check:", len(addresses_to_check))
-        print("Number of addresses in the final training dataset " +
-              "(containing only correct addresses):",
-              len(list_all_tags))
+        # print("Number of addresses to check:", len(addresses_to_check))
+        # print("Number of addresses in the final training dataset " +
+        #       "(containing only correct addresses):",
+        #       len(list_all_tags))
 
         # tags of the final (sample)
+
+        # create the transition matrix based on the training dataset
         tm = TransitionMatrix()
 
         transition_matrix = tm.compute_transition_matrix(list_all_tags)
-        print("\n----------------------------------------------------------------------------------------------------------------\n")
-        print("Transition matrix (all addresses)\n\n", transition_matrix)
+
+        # print("\n----------------------------------------------------------------------------------------------------------------\n")
+        # print("Transition matrix (all addresses)\n\n", transition_matrix)
+
         image = tm.plot_transition_matrix(transition_matrix)
         tm.save_transition_matrix(
             image=image,
@@ -213,16 +221,28 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         viterbi = Viterbi(list_all_tags)
 
-        # tagging with hmm to improve hcc:
-        #################################
+        # tagging with HMM only:
+        ########################
         if steps == 'hmm':
             test_data = list(zip(tokens_addresses))
             predictions = viterbi.predict(test_data, delta=0.5)
             res_pred = list(zip(tokens_addresses, predictions))
-            process_matching(res_pred, df, postal_code_col, city_code_col,
-                             add_corected_addresses, BUCKET, process='hmm')
 
+            # remove personal information
+            tags_without_perso = remove_perso_info(res_pred)
+            clean_tags = tags_without_perso['tagged_tokens']
+
+            reattached_tokens = reattach_tokens(
+                clean_tags, tags_without_perso['kept_addresses'])
+            process_matching(res_pred, reattached_tokens, df, postal_code_col, city_code_col,
+                             add_corected_addresses, BUCKET, process=steps)
+
+            # process_matching(res_pred, df, postal_code_col, city_code_col,
+            #                  add_corected_addresses, BUCKET, process='hmm')
+        # tagging with HCC then HMM:
+        ############################
         else:
+            # retrieve tagging with HCC
             test_data = file_io_json.import_file(BUCKET,
                                                  FILE_KEY_S3_TRAIN_JSON)
             list_tokens = []
@@ -230,8 +250,11 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             distinct_indexes = []
             for adr in list(test_data.keys()):
                 if test_data[adr]['index_input'] not in distinct_indexes:
+                    # check for distinct indexes (case of splitted addresses
+                    # containing several NUMVOIE...)
                     distinct_indexes.append(test_data[adr]['index_input'])
                     list_tokens.append(test_data[adr]['tokens'])
+                    # check for addresses considered non valid
                     if not test_data[adr]['valid'] or\
                         test_data[adr]['score'].isdigit() and\
                             float(test_data[adr]['score']) < seuil_auto:
@@ -246,8 +269,20 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             # décalage dans les indexs des addresses
             # mieux de modifier appariement avec API seulement sur les adresses
             # à corriger avec HMM condition (1) dans le code
-            process_matching(res_pred, df, postal_code_col, city_code_col,
-                             add_corected_addresses, BUCKET, process='auto')
+            
+            """
+            # remove personal information
+            tags_without_perso = remove_perso_info(res_pred)
+            clean_tags = tags_without_perso['tagged_tokens']
+            """
+
+            reattached_tokens = reattach_tokens(
+                res_pred, tags_without_perso['kept_addresses'])
+            process_matching(res_pred, reattached_tokens, df, postal_code_col, city_code_col,
+                             add_corected_addresses, BUCKET, process=steps)
+
+            # process_matching(res_pred, df, postal_code_col, city_code_col,
+            #                  add_corected_addresses, BUCKET, process='auto', indexes=None)
     #########################################################################
 
     execution_time = time() - start_time

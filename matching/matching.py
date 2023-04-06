@@ -116,6 +116,7 @@ def match_addresses(df, numvoie_col, libvoie_col, lieu_col,
 
 def match_addresses_cor(df, addresses_corr_col, citycode_col, postalcode_col):
     '''
+    add information returned by the API using previous correction
     '''
     cols = list(df.columns)
     cols_to_add = {}
@@ -156,6 +157,7 @@ def match_addresses_cor(df, addresses_corr_col, citycode_col, postalcode_col):
 
 def incorrect_addresses(df):
     '''
+    return list of addresses considered incorrects
     '''
     cols = list(df.columns)
     count_indexes = df['index'].value_counts()
@@ -171,13 +173,17 @@ def incorrect_addresses(df):
 
 
 def create_training_dataset_json(list_tags, df_matching,
-                                 index_incorrect_addresses=None):
+                                 index_incorrect_addresses=None, indexes=None):
     '''
+    create the final json file of standardised addresses
     '''
     training_dataset = {}
     for index_tag in range(df_matching.shape[0]):
         training_dataset[index_tag] = {}
+
         index = df_matching.loc[index_tag, 'index']
+        if indexes:
+            index = int(indexes[index])
         tokens = list_tags[index][0]
         tags = list_tags[index][1]
         score = df_matching.loc[index_tag, 'score']
@@ -200,8 +206,9 @@ def create_training_dataset_json(list_tags, df_matching,
 
 
 def create_training_dataset_csv(list_tags, df_matching,
-                                index_incorrect_addresses=None):
+                                index_incorrect_addresses=None, indexes=None):
     '''
+    create the final csv file of standardised addresses
     '''
     training_dataset = pd.DataFrame()
     all_indexes = []
@@ -214,6 +221,8 @@ def create_training_dataset_csv(list_tags, df_matching,
     all_labels_corr = []
     for index_tag in range(df_matching.shape[0]):
         index = df_matching.loc[index_tag, 'index']
+        if indexes:
+            index = int(indexes[index])
         tokens = list_tags[index][0]
         tags = list_tags[index][1]
         score = df_matching.loc[index_tag, 'score']

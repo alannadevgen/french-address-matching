@@ -8,17 +8,10 @@ from standardization.tagging import remove_perso_info, reattach_tokens,\
 from standardization.tokenization import tokenize_code
 
 
-def process_matching(tags, df, postal_code_col, city_code_col,
+def process_matching(tags, reattached_tokens, df, postal_code_col, city_code_col,
                      add_corected_addresses, BUCKET, process='hc'):
     file_io_csv = IOcsv()
     file_io_json = IOjson()
-    # remove personal information
-    tags_without_perso = remove_perso_info(tags)
-    clean_tags = tags_without_perso['tagged_tokens']
-
-    # reattach tokens together to have standardized adresses
-    reattached_tokens = reattach_tokens(
-        clean_tags, tags_without_perso['kept_addresses'])
 
     tagged_addresses = tags_to_df(reattached_tokens)
 
