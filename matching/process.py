@@ -3,36 +3,32 @@ from matching.matching import match_addresses, match_addresses_cor,\
     create_training_dataset_csv
 from utils.csv_io import IOcsv
 from utils.json_io import IOjson
-from standardization.tagging import remove_perso_info, reattach_tokens,\
-    tags_to_df
+from standardization.tagging import tags_to_df
 from standardization.tokenization import tokenize_code
 
 
-def process_matching(tags, reattached_tokens, df, postal_code_col, city_code_col,
-                     add_corected_addresses, BUCKET, process='hc'):
+def process_matching(tags, reattached_tokens, df, postal_code_col,
+                     city_code_col, add_corected_addresses, BUCKET,
+                     process='hc'):
     file_io_csv = IOcsv()
     file_io_json = IOjson()
 
     tagged_addresses = tags_to_df(reattached_tokens)
 
     # stock indexes in a column
-    # print('index', tagged_addresses['INDEX'])
     tagged_addresses['index'] = tagged_addresses['INDEX']
     # print(tagged_addresses.head())
 
     # merge tagged tokens (complete_df) with original data (df)
-    # print(df)
     tagged_addresses['INDEX'] = [int(elem) for elem in tagged_addresses['INDEX']]
     complete_df = tagged_addresses.set_index('INDEX').join(df)
-    # print(complete_df)
 
     complete_df.index = [ind for ind in range(complete_df.shape[0])]
     complete_df[postal_code_col] = tokenize_code(
         complete_df[postal_code_col]
         )
-    # print(complete_df[postal_code_col])
+
     complete_df[city_code_col] = tokenize_code(complete_df[city_code_col])
-    # print(complete_df.head())
 
     # change indexes to iter over them
     complete_df.index = [ind for ind in range(complete_df.shape[0])]
