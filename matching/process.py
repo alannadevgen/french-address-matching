@@ -20,7 +20,9 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
     # print(tagged_addresses.head())
 
     # merge tagged tokens (complete_df) with original data (df)
-    tagged_addresses['INDEX'] = [int(elem) for elem in tagged_addresses['INDEX']]
+    tagged_addresses['INDEX'] = [
+        int(elem) for elem in tagged_addresses['INDEX']
+        ]
     complete_df = tagged_addresses.set_index('INDEX').join(df)
 
     complete_df.index = [ind for ind in range(complete_df.shape[0])]

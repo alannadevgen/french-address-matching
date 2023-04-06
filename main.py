@@ -1,9 +1,6 @@
 from standardization.tokenization import tokenize_label, tokenize_code
 from standardization.tagging import tag_tokens, reattach_tokens,\
     remove_perso_info
-# from matching.matching import match_addresses, match_addresses_cor,\
-# incorrect_addresses, create_training_dataset_json,\
-# create_training_dataset_csv
 from matching.process import process_matching
 from utils.csv_io import IOcsv
 from utils.json_io import IOjson
@@ -13,8 +10,6 @@ import pandas as pd
 from time import time
 from HMM.transition_matrix import TransitionMatrix
 from HMM.viterbi import Viterbi
-# from HMM.split_sample import SplitSample
-# from HMM.performance import Performance
 
 
 @click.command()
@@ -54,11 +49,12 @@ from HMM.viterbi import Viterbi
     help='Column containing corrected addresses.',
     type=str
 )
-# PERFORM ONLY HMM AND DO NOT BUILD A TRAINING DATASET
-# (by default --steps is hmm)
+# PERFORM HCC and then HMM for addresses considered incorrect
+# AND DO NOT BUILD A TRAINING DATASET
+# (by default --steps is auto)
 @click.option(
     '--steps',
-    default='hmm',
+    default='auto',
     help='Steps to perform : "create_sample", "hc", "hmm", "auto"',
     type=str
 )
