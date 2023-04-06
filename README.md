@@ -25,28 +25,28 @@ python3 main.py --help
 #                POSTAL_CODE_COL CITY_CODE_COL
 
 # Options:
-#   --steps                   Task to perform: "create_sample", "hc", "hmm", "auto"
-#   --size INTEGER            Sample size. If steps = create_sample
-#   --correct_addresses TEXT  Column containing corrected addresses.
+#   --steps                   Task to perform: "create_sample", "hc", "hmm", "auto" (default "auto")
+#   --size INTEGER            Sample size. If steps = create_sample (default 1000)
+#   --correct_addresses TEXT  Column containing corrected addresses (default "adresse_corr")
 #   --help                    Show this message and exit.
 ```
 
 ```bash
-# create a sample using the complete file
-python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps create_sample --size 1000
+# create a sample of size 10000 using the complete file
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps create_sample --size 10000
 ```
 
 ```bash
-# hcc perform only hard-coded rules
-python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps auto
+# hc perform only hard-coded rules
+python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps hc
 ```
 ```bash
 # hmm only perform HMM (Hidden Markov Model)
-python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps auto
+python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps hmm
 ```
 
 ```bash
-# auto use hcc (hard coded rules) and hmm after if the hcc result is considered incorrect for an address
+# auto use hc (hard coded rules) and hmm after if the hcc result is considered incorrect for an address
 python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps auto
 ```
 
