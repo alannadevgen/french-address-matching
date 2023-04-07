@@ -23,7 +23,6 @@ beguinage,BEGUINAGE
 beguinages,BEGUINAGES
 berge,BERGE
 berges,BERGES
-bois,BOIS
 boucle,BOUCLE
 boulevard,BOULEVARD
 bourg,BOURG
@@ -54,7 +53,6 @@ cheminement,CHEMINEMENT
 cheminements,CHEMINEMENTS
 chemins,CHEMINS
 chemins vicinaux,CHEMINS VICINAUX
-chez,CHEZ
 cite,CITE
 cites,CITES
 cloitre,CLOITRE
@@ -109,6 +107,8 @@ grand ensemble,GRAND ENSEMBLE
 grand rue,GRAND RUE
 grande rue,GRANDE RUE
 grandes rues,GRANDES RUES
+granderue,GRANDERUE
+grandesrues,GRANDESRUES
 grands ensembles,GRANDS ENSEMBLES
 grille,GRILLE
 grimpette,GRIMPETTE
@@ -130,9 +130,6 @@ jardins,JARDINS
 jetee,JETEE
 jetees,JETEES
 levee,LEVEE
-lieu,LIEU
-lieu dit,LIEU DIT
-lieudit,LIEUDIT
 lot,LOT
 lotissement,LOTISSEMENT
 lotissements,LOTISSEMENTS
@@ -145,8 +142,6 @@ mas,MAS
 metro,METRO
 montee,MONTEE
 montees,MONTEES
-moulin,MOULIN
-moulins,MOULINS
 musee,MUSEE
 nouvelle route,NOUVELLE ROUTE
 palais,PALAIS
@@ -161,8 +156,6 @@ passerelle,PASSERELLE
 passerelles,PASSERELLES
 passes,PASSES
 patio,PATIO
-pavillon,PAVILLON
-pavillons,PAVILLONS
 pente,PENTE
 peripherique,PERIPHERIQUE
 peristyle,PERISTYLE
@@ -196,6 +189,7 @@ presqu'ile,PRESQU'ILE
 promenade,PROMENADE
 quai,QUAI
 quartier,QUARTIER
+quartiers,QUARTIERS
 raccourci,RACCOURCI
 raidillon,RAIDILLON
 rampe,RAMPE
