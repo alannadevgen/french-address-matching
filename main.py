@@ -164,8 +164,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     if steps in ['auto', 'hmm']:
 
         # tagging with hmm only
-
-        FILE_KEY_S3_TRAIN_JSON = f"{steps}.json"
+        FILE_KEY_S3_TRAIN_JSON = f'result/{steps}.json' if steps == 'auto' else f"{steps}.json"
 
         # use training sample based on Marlene corrections (after HCC)
         ##############################################################
