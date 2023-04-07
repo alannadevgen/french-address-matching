@@ -74,5 +74,6 @@ python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune 
 
 ## Contributors :woman_technologist:
 
-* Alanna Devlin-Génin
-* Camille Le Potier
+<a href="https://github.com/alannagenin/french-address-matching/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=alannagenin/french-address-matching" />
+</a>
