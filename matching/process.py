@@ -22,13 +22,13 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
     # merge tagged tokens (complete_df) with original data (df)
     tagged_addresses['INDEX'] = [
         int(elem) for elem in tagged_addresses['INDEX']
-        ]
+    ]
     complete_df = tagged_addresses.set_index('INDEX').join(df)
 
     complete_df.index = [ind for ind in range(complete_df.shape[0])]
     complete_df[postal_code_col] = tokenize_code(
         complete_df[postal_code_col]
-        )
+    )
 
     complete_df[city_code_col] = tokenize_code(complete_df[city_code_col])
 
@@ -58,6 +58,10 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
     matched_addresses = file_io_csv.import_file(BUCKET,
                                                 'matching.csv', sep=';')
     incorrect_indexes = None
+
+    # add a variable to see which method is used to perform the analysis
+    matched_addresses["method"] = "Hard-coded rules"
+
     if add_corected_addresses:
         incorrect_indexes = incorrect_addresses(matched_addresses)
         print(f'NUMBER OF ADDRESSES WITH POSSIBLE '
@@ -71,14 +75,17 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
             print('TAGGING\n', tags[index_address])
             print('ADDRESS RETURNED BY THE API (with our tags)\n',
                   matched_addresses[
-                    matched_addresses['index'] == index_address
-                    ].iloc[0, cols.index('label')])
+                      matched_addresses['index'] == index_address
+                  ].iloc[0, cols.index('label')])
             print('ADDRESS RETURNED BY THE API\
                 (with previous corrections)\n',
                   matched_addresses[
-                    matched_addresses['index'] == index_address
-                    ].iloc[0, cols.index('label_corr')])
+                      matched_addresses['index'] == index_address
+                  ].iloc[0, cols.index('label_corr')])
             print('\n')
+
+            # method used analysis-wise
+            matched_addresses.loc[index_address, "method"] = "HMM"
 
     train_json = create_training_dataset_json(tags, matched_addresses,
                                               incorrect_indexes)

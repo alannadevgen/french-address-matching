@@ -164,7 +164,8 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     if steps in ['auto', 'hmm']:
 
         # tagging with hmm only
-        FILE_KEY_S3_TRAIN_JSON = f'result/{steps}.json' if steps == 'auto' else f"{steps}.json"
+        FILE_KEY_S3_TRAIN_JSON = f'result/{steps}.json' if\
+            steps == 'auto' else f"{steps}.json"
 
         # use training sample based on Marlene corrections (after HCC)
         ##############################################################
@@ -182,23 +183,24 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
 
         # stock indexes to be sure that we do not put an address twice !
         recorded_indexes = []
-        for adress in list(list_addresses.keys()):
-            if list_addresses[adress]['index_input'] not in recorded_indexes:
-                recorded_indexes.append(list_addresses[adress]['index_input'])
-                complete_adress = list_addresses[adress]
-                if add_corected_addresses and not complete_adress['valid'] and\
-                        int(complete_adress['index_input']) not\
+        for address in list(list_addresses.keys()):
+            if list_addresses[address]['index_input'] not in recorded_indexes:
+                recorded_indexes.append(list_addresses[address]['index_input'])
+                complete_address = list_addresses[address]
+                if add_corected_addresses and\
+                        not complete_address['valid'] and\
+                        int(complete_address['index_input']) not\
                         in list_valid_MK:
-                    addresses_to_check.append(complete_adress)
+                    addresses_to_check.append(complete_address)
 
                 else:
-                    all_tokens.append(complete_adress['tokens'])
-                    all_tags.append(complete_adress['tags'])
+                    all_tokens.append(complete_address['tokens'])
+                    all_tags.append(complete_address['tags'])
 
         # list of all tokens and tags (training dataset)
         list_all_tags = list(zip(
             all_tokens, all_tags
-                ))
+        ))
 
         # tags of the final (sample)
 
@@ -212,7 +214,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             image=image,
             bucket=BUCKET,
             file='hmm_results/transition_without_perso.png'
-            )
+        )
 
         viterbi = Viterbi(list_all_tags)
 
