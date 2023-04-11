@@ -29,6 +29,7 @@ python3 main.py --help
 #   --size INTEGER            Sample size. If steps = create_sample (default 1000)
 #   --correct_addresses TEXT  Column containing corrected addresses (default "adresse_corr")
 #   --result_folder           Name of the folder where put the results (default "result")
+#   --recompute_train         Boolean indicating if the model should be reestimated (default False)
 #   --help                    Show this message and exit.
 ```
 
@@ -71,6 +72,10 @@ By defaut, `--correct_addresses` is set to adresse_corr.
 python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --correct_addresses adresse_corr
 ```
 
+Recompute the model:
+```bash
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --recompute_model True
+```
 
 ## Contributors :woman_technologist:
 
