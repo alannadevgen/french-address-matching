@@ -122,14 +122,14 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         replacement = pd.read_csv('remplacement.csv', sep=",")
         lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
-        add_corected_addresses = True
+        add_corrected_addresses = True
         if correct_addresses in df_sample.columns:
             df = df_sample[[addresses_col, postal_code_col, cities_col,
                             city_code_col, correct_addresses]]
         else:
             df = df_sample[[addresses_col, postal_code_col, cities_col,
                             city_code_col]]
-            add_corected_addresses = False
+            add_corrected_addresses = False
 
         # extract different columns to transform them
         addresses = df[addresses_col]
@@ -164,7 +164,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             reattached_tokens = reattach_tokens(
                 clean_tags, tags_without_perso['kept_addresses'])
             process_matching(tags, reattached_tokens, df, postal_code_col,
-                             city_code_col, add_corected_addresses, BUCKET,
+                             city_code_col, add_corrected_addresses, BUCKET,
                              folder, process=steps)
             ################################
 
@@ -178,7 +178,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         # use training sample based on Marlene corrections (after HCC)
         ##############################################################
         # list of possible incorrect addresses
-        add_corected_addresses = True
+        add_corrected_addresses = True
 
         if recompute_train:
             # recompute viterbi object (train model)
@@ -198,7 +198,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
                 if list_addresses[address]['index_input'] not in recorded_indexes:
                     recorded_indexes.append(list_addresses[address]['index_input'])
                     complete_address = list_addresses[address]
-                    if add_corected_addresses and\
+                    if add_corrected_addresses and\
                             not complete_address['valid'] and\
                             int(complete_address['index_input']) not\
                             in list_valid_MK:
@@ -248,7 +248,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             reattached_tokens = reattach_tokens(
                 clean_tags, tags_without_perso['kept_addresses'])
             process_matching(res_pred, reattached_tokens, df, postal_code_col,
-                             city_code_col, add_corected_addresses, BUCKET,
+                             city_code_col, add_corrected_addresses, BUCKET,
                              folder, process=steps)
 
         # tagging with HCC then HMM:
@@ -280,7 +280,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             reattached_tokens = reattach_tokens(
                 res_pred, tags_without_perso['kept_addresses'])
             process_matching(res_pred, reattached_tokens, df, postal_code_col,
-                             city_code_col, add_corected_addresses, BUCKET,
+                             city_code_col, add_corrected_addresses, BUCKET,
                              folder, process=steps)
 
     #########################################################################
