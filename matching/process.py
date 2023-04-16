@@ -101,3 +101,4 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
                                             incorrect_indexes)
     FILE_KEY_S3_TRAIN_CSV = f"{folder}/{process}.csv"
     file_io_csv.export_file(train_csv, BUCKET, FILE_KEY_S3_TRAIN_CSV)
+    print(f"Wrote results in files {FILE_KEY_S3_TRAIN_JSON} and {FILE_KEY_S3_TRAIN_CSV}")
