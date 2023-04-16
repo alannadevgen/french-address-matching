@@ -6,6 +6,12 @@ from utils.json_io import IOjson
 from standardization.tagging import tags_to_df
 from standardization.tokenization import tokenize_code
 
+METHOD = {
+    "hc": "Hard-coded rules",
+    "hmm": "Hiden Markov Model",
+    "auto": "Hard-coded rules",
+}
+
 
 def process_matching(tags, reattached_tokens, df, postal_code_col,
                      city_code_col, add_corected_addresses, BUCKET,
@@ -60,7 +66,7 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
     incorrect_indexes = None
 
     # add a variable to see which method is used to perform the analysis
-    matched_addresses["method"] = "Hard-coded rules"
+    matched_addresses["method"] = METHOD[process]
 
     if add_corected_addresses:
         incorrect_indexes = incorrect_addresses(matched_addresses)
@@ -73,19 +79,18 @@ def process_matching(tags, reattached_tokens, df, postal_code_col,
         for index_address in incorrect_indexes:
             print(f'INDEX {index_address}\n')
             print('TAGGING\n', tags[index_address])
-            print('ADDRESS RETURNED BY THE API (with our tags)\n',
+            print('ADDRESS RETURNED BY THE API (with the tags)\n',
                   matched_addresses[
                       matched_addresses['index'] == index_address
                   ].iloc[0, cols.index('label')])
-            print('ADDRESS RETURNED BY THE API\
-                (with previous corrections)\n',
+            print('ADDRESS RETURNED BY THE API (with previous corrections)\n',
                   matched_addresses[
                       matched_addresses['index'] == index_address
                   ].iloc[0, cols.index('label_corr')])
             print('\n')
 
             # method used analysis-wise
-            matched_addresses.loc[index_address, "method"] = "HMM"
+            matched_addresses.loc[index_address, "method"] = METHOD['hmm']
 
     train_json = create_training_dataset_json(tags, matched_addresses,
                                               incorrect_indexes)
