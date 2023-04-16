@@ -190,6 +190,7 @@ def create_training_dataset_json(list_tags, df_matching,
         score_corr = df_matching.loc[index_tag, 'score_corr']
         label = df_matching.loc[index_tag, 'label']
         label_corr = df_matching.loc[index_tag, 'label_corr']
+        method = df_matching.loc[index_tag, 'method']
         valid = True
         if index_incorrect_addresses and\
                 index in index_incorrect_addresses:
@@ -202,6 +203,7 @@ def create_training_dataset_json(list_tags, df_matching,
         training_dataset[index_tag]['score_corr'] = score_corr
         training_dataset[index_tag]['label'] = label
         training_dataset[index_tag]['label_corr'] = label_corr
+        training_dataset[index_tag]['method'] = method
     return training_dataset
 
 
@@ -219,6 +221,7 @@ def create_training_dataset_csv(list_tags, df_matching,
     all_scores_corr = []
     all_labels = []
     all_labels_corr = []
+    all_methods = []
     for index_tag in range(df_matching.shape[0]):
         index = df_matching.loc[index_tag, 'index']
         if indexes:
@@ -229,6 +232,7 @@ def create_training_dataset_csv(list_tags, df_matching,
         score_corr = df_matching.loc[index_tag, 'score_corr']
         label = df_matching.loc[index_tag, 'label']
         label_corr = df_matching.loc[index_tag, 'label_corr']
+        method = df_matching.loc[index_tag, 'method']
         valid = True
         if index_incorrect_addresses and\
                 index in index_incorrect_addresses:
@@ -241,6 +245,7 @@ def create_training_dataset_csv(list_tags, df_matching,
         all_scores_corr.append(score_corr)
         all_labels.append(label)
         all_labels_corr.append(label_corr)
+        all_methods.append(method)
 
     training_dataset['index_input'] = all_indexes
     training_dataset['tokens'] = all_tokens
@@ -250,5 +255,6 @@ def create_training_dataset_csv(list_tags, df_matching,
     training_dataset['score_corr'] = all_scores_corr
     training_dataset['label'] = all_labels
     training_dataset['label_corr'] = all_labels_corr
+    training_dataset['method'] = all_methods
 
     return training_dataset

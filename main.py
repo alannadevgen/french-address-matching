@@ -4,6 +4,7 @@ from standardization.tagging import tag_tokens, reattach_tokens,\
 from matching.process import process_matching
 from utils.csv_io import IOcsv
 from utils.json_io import IOjson
+from utils.pkl_io import IOpkl
 from utils.sample import Sample
 import click
 import pandas as pd
@@ -64,9 +65,15 @@ from HMM.viterbi import Viterbi
     help='Name of the folder where put the results',
     type=str
 )
+@click.option(
+    '--recompute_train',
+    default=False,
+    help='whether recompute the model',
+    type=str
+)
 def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
          city_code_col, size, correct_addresses, steps, result_folder,
-         seuil_auto=0.4):
+         recompute_train, seuil_auto=0.4):
 
     # Summary of the parameters given by the user
     print(f'Loading data from bucket: {bucket}')
@@ -79,6 +86,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     start_time = time()
     BUCKET = bucket
     FILE_KEY_S3 = csv_file
+    file_io_pkl = IOpkl()
     file_io_csv = IOcsv()
     file_io_json = IOjson()
 
@@ -114,14 +122,14 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
         replacement = pd.read_csv('remplacement.csv', sep=",")
         lib_voie = pd.read_csv('libvoie.csv', sep=",")
 
-        add_corected_addresses = True
+        add_corrected_addresses = True
         if correct_addresses in df_sample.columns:
             df = df_sample[[addresses_col, postal_code_col, cities_col,
                             city_code_col, correct_addresses]]
         else:
             df = df_sample[[addresses_col, postal_code_col, cities_col,
                             city_code_col]]
-            add_corected_addresses = False
+            add_corrected_addresses = False
 
         # extract different columns to transform them
         addresses = df[addresses_col]
@@ -156,7 +164,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             reattached_tokens = reattach_tokens(
                 clean_tags, tags_without_perso['kept_addresses'])
             process_matching(tags, reattached_tokens, df, postal_code_col,
-                             city_code_col, add_corected_addresses, BUCKET,
+                             city_code_col, add_corrected_addresses, BUCKET,
                              folder, process=steps)
             ################################
 
@@ -164,57 +172,67 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
     if steps in ['auto', 'hmm']:
 
         # tagging with hmm only
-        FILE_KEY_S3_TRAIN_JSON = f'result/{steps}.json' if steps == 'auto' else f"{steps}.json"
+        FILE_KEY_S3_TRAIN_JSON = f'result/{steps}.json' if\
+            steps == 'auto' else f"{steps}.json"
 
         # use training sample based on Marlene corrections (after HCC)
         ##############################################################
         # list of possible incorrect addresses
-        add_corected_addresses = True
-        addresses_to_check = []
-        list_addresses = file_io_json.import_file(BUCKET,
-                                                  "final_train.json")
-        # index considered valid by MK
-        valid_MK = file_io_csv.import_file(BUCKET, 'valid_MK.csv')
-        list_valid_MK = list((valid_MK['valid_MK']))
+        add_corrected_addresses = True
 
-        all_tokens = []
-        all_tags = []
+        if recompute_train:
+            # recompute viterbi object (train model)
+            addresses_to_check = []
+            list_addresses = file_io_json.import_file(BUCKET,
+                                                    "final_train.json")
+            # index considered valid by MK
+            valid_MK = file_io_csv.import_file(BUCKET, 'valid_MK.csv')
+            list_valid_MK = list((valid_MK['valid_MK']))
 
-        # stock indexes to be sure that we do not put an address twice !
-        recorded_indexes = []
-        for adress in list(list_addresses.keys()):
-            if list_addresses[adress]['index_input'] not in recorded_indexes:
-                recorded_indexes.append(list_addresses[adress]['index_input'])
-                complete_adress = list_addresses[adress]
-                if add_corected_addresses and not complete_adress['valid'] and\
-                        int(complete_adress['index_input']) not\
-                        in list_valid_MK:
-                    addresses_to_check.append(complete_adress)
+            all_tokens = []
+            all_tags = []
 
-                else:
-                    all_tokens.append(complete_adress['tokens'])
-                    all_tags.append(complete_adress['tags'])
+            # stock indexes to be sure that we do not put an address twice !
+            recorded_indexes = []
+            for address in list(list_addresses.keys()):
+                if list_addresses[address]['index_input'] not in recorded_indexes:
+                    recorded_indexes.append(list_addresses[address]['index_input'])
+                    complete_address = list_addresses[address]
+                    if add_corrected_addresses and\
+                            not complete_address['valid'] and\
+                            int(complete_address['index_input']) not\
+                            in list_valid_MK:
+                        addresses_to_check.append(complete_address)
 
-        # list of all tokens and tags (training dataset)
-        list_all_tags = list(zip(
-            all_tokens, all_tags
-                ))
+                    else:
+                        all_tokens.append(complete_address['tokens'])
+                        all_tags.append(complete_address['tags'])
 
-        # tags of the final (sample)
+            # list of all tokens and tags (training dataset)
+            list_all_tags = list(zip(
+                all_tokens, all_tags
+            ))
 
-        # create the transition matrix based on the training dataset
-        tm = TransitionMatrix()
+            # tags of the final (sample)
 
-        transition_matrix = tm.compute_transition_matrix(list_all_tags)
+            # create the transition matrix based on the training dataset
+            tm = TransitionMatrix()
 
-        image = tm.plot_transition_matrix(transition_matrix)
-        tm.save_transition_matrix(
-            image=image,
-            bucket=BUCKET,
-            file='hmm_results/transition_without_perso.png'
+            transition_matrix = tm.compute_transition_matrix(list_all_tags)
+
+            image = tm.plot_transition_matrix(transition_matrix)
+            tm.save_transition_matrix(
+                image=image,
+                bucket=BUCKET,
+                file='hmm_results/transition_without_perso.png'
             )
 
-        viterbi = Viterbi(list_all_tags)
+            viterbi = Viterbi(list_all_tags)
+            file_io_pkl.export_file(viterbi, BUCKET, "viterbi_model.pkl")
+        else:
+            # use preivously saved model
+            viterbi = file_io_pkl.import_file(BUCKET, "viterbi_model.pkl")
+
 
         # tagging with HMM only:
         ########################
@@ -230,7 +248,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             reattached_tokens = reattach_tokens(
                 clean_tags, tags_without_perso['kept_addresses'])
             process_matching(res_pred, reattached_tokens, df, postal_code_col,
-                             city_code_col, add_corected_addresses, BUCKET,
+                             city_code_col, add_corrected_addresses, BUCKET,
                              folder, process=steps)
 
         # tagging with HCC then HMM:
@@ -262,7 +280,7 @@ def main(bucket, csv_file, addresses_col, cities_col, postal_code_col,
             reattached_tokens = reattach_tokens(
                 res_pred, tags_without_perso['kept_addresses'])
             process_matching(res_pred, reattached_tokens, df, postal_code_col,
-                             city_code_col, add_corected_addresses, BUCKET,
+                             city_code_col, add_corrected_addresses, BUCKET,
                              folder, process=steps)
 
     #########################################################################

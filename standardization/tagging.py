@@ -453,6 +453,7 @@ def remove_perso_info(tags):
 
     return result
 
+
 def reattach_tokens(tags, indexes):
     '''
     reattach_tokens: reattach tokens according to their tags

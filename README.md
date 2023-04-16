@@ -1,16 +1,16 @@
-# Matching French addresses
+# French address parser :house:
 
 ## Description
 
-This project, in partnership with the Ministry of Ecological Transition and Territorial Cohesion, aims to standardise French addresses thanks to Machine Learning modelling.
+This project, in partnership with the [Ministry of Ecological Transition and Territorial Cohesion](https://www.ecologie.gouv.fr/), aims to standardise French addresses thanks to Machine Learning modelling.
 
-## Requirements
+## Requirements :snake:
 
-Python 3.8
+This project is deployed using [Python 3.8](https://www.python.org/).
 
 ## Quick start
 
-```shell
+```bash
 git clone https://github.com/alannagenin/french-address-matching.git
 cd french-address-matching
 python3 -m venv venv
@@ -29,6 +29,7 @@ python3 main.py --help
 #   --size INTEGER            Sample size. If steps = create_sample (default 1000)
 #   --correct_addresses TEXT  Column containing corrected addresses (default "adresse_corr")
 #   --result_folder           Name of the folder where put the results (default "result")
+#   --recompute_train         Boolean indicating if the model should be reestimated (default False)
 #   --help                    Show this message and exit.
 ```
 
@@ -42,22 +43,26 @@ python3 main.py --help
 python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021
 ```
 
+Create a sample of size 100 using the entire file of addresses.
+
 ```bash
-# create a sample of size 100 using the complete file
 python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --steps create_sample --size 100
 ```
 
+Perform only hard-coded rules using the `hc` option.
 ```bash
-# hc perform only hard-coded rules
 python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps hc
 ```
+
+Only perform HMM (Hidden Markov Model) thanks to the `hmm` option.
+
 ```bash
-# hmm only perform HMM (Hidden Markov Model)
 python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps hmm
 ```
 
+`auto`: use `hc` (hard coded rules) and `hmm` after if the hard-coded result is considered as incorrect for a given address (option by default).
+
 ```bash
-# auto use hc (hard coded rules) and hmm after if the hcc result is considered incorrect for an address
 python3 main.py projet-pfe-adress-matching sample.csv adresse commune cp_corr CODGEO_2021 --steps auto
 ```
 
@@ -67,8 +72,13 @@ By defaut, `--correct_addresses` is set to adresse_corr.
 python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --correct_addresses adresse_corr
 ```
 
+Recompute the model:
+```bash
+python3 main.py projet-pfe-adress-matching DonneesCompletes.csv adresse commune cp_corr CODGEO_2021 --recompute_model True
+```
 
-## Contributors
+## Contributors :woman_technologist:
 
-* Alanna Devlin-Génin
-* Camille Le Potier
+<a href="https://github.com/alannagenin/french-address-matching/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=alannagenin/french-address-matching" />
+</a>
