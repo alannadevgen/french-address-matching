@@ -11,7 +11,7 @@ This project is deployed using [Python 3.8](https://www.python.org/).
 ## Quick start
 
 ```bash
-git clone https://github.com/alannagenin/french-address-matching.git
+git clone https://github.com/alannadevgen/french-address-matching.git
 cd french-address-matching
 python3 -m venv venv
 source venv/bin/activate
