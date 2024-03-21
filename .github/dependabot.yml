@@ -9,3 +9,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+    commit-message:
+      prefix: ":seedling: "
